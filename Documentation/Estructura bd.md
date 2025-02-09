@@ -73,7 +73,8 @@ Registra a los niños que utilizan el servicio de transporte.
 |-------------|-------------|-------------|
 | id (PK)     | SERIAL      | Identificador único del alumno. |
 | nombre      | VARCHAR(100)| Nombre del alumno. |
-| edad        | INT         | Edad del alumno. |
+| encargado   | VARCHAR(100)| Nombre del encargado. |
+| no_encargado   | VARCHAR(100)| Numero del encargado. |
 | id_bus (FK) | INT         | Relación con `buses.id`. |
 | direccion   | TEXT        | Dirección escrita del alumno. |
 | ubicacion   | VARCHAR(255) | Coordenadas o enlace de Google Maps. |
