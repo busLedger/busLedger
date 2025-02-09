@@ -14,11 +14,14 @@ import {
       
       console.log("UID del usuario:", user.uid);
   
-     
-  
-      const { data: userInfo, error } = await supabase
+      const { data: userData, error } = await supabase
         .from("usuarios")
-        .select("*")
+        .select(`
+          *,
+          usuarios_roles (
+            roles (nombre)
+          )
+        `)
         .eq("uid", user.uid)
         .single();
   
@@ -26,9 +29,9 @@ import {
         console.log("Error obteniendo información del usuario en Supabase:", error.message);
         return { authenticated: true, uid: user.uid, userInfo: null, error: "No se pudo obtener la información del usuario." };
       }
-      
-      console.log("Información del usuario desde Supabase:", userInfo);
-      
+  
+      console.log("Información del usuario desde Supabase:", userData);
+  
       if (!user.emailVerified) {
         console.log("Error: Debes verificar tu correo electrónico antes de iniciar sesión.");
         await logout();
@@ -37,7 +40,7 @@ import {
   
       console.log("Inicio de sesión exitoso. UID:", user.uid);
   
-      return { authenticated: true, uid: user.uid, userInfo, error: null };
+      return { authenticated: true, uid: user.uid, userData, error: null };
     } catch (error) {
       return handleAuthError(error);
     }
