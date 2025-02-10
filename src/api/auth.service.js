@@ -71,12 +71,6 @@ import {
     return new Promise((resolve) => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
-          notification.success({
-            message: "Inicio de sesion exitoso",
-            description:
-              `Bienvenido`,
-            placement: "topRight",
-          });
           resolve({ uid: user.uid });
         } else {
           console.log("No hay sesión activa.");
