@@ -6,7 +6,6 @@ import {
   } from "firebase/auth";
   import { auth } from "../../firebase_connection";
   import { notification } from "antd";
-  
   const login = async (email, password) => {
     try {
       if(email == "" || password ==""){
@@ -67,8 +66,8 @@ import {
       console.log("Error al enviar el correo de recuperación:", error.message);
     }
   };
-  
   const checkActiveSession = () => {
+    
     return new Promise((resolve) => {
       onAuthStateChanged(auth, (user) => {
         if (user) {

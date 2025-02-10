@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
-import { login, forgotPassword } from "../../api/auth.service";
+import { login, forgotPassword, checkActiveSession } from "../../api/auth.service";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -21,9 +21,16 @@ const Login = () => {
         setLoading(false);
         if(auth.authenticated==true) navigate('/home')
     }
-    
   };
-
+  const verifySession = async () =>{
+   const session=  await checkActiveSession();
+   if(session.uid!=null){
+    navigate('/home')
+   }
+  }
+  useEffect(()=>{
+    verifySession();
+  })
   const handleForgetPass = async () => {
     await forgotPassword(form.email);
   };
