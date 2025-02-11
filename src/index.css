@@ -1,17 +1,17 @@
 @import "tailwindcss";
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --bg-color-light: #ffffff;
+  --text-color-light: #213547;
+  --bg-color-dark: #242424;
+  --text-color-dark: rgba(255, 255, 255, 0.87);
+}
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  background-color: var(--bg-color-light);
+  color: var(--text-color-light);
 }
 
 a {
@@ -19,14 +19,33 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
-  color: #535bf2;
+  color: #747bff;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
+button {
+  background-color: #f9f9f9;
+}
+
+.dark button {
+  background-color: #333333;
+  color: var(--text-color-dark);
+}
+
+li {
+  position: relative;
+}
+
+li:hover::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-80%);
+  width: 50%;
+
+  border-bottom: 2px solid #747bff; /* Color morado */
 }
 
 h1 {
@@ -34,10 +53,23 @@ h1 {
   line-height: 1.1;
 }
 
+h1, h3, span {
+  color: var(--text-color-light);
+}
+
+.dark h1, .dark h3, .dark span {
+  color: var(--text-color-dark);
+}
+
+.dark body {
+  background-color: var(--bg-color-dark);
+  color: var(--text-color-dark);
+}
+
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    color: var(--text-color-light);
+    background-color: var(--bg-color-light);
   }
   a:hover {
     color: #747bff;
