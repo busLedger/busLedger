@@ -18,7 +18,11 @@ import {
       }
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
+      const user_data = {
+        email: user.email,
+        uid: user.uid
+      }
+      localStorage.setItem("user", JSON.stringify(user_data));
       if (!user.emailVerified) {
         notification.info({
           message: "Primer Inicio de Sesión",
@@ -71,6 +75,11 @@ import {
     return new Promise((resolve) => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
+          const user_data = {
+            email: user.email,
+            uid: user.uid
+          }
+          localStorage.setItem("user", JSON.stringify(user_data));
           resolve({ uid: user.uid });
         } else {
           console.log("No hay sesión activa.");
