@@ -37,7 +37,7 @@ const Login = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-500 to-purple-600 w-full">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center">Iniciar sesión</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center text-white">Iniciar sesión</h2>
         <form className="mb-4" onSubmit={handleSubmit}>
           <Input
             label="Correo electrónico"
@@ -55,11 +55,11 @@ const Login = () => {
             onChange={handleChange}
             placeholder="Ingrese su contraseña"
           />
-          <Button loading={loading} text="Iniciar sesión" type="submit" className="w-full mt-4" />
+          <Button loading={loading} text="Iniciar sesión" type="submit" className="w-full mt-4 btn-blue" />
         </form>
         <button
           onClick={handleForgetPass}
-          className="w-full text-right cursor-pointer"
+          className="w-full text-right cursor-pointer btn-forgot-password"
           
         >
           Olvide mi contraseña
