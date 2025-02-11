@@ -103,49 +103,64 @@ const deleteIngreso = async (ingresoId) => {
 
 /** Registrar un pago de alumno y generar un ingreso automáticamente */
 const registrarPagoAlumno = async (pagoData) => {
-  try {
-    // 1️⃣ Insertar el pago en la tabla `pagos_alumnos`
-    const { data: pago, error: pagoError } = await supabase
-      .from("pagos_alumnos")
-      .insert([pagoData])
-      .select("*")
-      .single();
-
-    if (pagoError) throw pagoError;
-
-    // 2️⃣ Obtener el `id_bus` del alumno pagador
-    const { data: alumno, error: alumnoError } = await supabase
-      .from("alumnos")
-      .select("id_bus")
-      .eq("id", pago.id_alumno)
-      .single();
-
-    if (alumnoError) throw alumnoError;
-
-    const idBus = alumno.id_bus;
-
-    // 3️⃣ Insertar el ingreso en la tabla `ingresos`
-    const ingresoData = {
-      id_bus: idBus,
-      fecha: pago.fecha_pago,
-      total_ingreso: pago.monto,
-      descripcion_ingreso: `Pago mensualidad alumno ID: ${pago.id_alumno}`
-    };
-
-    const { data: ingreso, error: ingresoError } = await supabase
-      .from("ingresos")
-      .insert([ingresoData])
-      .select("*")
-      .single();
-
-    if (ingresoError) throw ingresoError;
-
-    return { pago, ingreso };
-  } catch (error) {
-    console.error("Error registrando pago de alumno e ingreso:", error);
-    return null;
-  }
-};
+    try {
+      // 1️⃣ Insertar el pago en la tabla `pagos_alumnos`
+      const { data: pago, error: pagoError } = await supabase
+        .from("pagos_alumnos")
+        .insert([pagoData])
+        .select("*")
+        .single();
+  
+      if (pagoError) throw pagoError;
+  
+      // 2️⃣ Obtener la información del alumno
+      const { data: alumno, error: alumnoError } = await supabase
+        .from("alumnos")
+        .select("id_bus, nombre")
+        .eq("id", pago.id_alumno)
+        .single();
+  
+      if (alumnoError) throw alumnoError;
+  
+      const idBus = alumno.id_bus;
+      const nombreAlumno = alumno.nombre;
+      const mesPago = pago.mes_correspondiente; // Mes en formato "YYYY-MM"
+  
+      // Extraer el nombre del mes y el año (Ejemplo: "Enero 2025")
+      const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+      
+      const [año, mes] = mesPago.split("-"); // Separar "YYYY-MM"
+      const nombreMes = meses[parseInt(mes, 10) - 1]; // Obtener nombre del mes
+  
+      // Generar descripción en el formato "Pago enero 2025 Jose Luis Cardenas"
+      const descripcion = `Pago ${nombreMes} ${año} ${nombreAlumno}`;
+  
+      // 3️⃣ Insertar el ingreso en la tabla `ingresos`
+      const ingresoData = {
+        id_bus: idBus,
+        fecha: pago.fecha_pago,
+        total_ingreso: pago.monto,
+        descripcion_ingreso: descripcion
+      };
+  
+      const { data: ingreso, error: ingresoError } = await supabase
+        .from("ingresos")
+        .insert([ingresoData])
+        .select("*")
+        .single();
+  
+      if (ingresoError) throw ingresoError;
+  
+      return { pago, ingreso };
+    } catch (error) {
+      console.error("Error registrando pago de alumno e ingreso:", error);
+      return null;
+    }
+  };
+  
 
 // ✅ Exportando todas las funciones al final
 export {

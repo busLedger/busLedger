@@ -75,7 +75,7 @@ BEGIN
         id SERIAL PRIMARY KEY,
         id_bus INT NOT NULL,
         fecha DATE NOT NULL,
-        descripcion_ingreso VARCHAR(255) NOT NULL,
+        descripcion_ingreso TEXT NOT NULL,
         total_ingreso DECIMAL(10,2) NOT NULL CHECK (total_ingreso >= 0),
         FOREIGN KEY (id_bus) REFERENCES buses(id) ON DELETE CASCADE
     );
@@ -86,7 +86,7 @@ BEGIN
     CREATE TABLE IF NOT EXISTS gastos (
         id SERIAL PRIMARY KEY,
         id_bus INT NOT NULL,
-        tipo_gasto VARCHAR(50) NOT NULL,
+        descripcion_gasto TEXT NOT NULL,
         monto DECIMAL(10,2) NOT NULL CHECK (monto >= 0),
         fecha_gasto DATE NOT NULL,
         FOREIGN KEY (id_bus) REFERENCES buses(id) ON DELETE CASCADE
