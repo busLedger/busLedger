@@ -51,6 +51,7 @@ BEGIN
         id_bus INT NOT NULL,
         direccion TEXT NOT NULL,
         ubicacion VARCHAR(255),
+        activo BOOLEAN DEFAULT TRUE,
         pago_mensual DECIMAL(10,2) NOT NULL CHECK (pago_mensual >= 0),
         FOREIGN KEY (id_bus) REFERENCES buses(id) ON DELETE CASCADE
     );
@@ -73,7 +74,8 @@ BEGIN
     CREATE TABLE IF NOT EXISTS ingresos (
         id SERIAL PRIMARY KEY,
         id_bus INT NOT NULL,
-        mes VARCHAR(7) NOT NULL,
+        fecha DATE NOT NULL,
+        descripcion_ingreso VARCHAR(255) NOT NULL,
         total_ingreso DECIMAL(10,2) NOT NULL CHECK (total_ingreso >= 0),
         FOREIGN KEY (id_bus) REFERENCES buses(id) ON DELETE CASCADE
     );

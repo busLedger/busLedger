@@ -77,6 +77,7 @@ Registra a los niños que utilizan el servicio de transporte.
 | no_encargado   | VARCHAR(100)| Numero del encargado. |
 | id_bus (FK) | INT         | Relación con `buses.id`. |
 | direccion   | TEXT        | Dirección escrita del alumno. |
+| activo   | bool        | Estado del alumno en la ruta. |
 | ubicacion   | VARCHAR(255) | Coordenadas o enlace de Google Maps. |
 | pago_mensual | DECIMAL(10,2) | Monto que el alumno paga al mes. |
 
@@ -109,7 +110,8 @@ Cada mes se suman los pagos de los alumnos de un bus.
 |-------------|-------------|-------------|
 | id (PK)     | SERIAL      | Identificador único del ingreso. |
 | id_bus (FK) | INT         | Relación con `buses.id`. |
-| mes         | VARCHAR(7)  | Mes del ingreso (formato YYYY-MM). |
+| fecha         | VARCHAR(7)  | Tipo date (formato YYYY-MM). |
+| descripcion_ingreso  | VARCHAR(7)  | Descripcion del ingreso. |
 | total_ingreso | DECIMAL(10,2) | Total de ingresos de ese mes. |
 
 ### Relaciones:
