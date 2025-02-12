@@ -1,6 +1,11 @@
 /* eslint-disable react/prop-types */
+import { useNavigate } from "react-router-dom";
 
 export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion }) => {
+  const navigate = useNavigate();
+  const redirigir = (ruta) => {
+    navigate(ruta);
+  }
     return (
       <div
         className={`fixed inset-0 bg-dark-purple z-50 transition-transform duration-300 ${
@@ -25,7 +30,7 @@ export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion })
                   key={index}
                   className={`flex rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 
                     ${Menu.gap ? "mt-9" : "mt-2"} ${index === 0 && "bg-light-white"} `}
-                  onClick={Menu.onClick} // Añadimos el evento onClick si existe
+                  onClick={()=>redirigir(Menu.ruta)}
                 >
                   <img src={`./src/assets/${Menu.src}.png`} className="w-6 h-6" />
                   <span className="origin-left duration-200">{Menu.title}</span>

@@ -47,13 +47,13 @@ export const Home = () => {
   };
 
   const Menus = [
-    { title: "Admin Panel", src: "admin-panel", rol: ["Admin"] },
-    { title: "Dashboard", src: "analytics", rol: ["Admin", "Dueño"] },
-    { title: "Unidades", src: "bus", rol: ["Admin", "Dueño"] },
-    { title: "Alumnos", src: "school", gap: true, rol: ["Admin", "Dueño", "Conductor"] },
-    { title: "Pagos", src: "pagos", rol: ["Admin", "Dueño"] },
-    { title: "Gastos", src: "gastos", rol: ["Admin", "Dueño"] },
-    { title: "Panel Usuario", src: "user_panel", rol: ["Admin", "Dueño", "Conductor"] }
+    { title: "Admin Panel", src: "admin-panel", rol: ["Admin"], ruta:"admin-panel" },
+    { title: "Dashboard", src: "analytics", rol: ["Admin", "Dueño"], ruta:"dashboard" },
+    { title: "Unidades", src: "bus", rol: ["Admin", "Dueño"],ruta:"unidades-transporte" },
+    { title: "Alumnos", src: "school", gap: true, rol: ["Admin", "Dueño", "Conductor"], ruta:"alumnos" },
+    { title: "Pagos", src: "pagos", rol: ["Admin", "Dueño"], ruta:"pagos" },
+    { title: "Gastos", src: "gastos", rol: ["Admin", "Dueño"], ruta:"gastos" },
+    { title: "Panel Usuario", src: "user_panel", rol: ["Admin", "Dueño", "Conductor"], ruta:"panel-usuario" },
   ];
 
   const filteredMenus = userData
@@ -99,7 +99,7 @@ export const Home = () => {
       )}
 
       <div className="h-screen flex-1 p-7">
-        <Outlet />
+        <Outlet/>
       </div>
     </div>
   );
