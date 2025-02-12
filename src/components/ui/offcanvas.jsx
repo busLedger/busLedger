@@ -22,7 +22,6 @@ export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion,da
         }`}
       >
           <div className="flex gap-x-4 items-center mb-4">
-            {/* Logo ahora actúa como botón para cerrar el Offcanvas */}
             <img
               src={Logo}
               className="cursor-pointer duration-500 hover:scale-105"

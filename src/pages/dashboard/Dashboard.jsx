@@ -57,7 +57,7 @@ const Dashboard = () => {
       />
 
       {/* 📋 Resumen */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-dark-purple p-4 rounded-lg shadow">
         <h2 className="text-xl font-bold mb-2">Resumen</h2>
         <p>Total de alumnos: {paymentData.reduce((sum, item) => sum + item.value, 0)}</p>
         <p>Número de buses: {busData.length}</p>
