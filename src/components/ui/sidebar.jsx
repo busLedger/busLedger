@@ -1,4 +1,8 @@
 /* eslint-disable react/prop-types */
+import imgLogOut from "../../assets/logout.png";
+import imgSwhitch from "../../assets/theme-switch.png";
+import Logo from "../../assets/logo.png";
+
 import { useNavigate } from "react-router-dom";
 export const Sidebar = ({ isOpen, Menus, toggleTheme, cerrarSesion, onToggle }) => {
   const navigate = useNavigate();
@@ -13,7 +17,7 @@ export const Sidebar = ({ isOpen, Menus, toggleTheme, cerrarSesion, onToggle }) 
     >
       <div className="flex gap-x-4 items-center">
         <img
-          src="./src/assets/logo.png"
+          src={Logo}
           onClick={onToggle}
           className={`cursor-pointer duration-500 ${isOpen && "rotate-[360deg]"}`}
         />
@@ -34,7 +38,7 @@ export const Sidebar = ({ isOpen, Menus, toggleTheme, cerrarSesion, onToggle }) 
                 ${Menu.gap ? "mt-9" : "mt-2"} ${index === 0 && "bg-light-white"} `}
               onClick={()=>redirigir(Menu.ruta)} 
             >
-              <img src={`./src/assets/${Menu.src}.png`} className="w-6 h-6" />
+              <img src={Menu.src} className="w-6 h-6" />
               <span className={`${!isOpen && "hidden"} origin-left duration-200`}>
                 {Menu.title}
               </span>
@@ -46,7 +50,7 @@ export const Sidebar = ({ isOpen, Menus, toggleTheme, cerrarSesion, onToggle }) 
             onClick={toggleTheme}
             className="flex rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 mt-2"
           >
-            <img src={`./src/assets/theme-switch.png`} className="w-6 h-6" />
+            <img src={imgSwhitch} className="w-6 h-6" />
             <span className={`${!isOpen && "hidden"} origin-left duration-200`}>
               Cambiar Tema
             </span>
@@ -55,7 +59,7 @@ export const Sidebar = ({ isOpen, Menus, toggleTheme, cerrarSesion, onToggle }) 
             onClick={cerrarSesion}
             className="flex rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 mt-2"
           >
-            <img src={`./src/assets/logout.png`} className="w-6 h-6" />
+            <img src={imgLogOut} className="w-6 h-6" />
             <span className={`${!isOpen && "hidden"} origin-left duration-200`}>
               Cerrar Sesion
             </span>

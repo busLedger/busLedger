@@ -1,5 +1,6 @@
 import ChartTemplate from "../../components/ui/ChartTemplate";
 
+
 const Dashboard = () => {
   // Datos de ejemplo
   const paymentData = [
@@ -25,6 +26,8 @@ const Dashboard = () => {
   ];
 
   return (
+    <>
+    <p className="title-pages">Dashboard</p>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
       {/* 📊 Gráfico de pagos (Pie Chart) */}
       <ChartTemplate
@@ -64,6 +67,8 @@ const Dashboard = () => {
         </p>
       </div>
     </div>
+    </>
+    
   );
 };
 

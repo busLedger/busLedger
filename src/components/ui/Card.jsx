@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 
 export const Card = ({ children, className }) => {
-  return <div className={`bg-white shadow-md rounded-lg p-4 ${className}`}>{children}</div>;
+  return <div className={`bg-dark-purple shadow-md rounded-lg p-4 ${className}`}>{children}</div>;
 };
 
 Card.propTypes = {
@@ -30,7 +30,7 @@ CardTitle.propTypes = {
 };
 
 export const CardDescription = ({ children }) => {
-  return <p className="text-gray-600">{children}</p>;
+  return <p>{children}</p>;
 };
 
 CardDescription.propTypes = {

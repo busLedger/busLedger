@@ -3,10 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../../api/auth.service";
 import { Outlet } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
-import { Sidebar } from "../../components/sidebar";
+import { Sidebar } from "../../components/ui/sidebar";
 import { Offcanvas } from "../../components/ui/offcanvas";
 import { getUserData } from "../../api/user.service";
 import { Load } from "../../components/ui/Load";
+import Logo from "../../assets/logo.png";
+
+import imgAdminPanel from "../../assets/admin-panel.png";
+import imgDashboard from "../../assets/analytics.png";
+import imgUnidades from "../../assets/bus.png";
+import imgAlumnos from "../../assets/school.png";
+import imgPagos from "../../assets/pagos.png";
+import imgGastos from "../../assets/gastos.png";
+import imgPanelUsuario from "../../assets/user_panel.png";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -14,6 +23,16 @@ export const Home = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [offcanvasOpen, setOffcanvasOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+
+  const Menus = [
+    { title: "Admin Panel", src: imgAdminPanel, rol: ["Admin"], ruta:"admin-panel" },
+    { title: "Dashboard", src: imgDashboard, rol: ["Admin", "Dueño"], ruta:"dashboard" },
+    { title: "Unidades", src: imgUnidades, rol: ["Admin", "Dueño"],ruta:"unidades-transporte" },
+    { title: "Alumnos", src: imgAlumnos, gap: true, rol: ["Admin", "Dueño", "Conductor"], ruta:"alumnos" },
+    { title: "Pagos", src: imgPagos, rol: ["Admin", "Dueño"], ruta:"pagos" },
+    { title: "Gastos", src: imgGastos, rol: ["Admin", "Dueño"], ruta:"gastos" },
+    { title: "Panel Usuario", src: imgPanelUsuario, rol: ["Admin", "Dueño", "Conductor"], ruta:"panel-usuario" },
+  ];
   
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -46,15 +65,7 @@ export const Home = () => {
     navigate("/");
   };
 
-  const Menus = [
-    { title: "Admin Panel", src: "admin-panel", rol: ["Admin"], ruta:"admin-panel" },
-    { title: "Dashboard", src: "analytics", rol: ["Admin", "Dueño"], ruta:"dashboard" },
-    { title: "Unidades", src: "bus", rol: ["Admin", "Dueño"],ruta:"unidades-transporte" },
-    { title: "Alumnos", src: "school", gap: true, rol: ["Admin", "Dueño", "Conductor"], ruta:"alumnos" },
-    { title: "Pagos", src: "pagos", rol: ["Admin", "Dueño"], ruta:"pagos" },
-    { title: "Gastos", src: "gastos", rol: ["Admin", "Dueño"], ruta:"gastos" },
-    { title: "Panel Usuario", src: "user_panel", rol: ["Admin", "Dueño", "Conductor"], ruta:"panel-usuario" },
-  ];
+ 
 
   const filteredMenus = userData
     ? Menus.filter(menu => menu.rol.some(rol => userData.roles.includes(rol)))
@@ -62,7 +73,6 @@ export const Home = () => {
 
   const isDesktop = useMediaQuery({ minWidth: 768 });
 
-  // 🔴 Mostrar pantalla de carga si `userData` aún no está listo
   if (!userData) {
     return <Load />;
   }
@@ -82,9 +92,9 @@ export const Home = () => {
           {!offcanvasOpen && (
             <button
               onClick={() => setOffcanvasOpen(true)}
-              className="p-2 bg-dark-purple text-white fixed top-4 left-4 z-50"
+              className="fixed top-4 left-4 z-50"
             >
-              Menu
+              <img src={Logo} alt="Logo" />
             </button>
           )}
 
@@ -94,11 +104,12 @@ export const Home = () => {
             Menus={filteredMenus}
             toggleTheme={toggleTheme}
             cerrarSesion={cerrarSesion}
+            darkMode={darkMode}
           />
         </>
       )}
 
-      <div className="h-screen flex-1 p-7">
+      <div className="h-screen min-h-screen flex-1 p-7 overflow-y-auto">
         <Outlet/>
       </div>
     </div>

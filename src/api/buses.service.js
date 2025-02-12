@@ -18,45 +18,82 @@ const createBus = async (newBus) => {
   }
 };
 
-/** Obtener información de un bus por ID */
-const getBus = async (busId) => {
+const getBusWithFinancials = async (busId, mes) => {
   try {
     const { data, error } = await supabase
       .from("buses")
-      .select("*")
+      .select(
+        `*, 
+        conductor:usuarios(nombre), 
+        salarios_conductores:salarios_conductores(monto as salario),
+        ingresos:ingresos(id_bus, SUM(total_ingreso) as totalIngresos),
+        gastos:gastos(id_bus, SUM(monto) as totalGastos),
+        alumnos:alumnos(id_bus, COUNT(id) as totalAlumnos)`
+      )
       .eq("id", busId)
+      .eq("ingresos.fecha", mes)
+      .eq("gastos.fecha_gasto", mes)
+      .eq("salarios_conductores.mes", mes)
+      .eq("salarios_conductores.id_bus", busId)
+      .eq("alumnos.id_bus", busId)
       .single();
 
     if (error) throw error;
-    
-    return data;
+
+    // Estructurar la respuesta
+    return {
+      ...data,
+      conductor: data.conductor?.nombre || "Desconocido",
+      salario: data.salarios_conductores?.salario || 0,
+      totalIngresos: data.ingresos?.totalIngresos || 0,
+      totalGastos: data.gastos?.totalGastos || 0,
+      totalAlumnos: data.alumnos?.totalAlumnos || 0,
+      balance: (data.ingresos?.totalIngresos || 0) - (data.gastos?.totalGastos || 0) - (data.salarios_conductores?.salario || 0)
+    };
   } catch (error) {
-    console.error("Error obteniendo bus:", error);
+    console.error("Error obteniendo información financiera del bus:", error);
     return null;
   }
 };
 
-/** Obtener buses por dueño o conductor (sin duplicados) */
-const getBuses = async (userId) => {
+/** 🔹 Obtener todos los buses de un usuario con datos financieros y del conductor */
+const getBusesWithFinancials = async (userId, mes) => {
   try {
     const { data, error } = await supabase
       .from("buses")
-      .select("*")
-      .or(`id_dueño.eq.${userId},id_conductor.eq.${userId}`);
+      .select(
+        `*, 
+        conductor:usuarios(id, nombre),
+        salarios_conductores:salarios_conductores(monto as salario),
+        ingresos:ingresos(id_bus, SUM(total_ingreso) as totalIngresos),
+        gastos:gastos(id_bus, SUM(monto) as totalGastos),
+        alumnos:alumnos(id_bus, COUNT(id) as totalAlumnos)`
+      )
+      .or(`id_dueño.eq.${userId},id_conductor.eq.${userId}`)
+      .eq("ingresos.fecha", mes)
+      .eq("gastos.fecha_gasto", mes)
+      .eq("salarios_conductores.mes", mes)
+      .eq("salarios_conductores.id_bus", supabase.raw("buses.id"))
+      .eq("alumnos.id_bus", supabase.raw("buses.id"));
 
     if (error) throw error;
 
-    // Eliminar duplicados si el usuario es dueño y conductor del mismo bus
-    const uniqueBuses = data.filter((bus, index, self) =>
-      index === self.findIndex((b) => b.id === bus.id)
-    );
-
-    return uniqueBuses;
+    // Estructurar la respuesta para cada bus
+    return data.map(bus => ({
+      ...bus,
+      conductor: bus.conductor?.nombre || "Desconocido",
+      salario: bus.salarios_conductores?.salario || 0,
+      totalIngresos: bus.ingresos?.totalIngresos || 0,
+      totalGastos: bus.gastos?.totalGastos || 0,
+      totalAlumnos: bus.alumnos?.totalAlumnos || 0,
+      balance: (bus.ingresos?.totalIngresos || 0) - (bus.gastos?.totalGastos || 0) - (bus.salarios_conductores?.salario || 0)
+    }));
   } catch (error) {
-    console.error("Error obteniendo buses:", error);
+    console.error("Error obteniendo buses con información financiera:", error);
     return [];
   }
 };
+
 
 /** Actualizar información de un bus */
 const updateBus = async (busId, updatedData) => {
@@ -94,4 +131,4 @@ const deleteBus = async (busId) => {
   }
 };
 
-export { createBus, getBus, getBuses, updateBus, deleteBus };
+export { createBus, getBusWithFinancials, getBusesWithFinancials, updateBus, deleteBus };

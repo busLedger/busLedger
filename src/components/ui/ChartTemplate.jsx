@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./Card";
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip, LineChart, Line, BarChart, Bar, PieChart, Pie } from "recharts";
 
