@@ -42,7 +42,7 @@ button {
 }
 
 .dark button {
-  background-color: #333333;
+  background-color: #725eff;
   color: var(--text-color-dark);
 }
 
