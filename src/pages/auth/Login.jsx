@@ -29,6 +29,8 @@ const Login = () => {
    }
   }
   useEffect(()=>{
+    localStorage.setItem("darkMode", true);
+    document.documentElement.classList.add("dark");
     verifySession();
   })
   const handleForgetPass = async () => {
