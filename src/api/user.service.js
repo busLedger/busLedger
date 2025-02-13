@@ -64,19 +64,11 @@ const createUser = async (newUser, roles) => {
         .single();
   
       if (userError) throw userError;
-  
-      // 2️⃣ Obtener los IDs de los roles que se deben asignar
-      const { data: roleData, error: roleError } = await supabase
-        .from("roles")
-        .select("id")
-        .in("nombre", roles); // Filtra los roles que coincidan con los nombres dados
-  
-      if (roleError) throw roleError;
-  
-      if (!roleData.length) throw new Error("Roles no encontrados");
-  
+      console.log("Usuario creado:", userData, "Roles:", roles);
+
+
       // 3️⃣ Insertar en `usuarios_roles` los roles asignados
-      const rolesToInsert = roleData.map(role => ({
+      const rolesToInsert = roles.map(role => ({
         uid_usuario: newUser.uid,
         id_rol: role.id
       }));
@@ -127,5 +119,20 @@ const toggleUserStatus = async (uid, isActive) => {
   return data[0];
 };
 
+const getRoles = async () => {
+  const { data, error } = await supabase
+    .from("roles")
+    .select(`*`)
+    .eq("");
 
-export { getAllUsers, getUserData, createUser, updateUser, toggleUserStatus };
+  if (error) {
+    console.error("Error obteniendo roles:", error);
+    return null;
+  }
+
+  return data;
+};
+
+
+
+export { getAllUsers, getUserData, createUser, updateUser, toggleUserStatus, getRoles };
