@@ -61,8 +61,8 @@ export const AdminPanel = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className={`p-4 bg-dark-purple`}>
-        <section className="container mx-auto fixed top-0 left-0 right-0 bg-dark-purple z-10 p-10">
+      <div className={`p-4 bg-dark-purple w-full`}>
+        <section className="container w-full mx-auto fixed top-0 left-0 right-0 bg-dark-purple z-10 p-10">
           <p className="title-pages">Admin Panel</p>
           <div className="flex justify-between mb-4">
             <FilterTabs
@@ -110,6 +110,7 @@ export const AdminPanel = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onUserRegistered={obtenerUsuarios}
+          theme={darkMode}
         />
       </div>
     </ConfigProvider>

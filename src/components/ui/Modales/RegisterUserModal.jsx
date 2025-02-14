@@ -2,14 +2,14 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx"; 
-import { Select } from "antd";
-import Input from "../Input.jsx";
+import { Select, Input } from "antd";
+//import Input from "../Input.jsx";
 import { createUser, getRoles } from "../../../api/user.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 
 const { Option } = Select;
 
-const RegisterUserModal = ({ isOpen, onClose, onUserRegistered }) => {
+const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme }) => {
   const [formData, setFormData] = useState({
     uid: "",
     nombre: "",
@@ -86,6 +86,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered }) => {
       >
         <div className="space-y-4">
           <Input
+            theme={theme}
             label="UID"
             type="text"
             name="uid"
@@ -94,6 +95,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered }) => {
             placeholder="Ingrese el UID"
           />
           <Input
+            theme={theme}
             label="Nombre Completo"
             type="text"
             name="nombre"
@@ -102,6 +104,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered }) => {
             placeholder="Ingrese el nombre completo"
           />
           <Input
+            theme={theme}
             label="Correo Electrónico"
             type="email"
             name="correo"
@@ -110,6 +113,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered }) => {
             placeholder="Ingrese el correo electrónico"
           />
           <Input
+            theme={theme}
             label="WhatsApp"
             type="text"
             name="whatsapp"
@@ -144,6 +148,7 @@ RegisterUserModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onUserRegistered: PropTypes.func.isRequired,
+  theme: PropTypes.bool.isRequired
 };
 
 export default RegisterUserModal;
