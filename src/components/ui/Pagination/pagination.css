@@ -1,0 +1,10 @@
+.pagination-container {
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    z-index: 1000; /* Asegúrate de que la paginación esté por encima de otros elementos */
+  }

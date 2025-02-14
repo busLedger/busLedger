@@ -30,10 +30,10 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
-input{
-  color: #ffff!important;
-}
 
+.btn-text-black{
+  color: #000!important;
+}
 a:hover {
   color: #747bff;
 }
@@ -70,8 +70,15 @@ h1, h3, span {
   color: var(--text-color-light);
 }
 
-.dark h1, .dark h3, .dark span, .dark p {
+.dark h1, .dark h3, .dark span, .dark p .dark label{
   color: var(--text-color-dark);
+}
+.dark input{
+  color: var(--text-color-light);
+}
+
+input:active, input:focus, input:hover {
+  border-color: #747bff!important;
 }
 
 .dark body {

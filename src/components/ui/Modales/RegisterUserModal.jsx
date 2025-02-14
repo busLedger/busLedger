@@ -2,20 +2,21 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx"; 
-import { Select, Input } from "antd";
-//import Input from "../Input.jsx";
+import { Select } from "antd";
+import Input from "../Input.jsx";
 import { createUser, getRoles } from "../../../api/user.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
+import { v5 as uuidv5 } from 'uuid';
 
 const { Option } = Select;
 
-const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme }) => {
+const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }) => {
   const [formData, setFormData] = useState({
     uid: "",
     nombre: "",
     correo: "",
     whatsapp: "+504",
-    roles: [],
+    roles: isOwner ? [3] : [], // 3 represents "Conductor" role
   });
 
   const [roles, setRoles] = useState([]);
@@ -51,14 +52,17 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme }) => {
     const { uid, nombre, correo, whatsapp, roles } = formData;
 
     // Validar que todos los campos estén llenos
-    if (!uid || !nombre || !correo || !whatsapp || roles.length === 0) {
+    if (!nombre || !correo || !whatsapp || roles.length === 0) {
       mostrarMensaje('error', 'Todos los campos deben estar llenos');
       return;
     }
 
+    // Generar UID basado en el nombre si el registro es realizado por un dueño
+    const userUid = isOwner ? uuidv5(nombre, uuidv5.URL) : uid;
+
     try {
       mostrarMensaje('loading', 'Registrando usuario...');
-      await createUser({ uid, nombre, correo, whatsapp }, roles);
+      await createUser({ uid: userUid, nombre, correo, whatsapp }, roles);
       mostrarMensaje('success', 'Usuario registrado correctamente');
       onClose();
       onUserRegistered();
@@ -67,8 +71,8 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme }) => {
         nombre: "",
         correo: "",
         whatsapp: "+504",
-        roles: [],
-      })
+        roles: isOwner ? [3] : [],
+      });
     } catch (error) {
       mostrarMensaje('error', `Error al registrar el usuario: ${error.message}`);
     }
@@ -85,15 +89,17 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme }) => {
         acceptText="Registrar"
       >
         <div className="space-y-4">
-          <Input
-            theme={theme}
-            label="UID"
-            type="text"
-            name="uid"
-            value={formData.uid}
-            onChange={handleInputChange}
-            placeholder="Ingrese el UID"
-          />
+          {!isOwner && (
+            <Input
+              theme={theme}
+              label="UID"
+              type="text"
+              name="uid"
+              value={formData.uid}
+              onChange={handleInputChange}
+              placeholder="Ingrese el UID"
+            />
+          )}
           <Input
             theme={theme}
             label="Nombre Completo"
@@ -130,6 +136,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme }) => {
               placeholder="Seleccione uno o más roles"
               value={formData.roles}
               onChange={handleRolesChange}
+              disabled={isOwner} // Disable role selection if the user is an owner
             >
               {roles.map((role) => (
                 <Option key={role.id} value={role.id}>
@@ -148,7 +155,8 @@ RegisterUserModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   onUserRegistered: PropTypes.func.isRequired,
-  theme: PropTypes.bool.isRequired
+  theme: PropTypes.bool.isRequired,
+  isOwner: PropTypes.bool.isRequired,
 };
 
 export default RegisterUserModal;

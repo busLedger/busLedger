@@ -16,7 +16,7 @@ const FilterTabs = ({ options, onSelect, theme }) => {
           key={option}
           onClick={() => handleSelect(option)}
           className={`px-4 py-2 rounded-full border transition-all duration-200 
-            ${active === option ? "bg-indigo-600 text-white font-bold" : theme ? "border-gray-400 text-gray-400 hover:border-white hover:text-white" : "border-gray-400 text-black hover:border-black hover:text-black"}`}
+            ${active === option ? "bg-indigo-600 text-white font-bold" : theme ? "border-gray-400 text-gray-400 hover:border-white hover:text-white" : "border-gray-400 btn-text-black hover:border-black hover:text-gray-700"}`}
         >
           {option}
         </button>

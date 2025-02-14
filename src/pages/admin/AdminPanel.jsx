@@ -4,18 +4,22 @@ import { getAllUsers, toggleUserStatus } from "../../api/user.service.js";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/CardUsers";
 import adminIcon from "../../assets/admin-panel.png";
 import usuarioIcon from "../../assets/user_panel.png"; 
-import { Switch, message, ConfigProvider } from "antd";
+import { Switch, message, ConfigProvider, Input } from "antd";
 import FilterTabs from "../../components/ui/FilterTabs.jsx";
 import { Load } from "../../components/ui/Load.jsx";
 import RegisterUserModal from "../../components/ui/Modales/RegisterUserModal.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
+import {Pagination} from "../../components/ui/Pagination/Pagination.jsx";
 
 export const AdminPanel = () => {
-  const { userData, darkMode } = useOutletContext();
+  const { darkMode } = useOutletContext();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(3);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const obtenerUsuarios = async () => {
     setLoading(true);
@@ -26,11 +30,34 @@ export const AdminPanel = () => {
   };
 
   useEffect(() => {
-    console.log('informacion de usuario', userData);
     obtenerUsuarios();
   }, []);
 
-  // Función para filtrar usuarios según el estado
+  useEffect(() => {
+    const handleResize = () => {
+      let newPageSize;
+      if (window.innerWidth < 640) {
+        newPageSize = 2;
+      } else if (window.innerWidth < 1024) {
+        newPageSize = 2;
+      } else {
+        newPageSize = 3;
+      }
+
+      if (newPageSize !== pageSize) {
+        setPageSize(newPageSize);
+        setCurrentPage(1); // Resetear a la primera página al cambiar tamaño
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [pageSize]);
+
   const handleFilterChange = (value) => {
     if (value === "all") {
       setFilteredUsers(users);
@@ -38,17 +65,27 @@ export const AdminPanel = () => {
       const isActive = value === "active";
       setFilteredUsers(users.filter((user) => user.activo === isActive));
     }
+    setCurrentPage(1); // Resetear a la primera página al cambiar filtro
   };
 
-  // Función para cambiar el estado de un usuario
   const handleToggleStatus = async (uid, currentStatus) => {
     try {
       await toggleUserStatus(uid, !currentStatus);
       message.success(`Usuario ${!currentStatus ? "activado" : "desactivado"} correctamente`);
-      obtenerUsuarios(); // Refrescar lista de usuarios
+      obtenerUsuarios();
     } catch (error) {
       message.error("Error al cambiar el estado del usuario: " + error.message);
     }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    const filtered = users.filter((user) =>
+      user.nombre.toLowerCase().includes(e.target.value.toLowerCase()) ||
+      user.correo.toLowerCase().includes(e.target.value.toLowerCase())
+    );
+    setFilteredUsers(filtered);
+    setCurrentPage(1); // Resetear a la primera página al buscar
   };
 
   const customTheme = {
@@ -59,28 +96,40 @@ export const AdminPanel = () => {
     },
   };
 
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <ConfigProvider theme={customTheme}>
       <div className={`p-4 bg-dark-purple w-full`}>
-        <section className="container w-full mx-auto fixed top-0 left-0 right-0 bg-dark-purple z-10 p-10">
+        <section className="container w-full mx-auto p-2">
           <p className="title-pages">Admin Panel</p>
-          <div className="flex justify-between mb-4">
+          <div className="flex flex-col md:flex-row justify-between mb-4 gap-4 flex-wrap">
             <FilterTabs
               options={["Todos", "Activos", "Inactivos"]}
               onSelect={(option) => handleFilterChange(option === "Todos" ? "all" : option === "Activos" ? "active" : "inactive")}
               theme={darkMode}
+              className="order-1 md:order-none"
             />
-            <Fab onClick={() => setIsModalOpen(true)} />
+            
+            <Input
+              placeholder="Buscar usuarios"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full md:w-[35%] order-3 md:order-2"
+            />
+
+            <div className="order-2 md:order-3 flex gap-4">
+              <Fab onClick={() => setIsModalOpen(true)} />
+            </div>
           </div>
         </section>
 
-        <div className="pt-38"> {/* Añadir padding-top para evitar superposición */}
-          {/* Listado de usuarios */}
+        <div className="pt-4">
           {loading ? (
             <Load />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredUsers.map((user) => (
+              {paginatedUsers.map((user) => (
                 <Card theme={darkMode} key={user.uid} avatar={<img src={user.roles.includes("Admin") ? adminIcon : usuarioIcon} alt="avatar" className="w-16 h-16 rounded-full" />}>
                   <CardHeader>
                     <CardTitle>{user.nombre}</CardTitle>
@@ -91,7 +140,6 @@ export const AdminPanel = () => {
                     `Fecha de Creación: ${new Date(user.fecha_creacion).toLocaleDateString()}`,
                     `Roles: ${user.roles.join(", ")}`,
                   ]} theme={darkMode} />
-                  {/* Switch para activar/desactivar usuario */}
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-sm font-medium">Activo:</p>
                     <Switch 
@@ -105,12 +153,19 @@ export const AdminPanel = () => {
           )}
         </div>
 
-        {/* Modal de Registro de Usuario */}
+        <Pagination
+          totalItems={filteredUsers.length}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+
         <RegisterUserModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onUserRegistered={obtenerUsuarios}
           theme={darkMode}
+          isOwner={false}
         />
       </div>
     </ConfigProvider>
