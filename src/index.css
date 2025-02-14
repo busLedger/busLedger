@@ -96,7 +96,7 @@ h1, h3, span {
 .title-pages{
   font-weight: bold;
   font-size: 2rem;
-  text-align: center;
+  text-align: center!important;
 }
 
 .ant-modal{top: 5vh;}
