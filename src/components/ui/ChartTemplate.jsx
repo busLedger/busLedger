@@ -2,6 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./Card";
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip, LineChart, Line, BarChart, Bar, PieChart, Pie } from "recharts";
 
+
 const ChartTemplate = ({ title, description, data, config, type }) => {
   const renderChart = () => {
     switch (type) {

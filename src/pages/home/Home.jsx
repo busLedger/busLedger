@@ -73,7 +73,7 @@ export const Home = () => {
 
   const isDesktop = useMediaQuery({ minWidth: 768 });
 
-  if (!userData) {
+  if (!userData ) {
     return <Load />;
   }
 
@@ -110,7 +110,7 @@ export const Home = () => {
       )}
 
       <div className="h-screen min-h-screen flex-1 p-7 overflow-y-auto">
-        <Outlet/>
+      <Outlet context={{ userData, darkMode }} />
       </div>
     </div>
   );

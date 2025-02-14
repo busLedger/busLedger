@@ -1,8 +1,10 @@
 import ChartTemplate from "../../components/ui/ChartTemplate";
+import { useOutletContext } from "react-router-dom";
 
 
 const Dashboard = () => {
-  // Datos de ejemplo
+  const { userData, darkMode } = useOutletContext();
+  console.log(userData, darkMode);
   const paymentData = [
     { name: "Pagado", value: 300 },
     { name: "No Pagado", value: 50 },
@@ -24,6 +26,7 @@ const Dashboard = () => {
     { name: "May", students: 350 },
     { name: "Jun", students: 340 },
   ];
+
 
   return (
     <>

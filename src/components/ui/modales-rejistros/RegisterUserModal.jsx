@@ -61,7 +61,14 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered }) => {
       await createUser({ uid, nombre, correo, whatsapp }, roles);
       mostrarMensaje('success', 'Usuario registrado correctamente');
       onClose();
-      onUserRegistered(); // Refrescar lista de usuarios
+      onUserRegistered();
+      setFormData({
+        uid: "",
+        nombre: "",
+        correo: "",
+        whatsapp: "+504",
+        roles: [],
+      })
     } catch (error) {
       mostrarMensaje('error', `Error al registrar el usuario: ${error.message}`);
     }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import { getAllUsers, toggleUserStatus } from "../../api/user.service.js";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/CardUsers";
 import adminIcon from "../../assets/admin-panel.png";
@@ -10,9 +11,9 @@ import { Load } from "../../components/ui/Load.jsx";
 import RegisterUserModal from "../../components/ui/modales-rejistros/RegisterUserModal.jsx";
 
 export const AdminPanel = () => {
+  const { userData, darkMode } = useOutletContext();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -25,12 +26,8 @@ export const AdminPanel = () => {
   };
 
   useEffect(() => {
+    console.log('informacion de usuario', userData);
     obtenerUsuarios();
-    const savedTheme = localStorage.getItem("darkMode");
-    if (savedTheme) {
-      setDarkMode(JSON.parse(savedTheme));
-      document.documentElement.classList.toggle("dark", JSON.parse(savedTheme));
-    }
   }, []);
 
   // Función para filtrar usuarios según el estado

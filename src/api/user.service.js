@@ -49,43 +49,42 @@ const getUserData = async () => {
 
 
 const createUser = async (newUser, roles) => {
-    try {
-      // 1️⃣ Insertar usuario en la tabla `usuarios`
-      const { data: userData, error: userError } = await supabase
-        .from("usuarios")
-        .insert([{ 
-          uid: newUser.uid, 
-          nombre: newUser.nombre, 
-          correo: newUser.correo, 
-          whatsapp: newUser.whatsapp || null, 
-          activo: newUser.activo !== undefined ? newUser.activo : true
-        }])
-        .select("*")
-        .single();
-  
-      if (userError) throw userError;
-      console.log("Usuario creado:", userData, "Roles:", roles);
+  try {
+    // 1️⃣ Insertar usuario en la tabla `usuarios`
+    const { data: userData, error: userError } = await supabase
+      .from("usuarios")
+      .insert([{ 
+        uid: newUser.uid, 
+        nombre: newUser.nombre, 
+        correo: newUser.correo, 
+        whatsapp: newUser.whatsapp || null, 
+        activo: newUser.activo !== undefined ? newUser.activo : true
+      }])
+      .select("*")
+      .single();
 
+    if (userError) throw userError;
+    console.log("Usuario creado:", userData, "Roles:", roles);
 
-      // 3️⃣ Insertar en `usuarios_roles` los roles asignados
-      const rolesToInsert = roles.map(role => ({
-        uid_usuario: newUser.uid,
-        id_rol: role.id
-      }));
-  
-      const { error: roleAssignError } = await supabase
-        .from("usuarios_roles")
-        .insert(rolesToInsert);
-  
-      if (roleAssignError) throw roleAssignError;
-  
-      // 4️⃣ Devolver el usuario creado con sus roles
-      return { ...userData, roles };
-    } catch (error) {
-      console.error("Error creando usuario con roles:", error);
-      return null;
-    }
-  };
+    // 3️⃣ Insertar en `usuarios_roles` los roles asignados
+    const rolesToInsert = roles.map(roleId => ({
+      uid_usuario: newUser.uid,
+      id_rol: roleId
+    }));
+
+    const { error: roleAssignError } = await supabase
+      .from("usuarios_roles")
+      .insert(rolesToInsert);
+
+    if (roleAssignError) throw roleAssignError;
+
+    // 4️⃣ Devolver el usuario creado con sus roles
+    return { ...userData, roles };
+  } catch (error) {
+    console.error("Error creando usuario con roles:", error);
+    return null;
+  }
+};
 
 
 const updateUser = async (uid, updatedUser) => {
