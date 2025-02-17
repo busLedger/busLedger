@@ -5,7 +5,7 @@ const createBus = async (newBus) => {
   try {
     const { data, error } = await supabase
       .from("buses")
-      .insert([newBus])
+      .insert(newBus)
       .select("*")
       .single();
 
@@ -111,35 +111,30 @@ const getBusesWithFinancials = async (userId, mes) => {
 };
 
 /** 🔹 Obtener TODOS los buses con datos financieros (Para Admin) */
-const getAllBusesWithFinancials = async (mes) => {
+const getAllBusesWithFinancials = async () => {
   try {
     let query = supabase
       .from("buses")
       .select(
         `
-        id, placa, nombre_ruta, id_dueño,
-        dueño:usuarios!buses_id_dueño_fkey(uid, nombre),
-        salarios_conductores!inner(monto, mes),
-        ingresos!inner(total_ingreso, fecha),
-        gastos!inner(monto, fecha_gasto, tipo_gasto),
-        alumnos!inner(id)
+        *,
+        duenio:usuarios!buses_id_dueño_fkey(*),
+        conductor:usuarios!buses_id_conductor_fkey(*),
+        alumnos(*),
+        ingresos(*),
+        gastos(*)
         `
       );
 
-    if (mes) {
-      query = query
-        .eq("ingresos.fecha", mes)
-        .eq("gastos.fecha_gasto", mes)
-        .eq("salarios_conductores.mes", mes);
-    }
-
     const { data, error } = await query;
+    console.log('Data cruda:',data)
 
     if (error) throw error;
 
     return data.map((bus) => ({
       ...bus,
-      dueño: bus.dueño?.nombre || "Desconocido",
+      dueño: bus.duenio.nombre || "Desconocido",
+      conductor: bus.conductor.nombre || "Desconocido",
       salario: bus.salarios_conductores?.reduce((acc, salario) => acc + (salario.monto ?? 0), 0) || 0,
       totalIngresos: bus.ingresos?.reduce((acc, ingreso) => acc + (ingreso.total_ingreso ?? 0), 0) || 0,
       totalGastos: bus.gastos?.reduce((acc, gasto) => acc + (gasto.monto ?? 0), 0) || 0,

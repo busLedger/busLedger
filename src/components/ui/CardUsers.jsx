@@ -1,7 +1,4 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
-import { EditOutlined, EllipsisOutlined, SettingOutlined } from "@ant-design/icons";
-
 export const Card = ({ children, className, actions, avatar, theme }) => {
   const bgColor = theme ? "bg-gray-800 text-white" : "bg-white text-black border border-gray-300";
 
@@ -74,52 +71,3 @@ CardContent.propTypes = {
   theme: PropTypes.bool.isRequired,
 };
 
-// 🟢 Componente Principal con cambio de tema y avatar dinámico
-const CardUsers = () => {
-  const actions = [
-    <EditOutlined key="edit" className="text-gray-400 hover:text-black dark:hover:text-white cursor-pointer" />,
-    <SettingOutlined key="setting" className="text-gray-400 hover:text-black dark:hover:text-white cursor-pointer" />,
-    <EllipsisOutlined key="ellipsis" className="text-gray-400 hover:text-black dark:hover:text-white cursor-pointer" />,
-  ];
-
-  const [theme, setTheme] = useState(localStorage.getItem("darkMode") === "true");
-
-  const toggleTheme = () => {
-    const newTheme = !theme;
-    setTheme(newTheme);
-    localStorage.setItem("darkMode", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme);
-  };
-
-  return (
-    <div className={`p-4 flex flex-col gap-4 min-h-screen ${theme ? "bg-gray-900 text-white" : "bg-gray-100 text-black"}`}>
-      <button onClick={toggleTheme} className="px-4 py-2 bg-blue-500 text-white rounded">
-        Cambiar Tema
-      </button>
-
-      <Card
-        actions={actions}
-        avatar={<img src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" alt="Avatar 1" className="w-16 h-16 rounded-full" />}
-        theme={theme}
-      >
-        <CardHeader>
-          <CardTitle>Card con Avatar</CardTitle>
-        </CardHeader>
-        <CardContent items={["Elemento 1", "Elemento 2", "Elemento 3"]} theme={theme} />
-      </Card>
-
-      <Card
-        actions={actions}
-        avatar={<img src="https://api.dicebear.com/7.x/miniavs/svg?seed=2" alt="Avatar 2" className="w-16 h-16 rounded-full" />}
-        theme={theme}
-      >
-        <CardHeader>
-          <CardTitle>Otra Card</CardTitle>
-        </CardHeader>
-        <CardContent items={["Opción A", "Opción B", "Opción C"]} theme={theme} />
-      </Card>
-    </div>
-  );
-};
-
-export default CardUsers;

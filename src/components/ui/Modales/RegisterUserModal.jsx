@@ -1,21 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Modal } from "../Modal.jsx"; 
+import { Modal } from "../Modal.jsx";
 import { Select } from "antd";
 import Input from "../Input.jsx";
 import { createUser, getRoles } from "../../../api/user.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
-import { v5 as uuidv5 } from 'uuid';
+import { v5 as uuidv5 } from "uuid";
 
 const { Option } = Select;
 
-const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }) => {
+const RegisterUserModal = ({
+  isOpen,
+  onClose,
+  onUserRegistered,
+  theme,
+  isOwner,
+}) => {
   const [formData, setFormData] = useState({
     uid: "",
     nombre: "",
     correo: "",
-    whatsapp: "+504",
+    whatsapp: "",
     roles: isOwner ? [3] : [],
   });
 
@@ -30,7 +36,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
         const rolesData = await getRoles();
         setRoles(rolesData);
       } catch (error) {
-        mostrarMensaje('error', `Error al obtener los roles: ${error.message}`);
+        mostrarMensaje("error", `Error al obtener los roles: ${error.message}`);
       }
     };
 
@@ -50,13 +56,26 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
     setIsDirty(true);
   };
 
+  // Función para manejar el cambio en el input de WhatsApp
+  const handleWhatsAppChange = (e) => {
+    const value = e.target.value;
+    // Validar que solo contenga números y tenga una longitud máxima de 8 dígitos
+    if (/^\d{0,8}$/.test(value)) {
+      setFormData({ ...formData, whatsapp: value });
+      setIsDirty(true);
+    }
+  };
+
   // Función para registrar un nuevo usuario
   const handleRegisterUser = async () => {
     const { uid, nombre, correo, whatsapp, roles } = formData;
+    if(isOwner){
+      setFormData({...formData, roles: [3]});
+    }
 
-    // Validar que todos los campos estén llenos
     if (!nombre || !correo || !whatsapp || roles.length === 0) {
-      mostrarMensaje('error', 'Todos los campos deben estar llenos');
+      console.log("Leng de los roles",roles.length )
+      mostrarMensaje("error", "Todos los campos deben estar llenos");
       return;
     }
 
@@ -64,14 +83,21 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
     const userUid = isOwner ? uuidv5(nombre, uuidv5.URL) : uid;
 
     try {
-      mostrarMensaje('loading', 'Registrando usuario...');
-      await createUser({ uid: userUid, nombre, correo, whatsapp }, roles);
-      mostrarMensaje('success', 'Usuario registrado correctamente');
+      mostrarMensaje("loading", "Registrando usuario...");
+      console.log(roles)
+      await createUser(
+        { uid: userUid, nombre, correo, whatsapp: `+504${whatsapp}` },
+        roles
+      );
+      mostrarMensaje("success", "Usuario registrado correctamente");
       resetForm();
       onClose();
       onUserRegistered();
     } catch (error) {
-      mostrarMensaje('error', `Error al registrar el usuario: ${error.message}`);
+      mostrarMensaje(
+        "error",
+        `Error al registrar el usuario: ${error.message}`
+      );
     }
   };
 
@@ -81,7 +107,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
       uid: "",
       nombre: "",
       correo: "",
-      whatsapp: "+504",
+      whatsapp: "",
       roles: isOwner ? [3] : [],
     });
     setIsDirty(false);
@@ -128,32 +154,49 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
             onChange={handleInputChange}
             placeholder="Ingrese el correo electrónico"
           />
-          <Input
-            theme={theme}
-            label="WhatsApp"
-            type="text"
-            name="whatsapp"
-            value={formData.whatsapp}
-            onChange={handleInputChange}
-            placeholder="+504"
-            disabled
-          />
+          <label
+            className={`block text-sm font-bold mb-2 ${
+              theme ? "text-white" : "text-black"
+            }`}
+          >
+            Whatsapp
+          </label>
+          <div className="flex gap-2 w-full">
+            <div className="w-1/6">
+              <Input theme={theme} type="text" value="+504" disabled />
+            </div>
+            <div className="w-5/6">
+              <Input
+                theme={theme}
+                type="text"
+                name="whatsapp"
+                value={formData.whatsapp}
+                onChange={handleWhatsAppChange}
+                placeholder="Ingrese el número de WhatsApp"
+              />
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-bold mb-2">Roles</label>
-            <Select
-              mode="multiple"
-              style={{ width: '100%' }}
-              placeholder="Seleccione uno o más roles"
-              value={formData.roles}
-              onChange={handleRolesChange}
-              disabled={isOwner}
-            >
-              {roles.map((role) => (
-                <Option key={role.id} value={role.id}>
-                  {role.nombre}
-                </Option>
-              ))}
-            </Select>
+            {!isOwner && (
+              <>
+                <label className="block text-sm font-bold mb-2">Roles</label>
+                <Select
+                  mode="multiple"
+                  style={{ width: "100%" }}
+                  placeholder="Seleccione uno o más roles"
+                  value={formData.roles}
+                  onChange={handleRolesChange}
+                  disabled={isOwner}
+                >
+                  {roles.map((role) => (
+                    <Option key={role.id} value={role.id}>
+                      {role.nombre}
+                    </Option>
+                  ))}
+                </Select>
+              </>
+            )}
           </div>
         </div>
       </Modal>

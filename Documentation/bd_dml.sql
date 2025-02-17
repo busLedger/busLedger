@@ -34,7 +34,8 @@ BEGIN
         modelo VARCHAR(50) NOT NULL,
         año INT NOT NULL,
         id_dueño TEXT NOT NULL,
-        id_conductor TEXT NOT NULL,
+        id_conductor TEXT,
+        nombre_ruta text
         FOREIGN KEY (id_dueño) REFERENCES usuarios(uid) ON DELETE CASCADE,
         FOREIGN KEY (id_conductor) REFERENCES usuarios(uid) ON DELETE SET NULL
     );

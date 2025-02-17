@@ -8,6 +8,7 @@ import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 import imgUnidades from "../../assets/bus.png";
+import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
 
 const { Option } = Select;
 
@@ -19,10 +20,10 @@ export const Unidades = () => {
   const [pageSize, setPageSize] = useState(3);
   const [mesSeleccionado, setMesSeleccionado] = useState(""); // Mes seleccionado
   const [mesesDisponibles, setMesesDisponibles] = useState([]); // Lista de meses con datos
+  const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false); // Estado para controlar la visibilidad del modal
 
   useEffect(() => {
-    console.log("userData", userData);
-    obtenerMesesDisponibles();
+    generarMesesDisponibles();
   }, []);
 
   useEffect(() => {
@@ -48,37 +49,29 @@ export const Unidades = () => {
     };
   }, [pageSize]);
 
-  /** 🔹 OBTENER LOS MESES DISPONIBLES (con datos) */
-  const obtenerMesesDisponibles = async () => {
-    setLoading(true);
-    try {
-      const busesData = await getBusesWithFinancials(userData.uid, ""); // Sin mes para obtener todos
-      if (busesData.length === 0) {
-        setMesesDisponibles([]);
-        setMesSeleccionado("");
-        return;
-      }
+  /** 🔹 GENERAR LOS MESES DISPONIBLES (hasta el mes actual del año en curso) */
+  const generarMesesDisponibles = () => {
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1; // Obtener el mes actual (0-11, por eso sumamos 1)
+    const meses = [];
 
-      // Extraer los meses únicos en los que hay datos
-      const mesesUnicos = [
-        ...new Set(
-          busesData.map((bus) => bus.fecha_creacion.slice(0, 7)) // Formato "YYYY-MM"
-        ),
-      ].sort().reverse(); // Ordenar de más reciente a más antiguo
-
-      setMesesDisponibles(mesesUnicos);
-      setMesSeleccionado(mesesUnicos[0]); // Seleccionar el mes más reciente
-    } catch (error) {
-      message.error("Error al obtener los meses disponibles: " + error.message);
+    for (let i = 1; i <= currentMonth; i++) {
+      const mes = `${currentYear}-${i.toString().padStart(2, '0')}`; // Formato "YYYY-MM"
+      meses.push(mes);
     }
-    setLoading(false);
+
+    setMesesDisponibles(meses.reverse()); // Ordenar de más reciente a más antiguo
+    setMesSeleccionado(meses[0]); // Seleccionar el mes más reciente
   };
 
   /** 🔹 OBTENER LOS BUSES DEL MES SELECCIONADO */
   const obtenerBuses = async (mes) => {
+    console.log("Estoy en la funcion obtenerBuses")
     setLoading(true);
     try {
-      if (userData.roles.includes("Admin")) { // Verifica si el usuario es Admin
+      console.log(userData.roles.includes("Admin"))
+      if (userData.roles.includes("Admin")) {
+        console.log("Estaa funcion se va a ejecutar")// Verifica si el usuario es Admin
         const busesData = await getAllBusesWithFinancials(mes);
         setBuses(busesData);
       } else {
@@ -87,9 +80,9 @@ export const Unidades = () => {
       }
     } catch (error) {      
       message.error("Error al obtener los buses: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+    } 
+    setLoading(false);
+    console.log("Termino la funcion" );
   };
 
   const paginatedBuses = buses.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -131,7 +124,7 @@ export const Unidades = () => {
             </Select>
           </div>
 
-          <Fab onClick={() => message.info("Abrir modal para agregar nueva unidad")} />
+          <Fab onClick={() => setIsRegisterBusModalOpen(true)} />
         </section>
 
         {/* 🔹 MOSTRAR BUSES O MENSAJE DE "NO HAY DATOS" */}
@@ -143,15 +136,21 @@ export const Unidades = () => {
               {paginatedBuses.map((bus) => (
                 <Card key={bus.id} theme={darkMode}>
                   <CardHeader>
+                    <div className="flex gap-2 items-center justify-center">
                     <img src={imgUnidades} alt="Bus" className="w-16 h-16 rounded-full" />
-                    <CardTitle>{bus.placa || "Sin Placa"}</CardTitle>
+                    <div>
+                    <CardTitle>{bus.modelo}</CardTitle>
+                    <CardTitle>{bus.placa}</CardTitle>
+                    </div>
+                    </div>
                   </CardHeader>
                   <CardContent
                     items={[
                       `Dueño: ${bus.dueño}`,
+                      `Conductor: ${bus.conductor}`,
                       `Alumnos: ${bus.totalAlumnos}`,
                       `Salario Conductor: $${bus.salario.toFixed(2)}`,
-                      `Ingresos: $${bus.totalIngresos.toFixed(2)}`,
+                      `Ingresos mes: $${bus.totalIngresos.toFixed(2)}`,
                       `Gastos: $${bus.totalGastos.toFixed(2)}`,
                       `Balance: $${bus.balance.toFixed(2)}`,
                     ]}
@@ -171,6 +170,16 @@ export const Unidades = () => {
           currentPage={currentPage}
           pageSize={pageSize}
           onPageChange={(page) => setCurrentPage(page)}
+        />
+        <RegisterBusModal
+          isOpen={isRegisterBusModalOpen}
+          onClose={() => setIsRegisterBusModalOpen(false)}
+          onBusRegistered={() => {
+            setIsRegisterBusModalOpen(false);
+            obtenerBuses(mesSeleccionado);
+          }}
+          theme={darkMode}
+          currentUser={userData}
         />
       </div>
     </ConfigProvider>
