@@ -58,6 +58,7 @@ Registra los vehículos del servicio de transporte.
 | año         | INT         | Año del bus. |
 | id_dueño (FK) | UUID       | Relación con `usuarios.uid`. |
 | id_conductor (FK) | UUID   | Relación con `usuarios.uid`. |
+| nombre_ruta         | text         | Nombre de la ruta asignada |
 
 ### Relaciones:
 - Un bus pertenece a un dueño.

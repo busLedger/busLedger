@@ -16,10 +16,11 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
     nombre: "",
     correo: "",
     whatsapp: "+504",
-    roles: isOwner ? [3] : [], // 3 represents "Conductor" role
+    roles: isOwner ? [3] : [],
   });
 
   const [roles, setRoles] = useState([]);
+  const [isDirty, setIsDirty] = useState(false); // Flag para detectar cambios en el formulario
 
   const { mostrarMensaje, contextHolder } = RegisterMessage();
 
@@ -40,11 +41,13 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    setIsDirty(true); // Marcar el formulario como editado
   };
 
   // Función para manejar el cambio en la selección de roles
   const handleRolesChange = (value) => {
     setFormData({ ...formData, roles: value });
+    setIsDirty(true);
   };
 
   // Función para registrar un nuevo usuario
@@ -64,18 +67,24 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
       mostrarMensaje('loading', 'Registrando usuario...');
       await createUser({ uid: userUid, nombre, correo, whatsapp }, roles);
       mostrarMensaje('success', 'Usuario registrado correctamente');
+      resetForm();
       onClose();
       onUserRegistered();
-      setFormData({
-        uid: "",
-        nombre: "",
-        correo: "",
-        whatsapp: "+504",
-        roles: isOwner ? [3] : [],
-      });
     } catch (error) {
       mostrarMensaje('error', `Error al registrar el usuario: ${error.message}`);
     }
+  };
+
+  // Función para resetear el formulario
+  const resetForm = () => {
+    setFormData({
+      uid: "",
+      nombre: "",
+      correo: "",
+      whatsapp: "+504",
+      roles: isOwner ? [3] : [],
+    });
+    setIsDirty(false);
   };
 
   return (
@@ -83,10 +92,11 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
       {contextHolder}
       <Modal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={onClose} // `Modal` maneja la confirmación con `hasUnsavedChanges`
         title="Registrar Nuevo Usuario"
         onAccept={handleRegisterUser}
         acceptText="Registrar"
+        hasUnsavedChanges={isDirty} // Si hay cambios, el modal pedirá confirmación antes de cerrar
       >
         <div className="space-y-4">
           {!isOwner && (
@@ -136,7 +146,7 @@ const RegisterUserModal = ({ isOpen, onClose, onUserRegistered, theme, isOwner }
               placeholder="Seleccione uno o más roles"
               value={formData.roles}
               onChange={handleRolesChange}
-              disabled={isOwner} // Disable role selection if the user is an owner
+              disabled={isOwner}
             >
               {roles.map((role) => (
                 <Option key={role.id} value={role.id}>

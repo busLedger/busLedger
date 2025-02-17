@@ -6,5 +6,5 @@
     display: flex;
     justify-content: center;
     padding: 10px;
-    z-index: 1000; /* Asegúrate de que la paginación esté por encima de otros elementos */
+    z-index: 10; /* Asegúrate de que la paginación esté por encima de otros elementos */
   }

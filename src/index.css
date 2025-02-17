@@ -74,7 +74,7 @@ h1, h3, span {
   color: var(--text-color-dark);
 }
 .dark input{
-  color: var(--text-color-light);
+  color: white!important;
 }
 
 input:active, input:focus, input:hover {

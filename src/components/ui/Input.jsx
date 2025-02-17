@@ -3,7 +3,7 @@ import { Input as AntdInput } from "antd";
 
 const Input = ({ label, type, name, value, onChange, placeholder, theme }) => {
   return (
-    <div className="mb-4">
+    <div className="h-fit-content">
       {label && (
         <label className={`block text-sm font-bold mb-2 ${theme ? "text-white" : "text-black"}`}>
           {label}
@@ -15,6 +15,7 @@ const Input = ({ label, type, name, value, onChange, placeholder, theme }) => {
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+       className={`${theme ? "text-white" : "text-black"}`}
       />
     </div>
   );

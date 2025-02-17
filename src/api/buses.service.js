@@ -20,35 +20,43 @@ const createBus = async (newBus) => {
 
 const getBusWithFinancials = async (busId, mes) => {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("buses")
       .select(
-        `*, 
-        conductor:usuarios(nombre), 
-        salarios_conductores:salarios_conductores(monto as salario),
-        ingresos:ingresos(id_bus, SUM(total_ingreso) as totalIngresos),
-        gastos:gastos(id_bus, SUM(monto) as totalGastos),
-        alumnos:alumnos(id_bus, COUNT(id) as totalAlumnos)`
+        `
+        id, placa, nombre_ruta, id_dueño,
+        dueño:usuarios!buses_id_dueño_fkey(nombre),
+        salarios_conductores!inner(monto, mes),
+        ingresos!inner(total_ingreso, fecha),
+        gastos!inner(monto, fecha_gasto, tipo_gasto),
+        alumnos!inner(id)
+        `
       )
       .eq("id", busId)
-      .eq("ingresos.fecha", mes)
-      .eq("gastos.fecha_gasto", mes)
-      .eq("salarios_conductores.mes", mes)
-      .eq("salarios_conductores.id_bus", busId)
-      .eq("alumnos.id_bus", busId)
       .single();
+
+    if (mes) {
+      query = query
+        .eq("ingresos.fecha", mes)
+        .eq("gastos.fecha_gasto", mes)
+        .eq("salarios_conductores.mes", mes);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
 
-    // Estructurar la respuesta
     return {
       ...data,
-      conductor: data.conductor?.nombre || "Desconocido",
-      salario: data.salarios_conductores?.salario || 0,
-      totalIngresos: data.ingresos?.totalIngresos || 0,
-      totalGastos: data.gastos?.totalGastos || 0,
-      totalAlumnos: data.alumnos?.totalAlumnos || 0,
-      balance: (data.ingresos?.totalIngresos || 0) - (data.gastos?.totalGastos || 0) - (data.salarios_conductores?.salario || 0)
+      dueño: data.dueño?.nombre || "Desconocido",
+      salario: data.salarios_conductores?.[0]?.monto ?? 0,
+      totalIngresos: data.ingresos?.reduce((acc, ingreso) => acc + (ingreso.total_ingreso ?? 0), 0) || 0,
+      totalGastos: data.gastos?.reduce((acc, gasto) => acc + (gasto.monto ?? 0), 0) || 0,
+      totalAlumnos: data.alumnos ? data.alumnos.length : 0,
+      balance:
+        (data.ingresos?.reduce((acc, ingreso) => acc + (ingreso.total_ingreso ?? 0), 0) || 0) -
+        (data.gastos?.reduce((acc, gasto) => acc + (gasto.monto ?? 0), 0) || 0) -
+        (data.salarios_conductores?.[0]?.monto ?? 0),
     };
   } catch (error) {
     console.error("Error obteniendo información financiera del bus:", error);
@@ -56,37 +64,45 @@ const getBusWithFinancials = async (busId, mes) => {
   }
 };
 
-/** 🔹 Obtener todos los buses de un usuario con datos financieros y del conductor */
+/** 🔹 Obtener todos los buses de un dueño con datos financieros */
 const getBusesWithFinancials = async (userId, mes) => {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("buses")
       .select(
-        `*, 
-        conductor:usuarios(id, nombre),
-        salarios_conductores:salarios_conductores(monto as salario),
-        ingresos:ingresos(id_bus, SUM(total_ingreso) as totalIngresos),
-        gastos:gastos(id_bus, SUM(monto) as totalGastos),
-        alumnos:alumnos(id_bus, COUNT(id) as totalAlumnos)`
+        `
+        id, placa, nombre_ruta, id_dueño,
+        dueño:usuarios!buses_id_dueño_fkey(nombre),
+        salarios_conductores!inner(monto, mes),
+        ingresos!inner(total_ingreso, fecha),
+        gastos!inner(monto, fecha_gasto, tipo_gasto),
+        alumnos!inner(id)
+        `
       )
-      .or(`id_dueño.eq.${userId},id_conductor.eq.${userId}`)
-      .eq("ingresos.fecha", mes)
-      .eq("gastos.fecha_gasto", mes)
-      .eq("salarios_conductores.mes", mes)
-      .eq("salarios_conductores.id_bus", supabase.raw("buses.id"))
-      .eq("alumnos.id_bus", supabase.raw("buses.id"));
+      .eq("id_dueño", userId);
+
+    if (mes) {
+      query = query
+        .eq("ingresos.fecha", mes)
+        .eq("gastos.fecha_gasto", mes)
+        .eq("salarios_conductores.mes", mes);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
 
-    // Estructurar la respuesta para cada bus
-    return data.map(bus => ({
+    return data.map((bus) => ({
       ...bus,
-      conductor: bus.conductor?.nombre || "Desconocido",
-      salario: bus.salarios_conductores?.salario || 0,
-      totalIngresos: bus.ingresos?.totalIngresos || 0,
-      totalGastos: bus.gastos?.totalGastos || 0,
-      totalAlumnos: bus.alumnos?.totalAlumnos || 0,
-      balance: (bus.ingresos?.totalIngresos || 0) - (bus.gastos?.totalGastos || 0) - (bus.salarios_conductores?.salario || 0)
+      dueño: bus.dueño?.nombre || "Desconocido",
+      salario: bus.salarios_conductores?.[0]?.monto ?? 0,
+      totalIngresos: bus.ingresos?.reduce((acc, ingreso) => acc + (ingreso.total_ingreso ?? 0), 0) || 0,
+      totalGastos: bus.gastos?.reduce((acc, gasto) => acc + (gasto.monto ?? 0), 0) || 0,
+      totalAlumnos: bus.alumnos ? bus.alumnos.length : 0,
+      balance:
+        (bus.ingresos?.reduce((acc, ingreso) => acc + (ingreso.total_ingreso ?? 0), 0) || 0) -
+        (bus.gastos?.reduce((acc, gasto) => acc + (gasto.monto ?? 0), 0) || 0) -
+        (bus.salarios_conductores?.[0]?.monto ?? 0),
     }));
   } catch (error) {
     console.error("Error obteniendo buses con información financiera:", error);
@@ -94,7 +110,50 @@ const getBusesWithFinancials = async (userId, mes) => {
   }
 };
 
+/** 🔹 Obtener TODOS los buses con datos financieros (Para Admin) */
+const getAllBusesWithFinancials = async (mes) => {
+  try {
+    let query = supabase
+      .from("buses")
+      .select(
+        `
+        id, placa, nombre_ruta, id_dueño,
+        dueño:usuarios!buses_id_dueño_fkey(uid, nombre),
+        salarios_conductores!inner(monto, mes),
+        ingresos!inner(total_ingreso, fecha),
+        gastos!inner(monto, fecha_gasto, tipo_gasto),
+        alumnos!inner(id)
+        `
+      );
 
+    if (mes) {
+      query = query
+        .eq("ingresos.fecha", mes)
+        .eq("gastos.fecha_gasto", mes)
+        .eq("salarios_conductores.mes", mes);
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    return data.map((bus) => ({
+      ...bus,
+      dueño: bus.dueño?.nombre || "Desconocido",
+      salario: bus.salarios_conductores?.reduce((acc, salario) => acc + (salario.monto ?? 0), 0) || 0,
+      totalIngresos: bus.ingresos?.reduce((acc, ingreso) => acc + (ingreso.total_ingreso ?? 0), 0) || 0,
+      totalGastos: bus.gastos?.reduce((acc, gasto) => acc + (gasto.monto ?? 0), 0) || 0,
+      totalAlumnos: bus.alumnos ? bus.alumnos.length : 0,
+      balance:
+        (bus.ingresos?.reduce((acc, ingreso) => acc + (ingreso.total_ingreso ?? 0), 0) || 0) -
+        (bus.gastos?.reduce((acc, gasto) => acc + (gasto.monto ?? 0), 0) || 0) -
+        (bus.salarios_conductores?.reduce((acc, salario) => acc + (salario.monto ?? 0), 0) || 0),
+    }));
+  } catch (error) {
+    console.error("Error obteniendo todos los buses con información financiera:", error);
+    return [];
+  }
+};
 /** Actualizar información de un bus */
 const updateBus = async (busId, updatedData) => {
   try {
@@ -131,4 +190,4 @@ const deleteBus = async (busId) => {
   }
 };
 
-export { createBus, getBusWithFinancials, getBusesWithFinancials, updateBus, deleteBus };
+export { createBus, getBusWithFinancials, getBusesWithFinancials, updateBus, deleteBus, getAllBusesWithFinancials };

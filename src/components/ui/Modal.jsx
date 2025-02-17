@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Modal as AntdModal, ConfigProvider, theme } from "antd";
+import { Modal as AntdModal, ConfigProvider, Popconfirm, theme } from "antd";
 import PropTypes from "prop-types";
 import Button from "./Button";
 
@@ -8,20 +8,21 @@ export const Modal = ({
   onClose,
   title,
   children,
-  showCancel = true,
+  showCancel = false,
   showAccept = true,
-  onCancel,
   onAccept,
   cancelText = "Cancelar",
   acceptText = "Aceptar",
   size = "default",
+  hasUnsavedChanges = false, // Nueva prop para detectar cambios en el formulario
 }) => {
   const [darkMode, setDarkMode] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false); // Estado para el Popconfirm
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("darkMode");
     setDarkMode(storedTheme === "true");
-  }, [isOpen]); 
+  }, [isOpen]);
 
   const sizeMap = {
     small: 320,
@@ -29,6 +30,21 @@ export const Modal = ({
     large: 600,
     "extra-large": 800,
     full: "100%",
+  };
+
+  // Función para gestionar el cierre con confirmación si hay cambios
+  const handleRequestClose = () => {
+    if (hasUnsavedChanges) {
+      setConfirmVisible(true);
+    } else {
+      handleClose();
+    }
+  };
+
+  // Confirmación de cierre
+  const handleClose = () => {
+    setConfirmVisible(false);
+    onClose();
   };
 
   return (
@@ -42,26 +58,37 @@ export const Modal = ({
           <div className="flex justify-between items-center w-full">
             <span>{title}</span>
             <span
-              onClick={onClose}
+              onClick={handleRequestClose}
               className="text-red-500 hover:text-red-700 cursor-pointer text-xl font-bold"
-            >
-            </span>
+            ></span>
           </div>
         }
         open={isOpen}
-        onCancel={onClose}
-        footer={null} 
+        onCancel={handleRequestClose} // Ahora usa la función con confirmación
+        footer={null}
         width={sizeMap[size] || sizeMap.default}
+        maskClosable={!hasUnsavedChanges} // Evita cerrar al hacer clic afuera si hay cambios
       >
         {children}
         <div className="flex justify-end gap-4 mt-4">
           {showCancel && (
-            <Button onClick={onCancel || onClose} text={cancelText} type="button" />
+            <Button onClick={handleRequestClose} text={cancelText} type="button" />
           )}
           {showAccept && (
             <Button onClick={onAccept || onClose} text={acceptText} type="button" />
           )}
         </div>
+
+        {/* Popconfirm para confirmar cierre si hay cambios */}
+        <Popconfirm
+          title="¿Seguro que quieres cerrar?"
+          description="Perderás todos los datos ingresados en el formulario."
+          visible={confirmVisible}
+          onConfirm={handleClose}
+          onCancel={() => setConfirmVisible(false)}
+          okText="Sí, cerrar"
+          cancelText="Cancelar"
+        />
       </AntdModal>
     </ConfigProvider>
   );
@@ -79,5 +106,7 @@ Modal.propTypes = {
   cancelText: PropTypes.string,
   acceptText: PropTypes.string,
   size: PropTypes.oneOf(["small", "default", "large", "extra-large", "full"]),
-  type: PropTypes.oneOf(["default", "warning", "error", "success"]),
+  hasUnsavedChanges: PropTypes.bool, // Nueva prop para detectar si hay cambios
 };
+
+export default Modal;
