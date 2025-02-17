@@ -112,7 +112,7 @@ export const AdminPanel = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className={`p-4 bg-dark-purple w-full`}>
+      <div className={`p-4 md:p-0 bg-dark-purple w-full`}>
         <section className="container w-full mx-auto p-2">
           <p className="title-pages">Admin Panel</p>
 

@@ -69,22 +69,23 @@ const RegisterUserModal = ({
   // Función para registrar un nuevo usuario
   const handleRegisterUser = async () => {
     const { uid, nombre, correo, whatsapp, roles } = formData;
-    if(isOwner){
-      setFormData({...formData, roles: [3]});
+    if (isOwner) {
+      setFormData({ ...formData, roles: [3] });
     }
 
     if (!nombre || !correo || !whatsapp || roles.length === 0) {
-      console.log("Leng de los roles",roles.length )
+      console.log("Leng de los roles", roles.length);
       mostrarMensaje("error", "Todos los campos deben estar llenos");
       return;
     }
 
     // Generar UID basado en el nombre si el registro es realizado por un dueño
     const userUid = isOwner ? uuidv5(nombre, uuidv5.URL) : uid;
+    localStorage.setItem("conductorData", JSON.stringify({"nombre": nombre, "uid": userUid}));
 
     try {
       mostrarMensaje("loading", "Registrando usuario...");
-      console.log(roles)
+      console.log(roles);
       await createUser(
         { uid: userUid, nombre, correo, whatsapp: `+504${whatsapp}` },
         roles
@@ -94,6 +95,7 @@ const RegisterUserModal = ({
       onClose();
       onUserRegistered();
     } catch (error) {
+      localStorage.removeItem("conductorId");
       mostrarMensaje(
         "error",
         `Error al registrar el usuario: ${error.message}`
@@ -113,12 +115,18 @@ const RegisterUserModal = ({
     setIsDirty(false);
   };
 
+  // Función para manejar el cierre del modal
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   return (
     <>
       {contextHolder}
       <Modal
         isOpen={isOpen}
-        onClose={onClose} // `Modal` maneja la confirmación con `hasUnsavedChanges`
+        onClose={handleClose} // `Modal` maneja la confirmación con `hasUnsavedChanges`
         title="Registrar Nuevo Usuario"
         onAccept={handleRegisterUser}
         acceptText="Registrar"

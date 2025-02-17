@@ -1,11 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { getBusesWithFinancials, getAllBusesWithFinancials } from "../../api/buses.service";
-import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/CardUsers";
+import {
+  getBusesWithFinancials,
+  getAllBusesWithFinancials,
+} from "../../api/buses.service";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/ui/CardUsers";
 import { message, ConfigProvider, Select } from "antd";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
+import Button from "../../components/ui/Button.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 import imgUnidades from "../../assets/bus.png";
 import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
@@ -13,7 +22,7 @@ import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
 const { Option } = Select;
 
 export const Unidades = () => {
-  const { darkMode, userData } = useOutletContext(); 
+  const { darkMode, userData } = useOutletContext();
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,7 +65,7 @@ export const Unidades = () => {
     const meses = [];
 
     for (let i = 1; i <= currentMonth; i++) {
-      const mes = `${currentYear}-${i.toString().padStart(2, '0')}`; // Formato "YYYY-MM"
+      const mes = `${currentYear}-${i.toString().padStart(2, "0")}`; // Formato "YYYY-MM"
       meses.push(mes);
     }
 
@@ -66,26 +75,29 @@ export const Unidades = () => {
 
   /** 🔹 OBTENER LOS BUSES DEL MES SELECCIONADO */
   const obtenerBuses = async (mes) => {
-    console.log("Estoy en la funcion obtenerBuses")
+    console.log("Estoy en la funcion obtenerBuses");
     setLoading(true);
     try {
-      console.log(userData.roles.includes("Admin"))
+      console.log(userData.roles.includes("Admin"));
       if (userData.roles.includes("Admin")) {
-        console.log("Estaa funcion se va a ejecutar")// Verifica si el usuario es Admin
+        console.log("Estaa funcion se va a ejecutar"); // Verifica si el usuario es Admin
         const busesData = await getAllBusesWithFinancials(mes);
         setBuses(busesData);
       } else {
         const busesData = await getBusesWithFinancials(userData.uid, mes);
         setBuses(busesData);
       }
-    } catch (error) {      
+    } catch (error) {
       message.error("Error al obtener los buses: " + error.message);
-    } 
+    }
     setLoading(false);
-    console.log("Termino la funcion" );
+    console.log("Termino la funcion");
   };
 
-  const paginatedBuses = buses.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const paginatedBuses = buses.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const customTheme = {
     token: {
@@ -137,11 +149,15 @@ export const Unidades = () => {
                 <Card key={bus.id} theme={darkMode}>
                   <CardHeader>
                     <div className="flex gap-2 items-center justify-center">
-                    <img src={imgUnidades} alt="Bus" className="w-16 h-16 rounded-full" />
-                    <div>
-                    <CardTitle>{bus.modelo}</CardTitle>
-                    <CardTitle>{bus.placa}</CardTitle>
-                    </div>
+                      <img
+                        src={imgUnidades}
+                        alt="Bus"
+                        className="w-16 h-16 rounded-full"
+                      />
+                      <div>
+                        <CardTitle>{bus.nombre_ruta}</CardTitle>
+                        <CardTitle>{bus.modelo}</CardTitle>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent
@@ -149,18 +165,23 @@ export const Unidades = () => {
                       `Dueño: ${bus.dueño}`,
                       `Conductor: ${bus.conductor}`,
                       `Alumnos: ${bus.totalAlumnos}`,
-                      `Salario Conductor: $${bus.salario.toFixed(2)}`,
-                      `Ingresos mes: $${bus.totalIngresos.toFixed(2)}`,
-                      `Gastos: $${bus.totalGastos.toFixed(2)}`,
-                      `Balance: $${bus.balance.toFixed(2)}`,
+                      `Salario Conductor: L.${bus.salario.toFixed(2)}`,
+                      `Ingresos mes: L.${bus.totalIngresos.toFixed(2)}`,
+                      `Gastos: L.${bus.totalGastos.toFixed(2)}`,
+                      `Balance: L.${bus.balance.toFixed(2)}`,
                     ]}
                     theme={darkMode}
                   />
+                  <div className="col-span-2 flex justify-center gap-4">
+                    <Button text={"Registrar Gasto"}/>
+                  </div>
                 </Card>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-400 mt-4">No hay datos disponibles</p>
+            <p className="text-center text-gray-400 mt-4">
+              No hay datos disponibles
+            </p>
           )}
         </div>
 

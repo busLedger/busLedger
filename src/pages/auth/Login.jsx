@@ -3,7 +3,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
-import { login, forgotPassword, checkActiveSession } from "../../api/auth.service";
+import {
+  login,
+  forgotPassword,
+  checkActiveSession,
+} from "../../api/auth.service";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -35,7 +39,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    setDarkMode(true)
+    setDarkMode(true);
     localStorage.setItem("darkMode", true);
     document.documentElement.classList.add("dark");
     verifySession();
@@ -48,31 +52,43 @@ const Login = () => {
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-500 to-purple-600 w-full">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center text-white">Iniciar sesión</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center text-white">
+          Iniciar sesión
+        </h2>
         <form className="mb-4" onSubmit={handleSubmit}>
-          <Input
-            label="Correo electrónico"
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Ingrese su correo"
-            theme={darkMode}
+          <div className="mb-2">
+            <Input
+              label="Correo electrónico"
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              placeholder="Ingrese su correo"
+              theme={darkMode}
+            />
+          </div>
+          <div className="mb-4">
+            <Input
+              label="Contraseña"
+              type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Ingrese su contraseña"
+              theme={darkMode}
+              className="bg-gray-800"
+            />
+          </div>
+          <Button
+            loading={loading}
+            text="Iniciar sesión"
+            type="submit"
+            className="w-full btn-blue"
           />
-          <Input
-            label="Contraseña"
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Ingrese su contraseña"
-            theme={darkMode}
-          />
-          <Button loading={loading} text="Iniciar sesión" type="submit" className="w-full mt-4 btn-blue" />
         </form>
         <button
           onClick={handleForgetPass}
-          className="w-full text-right cursor-pointer btn-forgot-password"
+          className="w-full text-right cursor-pointer btn-forgot-password "
         >
           Olvide mi contraseña
         </button>

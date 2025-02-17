@@ -3,7 +3,7 @@ export const Card = ({ children, className, actions, avatar, theme }) => {
   const bgColor = theme ? "bg-gray-800 text-white" : "bg-white text-black border border-gray-300";
 
   return (
-    <div className={`shadow-md rounded-lg p-4 ${bgColor} ${className}`}>
+    <div className={`cursor-pointer shadow-md rounded-lg p-4 ${bgColor} ${className}`}>
       {avatar && <div className="flex justify-center mb-2">{avatar}</div>}
       {children}
       {actions && <div className="border-t mt-2 pt-2 flex justify-end">{actions}</div>}
@@ -37,7 +37,7 @@ CardHeader.propTypes = {
 
 // 🟢 Componente de Título
 export const CardTitle = ({ children }) => {
-  return <h2 className="text-lg font-bold">{children}</h2>;
+  return <h2 className="text-lg font-bold mb-0">{children}</h2>;
 };
 
 CardTitle.propTypes = {

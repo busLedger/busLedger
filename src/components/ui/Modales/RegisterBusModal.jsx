@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select } from "antd";
@@ -25,6 +26,13 @@ const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser
 
   const { mostrarMensaje, contextHolder } = RegisterMessage();
 
+  useEffect(() => {
+    // Reset form when modal is closed
+    if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen]);
+
   // Función para manejar el cambio en los campos del formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,11 +43,12 @@ const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser
   // Función para manejar el cambio en la selección de conductor
   const handleConductorChange = (value) => {
     if (value === "self") {
-      setFormData({ ...formData, id_conductor: currentUser.uid });
+      setFormData({ ...formData, id_conductor: currentUser.uid, conductor_nombre: currentUser.nombre });
     } else if (value === "new") {
       setIsRegisterUserModalOpen(true);
     } else {
-      setFormData({ ...formData, id_conductor: value });
+      const selectedConductor = conductores.find(conductor => conductor.uid === value);
+      setFormData({ ...formData, id_conductor: value, conductor_nombre: selectedConductor.nombre });
     }
     setIsDirty(true);
   };
@@ -75,14 +84,16 @@ const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser
       id_dueño: currentUser.uid,
       id_conductor: "",
       nombre_ruta: "",
+      conductor_nombre: "",
     });
     setIsDirty(false);
   };
 
   // Función para manejar el registro de un nuevo conductor
-  const handleUserRegistered = (newConductor) => {
-    setConductores([...conductores, newConductor]);
-    setFormData({ ...formData, id_conductor: newConductor.uid });
+  const handleUserRegistered = () => {
+    const conductorData = JSON.parse(localStorage.getItem("conductorData"));
+    setConductores([...conductores, conductorData]);
+    setFormData({ ...formData, id_conductor: conductorData.uid, conductor_nombre: conductorData.nombre });
     setIsRegisterUserModalOpen(false);
   };
 
@@ -151,6 +162,15 @@ const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser
                 </Option>
               ))}
             </Select>
+            {formData.id_conductor && (
+              <Input
+                theme={theme}
+                label="Nombre del Conductor"
+                type="text"
+                value={formData.conductor_nombre}
+                disabled
+              />
+            )}
           </div>
         </div>
       </Modal>

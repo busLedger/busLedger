@@ -74,7 +74,20 @@ h1, h3, span {
   color: var(--text-color-dark);
 }
 .dark input{
-  color: white!important;
+  background-color: #141414;
+  color: white;
+}
+.dark option{
+  background-color: #141414;
+  color: white;
+}
+.dark option:active, .dark option:focus, .dark option:hover {
+  background-color: #141414;
+  color: white;
+}
+.dark input:active, .dark input:focus, .dark input:hover {
+  background-color: #141414;
+  color: white;
 }
 
 input:active, input:focus, input:hover {
