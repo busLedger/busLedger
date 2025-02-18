@@ -78,17 +78,15 @@ const getAllAlumnosByUser = async (userId) => {
     // Obtener los buses donde el usuario es dueño o conductor
     const { data: buses, error: busError } = await supabase
       .from("buses")
-      .select("id")
+      .select("id, placa, nombre_ruta, id_dueño, id_conductor")
       .or(`id_dueño.eq.${userId},id_conductor.eq.${userId}`);
 
     if (busError) throw busError;
 
     if (!buses.length) return [];
 
-    // Extraer los IDs de los buses sin duplicados
-    const busIds = [...new Set(buses.map(bus => bus.id))];
-
     // Obtener los alumnos de estos buses
+    const busIds = buses.map(bus => bus.id);
     const { data: alumnos, error: alumnosError } = await supabase
       .from("alumnos")
       .select("*")
@@ -96,7 +94,23 @@ const getAllAlumnosByUser = async (userId) => {
 
     if (alumnosError) throw alumnosError;
 
-    return alumnos;
+    // Agrupar los alumnos por bus
+    const alumnosPorBus = alumnos.reduce((acc, alumno) => {
+      if (!acc[alumno.id_bus]) {
+        acc[alumno.id_bus] = [];
+      }
+      acc[alumno.id_bus].push(alumno);
+      console.log(acc);
+      return acc;
+    }, {});
+
+    // Combinar la información de los buses con los alumnos
+    const busesConAlumnos = buses.map(bus => ({
+      ...bus,
+      alumnos: alumnosPorBus[bus.id] || []
+    }));
+
+    return busesConAlumnos;
   } catch (error) {
     console.error("Error obteniendo alumnos por usuario:", error);
     return [];

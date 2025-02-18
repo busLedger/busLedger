@@ -12,6 +12,7 @@
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@radix-ui/react-slot": "^1.1.2",
+    "@react-google-maps/api": "^2.20.6",
     "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/cli": "^4.0.5",
     "@tailwindcss/vite": "^4.0.5",
