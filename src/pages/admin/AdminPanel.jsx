@@ -28,6 +28,7 @@ export const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const obtenerUsuarios = async () => {
+    console.log('Se monto el componente')
     setLoading(true);
     const users = await getAllUsers();
     setUsers(users);
@@ -36,6 +37,16 @@ export const AdminPanel = () => {
   };
 
   useEffect(() => {
+    document.addEventListener("DOMContentLoaded", () => {
+      
+  
+      const containerMovil = document.querySelector(".container-movil");
+      if (containerMovil) {
+        const containerHeight = containerMovil.offsetHeight;
+        document.documentElement.style.setProperty("--container-movil-height", `${containerHeight}px`);
+      }
+      console.log("DOMContentLoaded", containerMovil);
+    });
     obtenerUsuarios();
   }, []);
 
@@ -52,7 +63,7 @@ export const AdminPanel = () => {
 
       if (newPageSize !== pageSize) {
         setPageSize(newPageSize);
-        setCurrentPage(1); // Resetear a la primera página al cambiar tamaño
+        setCurrentPage(1); 
       }
     };
 
@@ -113,10 +124,10 @@ export const AdminPanel = () => {
   return (
     <ConfigProvider theme={customTheme}>
       <div className={`p-4 md:p-0 bg-dark-purple w-full`}>
-        <section className="container w-full mx-auto p-2">
+        <section className="container-movil container w-full mx-auto p-2">
           <p className="title-pages">Admin Panel</p>
 
-          <div className="flex  gap-4 mb-4">
+          <div className="pages-option-container">
             {/* FilterTabs ocupa el 100% en móviles, 50% en pantallas medianas/grandes */}
             <div className="w-full sm:w-1/2 lg:w-1/2">
               <FilterTabs
@@ -135,8 +146,9 @@ export const AdminPanel = () => {
             </div>
 
             {/* Input ocupa el 100% en móviles, 50% en pantallas medianas/grandes */}
-            <div className="w-full sm:w-1/2 lg:w-1/2">
+            <div className="center-item">
               <Input
+                className="w-full md:w-3/4 md:mt-1"
                 theme={darkMode}
                 type="text"
                 name="nombre"
@@ -149,7 +161,7 @@ export const AdminPanel = () => {
           <Fab onClick={() => setIsModalOpen(true)} />
         </section>
 
-        <div className="pt-4 md:pt-0">
+        <div className="pt-4 md:pt-0 data-div">
           {loading ? (
             <Load />
           ) : (

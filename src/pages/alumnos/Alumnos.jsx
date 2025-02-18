@@ -49,7 +49,7 @@ export const Alumnos = () => {
     setLoading(true);
     try {
       const alumnosData = await getAllAlumnosByUser(userData.uid);
-      console.log(alumnosData);
+      console.log("Data en alumnos: ",alumnosData);
       setAlumnos(alumnosData);
     } catch (error) {
       message.error("Error al obtener los alumnos: " + error.message);

@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
 import { Input as AntdInput } from "antd";
 
-const Input = ({ label, type, name, value, onChange, placeholder, theme }) => {
+const Input = ({ label, type, name, value, onChange, placeholder, theme, className }) => {
   return (
-    <div className="h-fit-content">
+    <div className={className + " h-fit-content"}>
       {label && (
         <label className={`block text-sm font-bold mb-2 ${theme ? "text-white" : "text-black"}`}>
           {label}
@@ -29,6 +29,7 @@ Input.propTypes = {
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
   theme: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 Input.defaultProps = {
