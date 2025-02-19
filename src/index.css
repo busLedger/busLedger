@@ -159,7 +159,7 @@ input:active, input:focus, input:hover {
     height: auto;
   }
   .dark .container-movil{
-    background-color: #141414;
+    background-color: #242424;
   }
   .data-div{
     padding-top: calc(var(--container-movil-height) );
