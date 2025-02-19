@@ -140,6 +140,7 @@ input:active, input:focus, input:hover {
 
 @media (max-width: 580px) {
   .pages-option-container{
+    width: 100%;
     flex-direction: column;
   }
   .center-item{
@@ -155,8 +156,13 @@ input:active, input:focus, input:hover {
     left: 0!important;
     z-index: 10;
     top: 0;
-    padding-top: 2rem;
+    padding: 2rem;
+    padding-bottom: 15px!important;
     height: auto;
+    border-color: none!important;
+  }
+  .container-movil p{
+    font-size: 1.8rem;
   }
   .dark .container-movil{
     background-color: #242424;
@@ -164,4 +170,25 @@ input:active, input:focus, input:hover {
   .data-div{
     padding-top: calc(var(--container-movil-height) );
   }
+}
+
+
+#div-filter-tabs {
+  margin-top: 10px;
+  scrollbar-width: thin; /* Para navegadores Firefox */
+  scrollbar-color: #747bff #747bff; /* Color del pulgar y del track para Firefox */
+}
+
+/* Estilos para navegadores basados en WebKit (Chrome, Safari) */
+#div-filter-tabs::-webkit-scrollbar {
+  height: 4px; /* Altura de la barra de desplazamiento horizontal */
+}
+
+#div-filter-tabs::-webkit-scrollbar-thumb {
+  background-color: #747bff; /* Color del pulgar */
+  border-radius: 10px; /* Bordes redondeados del pulgar */
+}
+
+#div-filter-tabs::-webkit-scrollbar-track {
+  background-color: #747bff; /* Color del track */
 }

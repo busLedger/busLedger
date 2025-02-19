@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
+import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import { getAllUsers, toggleUserStatus } from "../../api/user.service.js";
 import {
@@ -18,18 +20,17 @@ import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 
 export const AdminPanel = () => {
+  const containerMovilRef = useContainerHeight();
   const { darkMode } = useOutletContext();
+  const { pageSize, currentPage, setCurrentPage, isPaginated } = useResponsivePagination(3);
+  
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(3);
   const [searchTerm, setSearchTerm] = useState("");
 
   const obtenerUsuarios = async () => {
-    console.log('Se monto el componente')
-    setLoading(true);
     const users = await getAllUsers();
     setUsers(users);
     setFilteredUsers(users);
@@ -37,43 +38,8 @@ export const AdminPanel = () => {
   };
 
   useEffect(() => {
-    document.addEventListener("DOMContentLoaded", () => {
-      
-  
-      const containerMovil = document.querySelector(".container-movil");
-      if (containerMovil) {
-        const containerHeight = containerMovil.offsetHeight;
-        document.documentElement.style.setProperty("--container-movil-height", `${containerHeight}px`);
-      }
-      console.log("DOMContentLoaded", containerMovil);
-    });
     obtenerUsuarios();
   }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      let newPageSize;
-      if (window.innerWidth < 640) {
-        newPageSize = 2;
-      } else if (window.innerWidth < 1024) {
-        newPageSize = 2;
-      } else {
-        newPageSize = 3;
-      }
-
-      if (newPageSize !== pageSize) {
-        setPageSize(newPageSize);
-        setCurrentPage(1); 
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [pageSize]);
 
   const handleFilterChange = (value) => {
     if (value === "all") {
@@ -82,15 +48,13 @@ export const AdminPanel = () => {
       const isActive = value === "active";
       setFilteredUsers(users.filter((user) => user.activo === isActive));
     }
-    setCurrentPage(1); // Resetear a la primera página al cambiar filtro
+    setCurrentPage(1);
   };
 
   const handleToggleStatus = async (uid, currentStatus) => {
     try {
       await toggleUserStatus(uid, !currentStatus);
-      message.success(
-        `Usuario ${!currentStatus ? "activado" : "desactivado"} correctamente`
-      );
+      message.success(`Usuario ${!currentStatus ? "activado" : "desactivado"} correctamente`);
       obtenerUsuarios();
     } catch (error) {
       message.error("Error al cambiar el estado del usuario: " + error.message);
@@ -105,7 +69,7 @@ export const AdminPanel = () => {
         user.correo.toLowerCase().includes(e.target.value.toLowerCase())
     );
     setFilteredUsers(filtered);
-    setCurrentPage(1); // Resetear a la primera página al buscar
+    setCurrentPage(1);
   };
 
   const customTheme = {
@@ -116,19 +80,16 @@ export const AdminPanel = () => {
     },
   };
 
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const paginatedUsers = isPaginated
+    ? filteredUsers.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : filteredUsers; // En móviles, mostrar todos los usuarios sin paginar
 
   return (
     <ConfigProvider theme={customTheme}>
       <div className={`p-4 md:p-0 bg-dark-purple w-full`}>
-        <section className="container-movil container w-full mx-auto p-2">
+        <section ref={containerMovilRef} className="container-movil container w-full mx-auto p-2">
           <p className="title-pages">Admin Panel</p>
-
           <div className="pages-option-container">
-            {/* FilterTabs ocupa el 100% en móviles, 50% en pantallas medianas/grandes */}
             <div className="w-full sm:w-1/2 lg:w-1/2">
               <FilterTabs
                 options={["Todos", "Activos", "Inactivos"]}
@@ -145,7 +106,6 @@ export const AdminPanel = () => {
               />
             </div>
 
-            {/* Input ocupa el 100% en móviles, 50% en pantallas medianas/grandes */}
             <div className="center-item">
               <Input
                 className="w-full md:w-3/4 md:mt-1"
@@ -172,9 +132,7 @@ export const AdminPanel = () => {
                   key={user.uid}
                   avatar={
                     <img
-                      src={
-                        user.roles.includes("Admin") ? adminIcon : usuarioIcon
-                      }
+                      src={user.roles.includes("Admin") ? adminIcon : usuarioIcon}
                       alt="avatar"
                       className="w-16 h-16 rounded-full"
                     />
@@ -187,9 +145,7 @@ export const AdminPanel = () => {
                     items={[
                       `Correo: ${user.correo}`,
                       `WhatsApp: ${user.whatsapp}`,
-                      `Fecha de Creación: ${new Date(
-                        user.fecha_creacion
-                      ).toLocaleDateString()}`,
+                      `Fecha de Creación: ${new Date(user.fecha_creacion).toLocaleDateString()}`,
                       `Roles: ${user.roles.join(", ")}`,
                     ]}
                     theme={darkMode}
@@ -207,20 +163,11 @@ export const AdminPanel = () => {
           )}
         </div>
 
-        <Pagination
-          totalItems={filteredUsers.length}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        {isPaginated && (
+          <Pagination totalItems={filteredUsers.length} currentPage={currentPage} pageSize={pageSize} onPageChange={setCurrentPage} />
+        )}
 
-        <RegisterUserModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onUserRegistered={obtenerUsuarios}
-          theme={darkMode}
-          isOwner={false}
-        />
+        <RegisterUserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onUserRegistered={obtenerUsuarios} theme={darkMode} isOwner={false} />
       </div>
     </ConfigProvider>
   );

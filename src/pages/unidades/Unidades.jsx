@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
+import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import {
   getBusesWithFinancials,
@@ -14,7 +16,6 @@ import {
 import { message, ConfigProvider, Select } from "antd";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
-import Button from "../../components/ui/Button.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 import imgUnidades from "../../assets/bus.png";
 import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
@@ -22,14 +23,15 @@ import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
 const { Option } = Select;
 
 export const Unidades = () => {
+  const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
+  const { pageSize, currentPage, setCurrentPage, isPaginated } = useResponsivePagination(3);
+
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(3);
   const [mesSeleccionado, setMesSeleccionado] = useState(""); // Mes seleccionado
   const [mesesDisponibles, setMesesDisponibles] = useState([]); // Lista de meses con datos
-  const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false); // Estado para controlar la visibilidad del modal
+  const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false); // Estado para modal
 
   useEffect(() => {
     generarMesesDisponibles();
@@ -41,46 +43,26 @@ export const Unidades = () => {
     }
   }, [mesSeleccionado]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      let newPageSize = window.innerWidth < 1024 ? 2 : 3;
-      if (newPageSize !== pageSize) {
-        setPageSize(newPageSize);
-        setCurrentPage(1);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [pageSize]);
-
   /** 🔹 GENERAR LOS MESES DISPONIBLES (hasta el mes actual del año en curso) */
   const generarMesesDisponibles = () => {
     const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1; // Obtener el mes actual (0-11, por eso sumamos 1)
+    const currentMonth = new Date().getMonth() + 1;
     const meses = [];
 
     for (let i = 1; i <= currentMonth; i++) {
-      const mes = `${currentYear}-${i.toString().padStart(2, "0")}`; // Formato "YYYY-MM"
+      const mes = `${currentYear}-${i.toString().padStart(2, "0")}`;
       meses.push(mes);
     }
 
-    setMesesDisponibles(meses.reverse()); // Ordenar de más reciente a más antiguo
-    setMesSeleccionado(meses[0]); // Seleccionar el mes más reciente
+    setMesesDisponibles(meses.reverse());
+    setMesSeleccionado(meses[0]);
   };
 
   /** 🔹 OBTENER LOS BUSES DEL MES SELECCIONADO */
   const obtenerBuses = async (mes) => {
-    console.log("Estoy en la funcion obtenerBuses");
     setLoading(true);
     try {
-      console.log(userData.roles.includes("Admin"));
       if (userData.roles.includes("Admin")) {
-        console.log("Estaa funcion se va a ejecutar"); // Verifica si el usuario es Admin
         const busesData = await getAllBusesWithFinancials(mes);
         setBuses(busesData);
       } else {
@@ -91,13 +73,11 @@ export const Unidades = () => {
       message.error("Error al obtener los buses: " + error.message);
     }
     setLoading(false);
-    console.log("Termino la funcion");
   };
 
-  const paginatedBuses = buses.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const paginatedBuses = isPaginated
+    ? buses.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : buses; // En móviles, mostrar todos sin paginar
 
   const customTheme = {
     token: {
@@ -110,7 +90,7 @@ export const Unidades = () => {
   return (
     <ConfigProvider theme={customTheme}>
       <div className="p-4 bg-dark-purple w-full">
-        <section className="container w-full mx-auto p-2">
+        <section ref={containerRef} className="container-movil container w-full mx-auto p-2">
           <p className="title-pages">Gestión de Unidades</p>
 
           {/* 🔹 FILTRO DE MESES */}
@@ -140,7 +120,7 @@ export const Unidades = () => {
         </section>
 
         {/* 🔹 MOSTRAR BUSES O MENSAJE DE "NO HAY DATOS" */}
-        <div className="pt-4 md:pt-0">
+        <div className="pt-4 md:pt-0 data-div">
           {loading ? (
             <Load />
           ) : buses.length > 0 ? (
@@ -149,11 +129,7 @@ export const Unidades = () => {
                 <Card key={bus.id} theme={darkMode}>
                   <CardHeader>
                     <div className="flex gap-2 items-center justify-center">
-                      <img
-                        src={imgUnidades}
-                        alt="Bus"
-                        className="w-16 h-16 rounded-full"
-                      />
+                      <img src={imgUnidades} alt="Bus" className="w-16 h-16 rounded-full" />
                       <div>
                         <CardTitle>{bus.nombre_ruta}</CardTitle>
                         <CardTitle>{bus.modelo}</CardTitle>
@@ -165,33 +141,20 @@ export const Unidades = () => {
                       `Dueño: ${bus.dueño}`,
                       `Conductor: ${bus.conductor}`,
                       `Alumnos: ${bus.totalAlumnos}`,
-                      `Salario Conductor: L.${bus.salario.toFixed(2)}`,
                       `Ingresos mes: L.${bus.totalIngresos.toFixed(2)}`,
                       `Gastos: L.${bus.totalGastos.toFixed(2)}`,
                       `Balance: L.${bus.balance.toFixed(2)}`,
                     ]}
                     theme={darkMode}
                   />
-                  <div className="col-span-2 flex justify-center gap-4">
-                    <Button text={"Registrar Gasto"}/>
-                  </div>
                 </Card>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-400 mt-4">
-              No hay datos disponibles
-            </p>
+            <p className="text-center text-gray-400 mt-4">No hay datos disponibles</p>
           )}
         </div>
 
-        {/* 🔹 PAGINACIÓN */}
-        <Pagination
-          totalItems={buses.length}
-          currentPage={currentPage}
-          pageSize={pageSize}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
         <RegisterBusModal
           isOpen={isRegisterBusModalOpen}
           onClose={() => setIsRegisterBusModalOpen(false)}
@@ -202,6 +165,8 @@ export const Unidades = () => {
           theme={darkMode}
           currentUser={userData}
         />
+
+        {isPaginated && <Pagination totalItems={buses.length} currentPage={currentPage} pageSize={pageSize} onPageChange={setCurrentPage} />}
       </div>
     </ConfigProvider>
   );
