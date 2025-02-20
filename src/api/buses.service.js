@@ -115,7 +115,6 @@ const getAllBusesWithFinancials = async () => {
       );
 
     const { data, error } = await query;
-    console.log('Data cruda:',data)
 
     if (error) throw error;
 

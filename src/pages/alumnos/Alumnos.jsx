@@ -119,7 +119,7 @@ export const Alumnos = () => {
                 name="nombre"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                placeholder="Buscar alumnos"
+                placeholder="Buscar alumno por nombre"
               />
             </div>
           </div>
@@ -174,7 +174,7 @@ export const Alumnos = () => {
           isOpen={isRegisterAlumnoModalOpen}
           onClose={() => setIsRegisterAlumnoModalOpen(false)}
           theme={darkMode}
-          onRegister={obtenerAlumnos}
+          onAlumnoRegistered={obtenerAlumnos}
           currentUser={userData}
         />
 

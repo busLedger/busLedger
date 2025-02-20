@@ -19,65 +19,120 @@ import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 import imgUnidades from "../../assets/bus.png";
 import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
+import Input from "../../components/ui/Input.jsx";
+import Button from "../../components/ui/Button.jsx";
+import RegisterGastoModal from "../../components/ui/Modales/RegisterGastoModal.jsx";
 
 const { Option } = Select;
 
 export const Unidades = () => {
   const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
-  const { pageSize, currentPage, setCurrentPage, isPaginated } = useResponsivePagination(3);
+  const { pageSize, currentPage, setCurrentPage, isPaginated } =
+    useResponsivePagination(3);
 
   const [buses, setBuses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mesSeleccionado, setMesSeleccionado] = useState(""); // Mes seleccionado
-  const [mesesDisponibles, setMesesDisponibles] = useState([]); // Lista de meses con datos
-  const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false); // Estado para modal
+  const [mesSeleccionado, setMesSeleccionado] = useState("");
+  const [mesesDisponibles, setMesesDisponibles] = useState([]);
+  const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
 
   useEffect(() => {
-    generarMesesDisponibles();
+    obtenerBuses();
   }, []);
 
-  useEffect(() => {
-    if (mesSeleccionado) {
-      obtenerBuses(mesSeleccionado);
-    }
-  }, [mesSeleccionado]);
-
-  /** 🔹 GENERAR LOS MESES DISPONIBLES (hasta el mes actual del año en curso) */
-  const generarMesesDisponibles = () => {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1;
-    const meses = [];
-
-    for (let i = 1; i <= currentMonth; i++) {
-      const mes = `${currentYear}-${i.toString().padStart(2, "0")}`;
-      meses.push(mes);
-    }
-
-    setMesesDisponibles(meses.reverse());
-    setMesSeleccionado(meses[0]);
-  };
-
-  /** 🔹 OBTENER LOS BUSES DEL MES SELECCIONADO */
-  const obtenerBuses = async (mes) => {
+  /** 🔹 OBTENER LOS BUSES Y GENERAR LOS MESES DISPONIBLES */
+  const obtenerBuses = async () => {
     setLoading(true);
     try {
+      let busesData = [];
       if (userData.roles.includes("Admin")) {
-        const busesData = await getAllBusesWithFinancials(mes);
-        setBuses(busesData);
+        busesData = await getAllBusesWithFinancials();
       } else {
-        const busesData = await getBusesWithFinancials(userData.uid, mes);
-        setBuses(busesData);
+        busesData = await getBusesWithFinancials(userData.uid);
       }
+      setBuses(busesData);
+      generarMesesDisponibles(busesData);
     } catch (error) {
       message.error("Error al obtener los buses: " + error.message);
     }
     setLoading(false);
   };
 
+  /** 🔹 GENERAR MESES CON INGRESOS O GASTOS */
+  const generarMesesDisponibles = (busesData) => {
+    const mesesSet = new Set();
+
+    busesData.forEach((bus) => {
+      bus.ingresos.forEach((ingreso) => {
+        if (ingreso.fecha) {
+          const mes = ingreso.fecha.substring(0, 7);
+          mesesSet.add(mes);
+        }
+      });
+
+      bus.gastos.forEach((gasto) => {
+        if (gasto.fecha_gasto) {
+          const mes = gasto.fecha_gasto.substring(0, 7);
+          mesesSet.add(mes);
+        }
+      });
+    });
+
+    // Agregar el mes actual si no está en los datos
+    const currentYear = new Date().getFullYear();
+    const currentMonth = (new Date().getMonth() + 1)
+      .toString()
+      .padStart(2, "0");
+    const mesActual = `${currentYear}-${currentMonth}`;
+    mesesSet.add(mesActual);
+
+    // Convertir a array y ordenar por fecha en orden descendente
+    const mesesOrdenados = [...mesesSet].sort(
+      (a, b) => new Date(b + "-01") - new Date(a + "-01")
+    );
+
+    setMesesDisponibles(mesesOrdenados);
+    setMesSeleccionado(mesActual);
+  };
+
+  /** 🔹 FILTRAR LOS BUSES SEGÚN EL MES SELECCIONADO Y EL TÉRMINO DE BÚSQUEDA */
+  const busesFiltrados = buses
+    .filter((bus) =>
+      bus.nombre_ruta.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .map((bus) => {
+      const ingresosFiltrados = bus.ingresos.filter((ingreso) =>
+        ingreso.fecha.startsWith(mesSeleccionado)
+      );
+      const gastosFiltrados = bus.gastos.filter((gasto) =>
+        gasto.fecha_gasto.startsWith(mesSeleccionado)
+      );
+
+      return {
+        ...bus,
+        ingresos: ingresosFiltrados,
+        gastos: gastosFiltrados,
+        totalIngresos: ingresosFiltrados.reduce(
+          (acc, ingreso) => acc + ingreso.total_ingreso,
+          0
+        ),
+        totalGastos: gastosFiltrados.reduce(
+          (acc, gasto) => acc + gasto.monto,
+          0
+        ),
+        balance:
+          ingresosFiltrados.reduce(
+            (acc, ingreso) => acc + ingreso.total_ingreso,
+            0
+          ) - gastosFiltrados.reduce((acc, gasto) => acc + gasto.monto, 0),
+      };
+    });
+
   const paginatedBuses = isPaginated
-    ? buses.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-    : buses; // En móviles, mostrar todos sin paginar
+    ? busesFiltrados.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    : busesFiltrados;
 
   const customTheme = {
     token: {
@@ -90,29 +145,42 @@ export const Unidades = () => {
   return (
     <ConfigProvider theme={customTheme}>
       <div className="p-4 bg-dark-purple w-full">
-        <section ref={containerRef} className="container-movil container w-full mx-auto p-2">
+        <section
+          ref={containerRef}
+          className="container-movil container w-full mx-auto p-2"
+        >
           <p className="title-pages">Gestión de Unidades</p>
 
-          {/* 🔹 FILTRO DE MESES */}
-          <div className="w-full flex justify-end mb-4">
+          {/* 🔹 FILTRO DE MESES Y BÚSQUEDA POR NOMBRE DE RUTA */}
+          <div className="w-full flex justify-center gap-4 mb-4">
+            <Input
+              className={`w-3/6 mr-2`}
+              theme={darkMode}
+              placeholder={`Buscar por nombre de ruta`}
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Actualizar el término de búsqueda
+            />
             <Select
               value={mesSeleccionado}
               onChange={setMesSeleccionado}
-              className="w-[200px]"
+              className="w-2/6"
               placeholder="Seleccionar Mes"
             >
-              {mesesDisponibles.length > 0 ? (
-                mesesDisponibles.map((mes) => (
+              {mesesDisponibles.map((mes) => {
+                const [year, month] = mes.split("-"); // Extraer año y mes
+                const nombreMes = new Intl.DateTimeFormat("es-ES", {
+                  month: "long",
+                }).format(
+                  new Date(parseInt(year), parseInt(month) - 1) // Ajuste de mes en `Date`
+                );
+
+                return (
                   <Option key={mes} value={mes}>
-                    {new Date(mes + "-01").toLocaleString("es-ES", {
-                      month: "long",
-                      year: "numeric",
-                    })}
+                    {`${nombreMes} ${year}`} {/* Formato correcto */}
                   </Option>
-                ))
-              ) : (
-                <Option value="">Todos</Option>
-              )}
+                );
+              })}
             </Select>
           </div>
 
@@ -123,13 +191,17 @@ export const Unidades = () => {
         <div className="pt-4 md:pt-0 data-div">
           {loading ? (
             <Load />
-          ) : buses.length > 0 ? (
+          ) : paginatedBuses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {paginatedBuses.map((bus) => (
                 <Card key={bus.id} theme={darkMode}>
                   <CardHeader>
                     <div className="flex gap-2 items-center justify-center">
-                      <img src={imgUnidades} alt="Bus" className="w-16 h-16 rounded-full" />
+                      <img
+                        src={imgUnidades}
+                        alt="Bus"
+                        className="w-16 h-16 rounded-full"
+                      />
                       <div>
                         <CardTitle>{bus.nombre_ruta}</CardTitle>
                         <CardTitle>{bus.modelo}</CardTitle>
@@ -140,18 +212,29 @@ export const Unidades = () => {
                     items={[
                       `Dueño: ${bus.dueño}`,
                       `Conductor: ${bus.conductor}`,
-                      `Alumnos: ${bus.totalAlumnos}`,
-                      `Ingresos mes: L.${bus.totalIngresos.toFixed(2)}`,
+                      `Total Alumnos: ${bus.totalAlumnos}`,
+                      `Ingresos: L.${bus.totalIngresos.toFixed(2)}`,
                       `Gastos: L.${bus.totalGastos.toFixed(2)}`,
                       `Balance: L.${bus.balance.toFixed(2)}`,
                     ]}
                     theme={darkMode}
                   />
+                  <div className="w-full flex justify-center gap-4">
+                    <Button
+                    text={"Registrar Gasto"}
+                    />
+                    
+                    <Button
+                      text={"Registrar Ingreso"}
+                    />
+                  </div>
                 </Card>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-400 mt-4">No hay datos disponibles</p>
+            <p className="text-center text-gray-400 mt-4">
+              No hay datos disponibles
+            </p>
           )}
         </div>
 
@@ -165,8 +248,16 @@ export const Unidades = () => {
           theme={darkMode}
           currentUser={userData}
         />
-
-        {isPaginated && <Pagination totalItems={buses.length} currentPage={currentPage} pageSize={pageSize} onPageChange={setCurrentPage} />}
+        <RegisterGastoModal
+        ></RegisterGastoModal>
+        {isPaginated && (
+          <Pagination
+            totalItems={busesFiltrados.length}
+            currentPage={currentPage}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </ConfigProvider>
   );

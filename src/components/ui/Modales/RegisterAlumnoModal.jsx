@@ -88,6 +88,14 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
     }
   };
 
+  const handleWhatsAppChange = (e) => {
+    const value = e.target.value;
+    // Validar que solo contenga números y tenga una longitud máxima de 8 dígitos
+    if (/^\d{0,8}$/.test(value)) {
+      setFormData({ ...formData, no_encargado: value });
+      setIsDirty(true);
+    }
+  };
   // Función para resetear el formulario
   const resetForm = () => {
     setFormData({
@@ -132,15 +140,29 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
             onChange={handleInputChange}
             placeholder="Ingrese el nombre del encargado"
           />
-          <Input
-            theme={theme}
-            label="Número del Encargado"
-            type="text"
-            name="no_encargado"
-            value={formData.no_encargado}
-            onChange={handleInputChange}
-            placeholder="Ingrese el número del encargado"
-          />
+          <label
+            className={`block text-sm font-bold mb-2 ${
+              theme ? "text-white" : "text-black"
+            }`}
+          >
+            Whatsapp
+          </label>
+          <div className="flex gap-2 w-full">
+            <div className="w-1/6">
+              <Input theme={theme} type="text" value="+504" disabled />
+            </div>
+            <div className="w-5/6">
+              <Input
+                theme={theme}
+                type="text"
+                name="no_encargado"
+                value={formData.no_encargado}
+                onChange={handleWhatsAppChange}
+                placeholder="Ingrese el número de WhatsApp"
+              />
+            </div>
+          </div>
+
           <Input
             theme={theme}
             label="Dirección"
