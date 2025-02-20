@@ -10,6 +10,7 @@ import {
   CardTitle,
   CardContent,
 } from "../../components/ui/CardUsers";
+import { RegisterAlumnoModal } from "../../components/ui/Modales/RegisterAlumnoModal.jsx";
 import { message, ConfigProvider } from "antd";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
@@ -169,6 +170,13 @@ export const Alumnos = () => {
             </p>
           )}
         </div>
+        <RegisterAlumnoModal
+          isOpen={isRegisterAlumnoModalOpen}
+          onClose={() => setIsRegisterAlumnoModalOpen(false)}
+          theme={darkMode}
+          onRegister={obtenerAlumnos}
+          currentUser={userData}
+        />
 
         {/* 🔹 PAGINACIÓN */}
         {isPaginated && (

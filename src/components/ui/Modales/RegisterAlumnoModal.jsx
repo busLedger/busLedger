@@ -7,7 +7,7 @@ import Input from "../Input.jsx";
 import { createAlumno } from "../../../api/alumnos.service.js";
 import { getBusesByUser } from "../../../api/buses.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
-import MapPicker from "../MapPicker.jsx";
+import {MapPicker} from "../MapPicker.jsx";
 
 const { Option } = Select;
 
