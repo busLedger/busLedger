@@ -157,6 +157,7 @@ const updateBus = async (busId, updatedData) => {
 
 const getBusesByUser = async(userId) => {
   try {
+    console.log("Obteniendo buses del usuario:", userId);
     const { data, error } = await supabase
       .from("buses")
       .select("*")

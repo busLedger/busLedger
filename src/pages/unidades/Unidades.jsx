@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
+import { Ingresos_Gastos } from "./Ingresos_Gastos.jsx";
 import {
   getBusesWithFinancials,
   getAllBusesWithFinancials,
@@ -20,7 +21,6 @@ import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 import imgUnidades from "../../assets/bus.png";
 import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
 import Input from "../../components/ui/Input.jsx";
-import Button from "../../components/ui/Button.jsx";
 import RegisterGastoModal from "../../components/ui/Modales/RegisterGastoModal.jsx";
 
 const { Option } = Select;
@@ -219,15 +219,7 @@ export const Unidades = () => {
                     ]}
                     theme={darkMode}
                   />
-                  <div className="w-full flex justify-center gap-4">
-                    <Button
-                    text={"Registrar Gasto"}
-                    />
-                    
-                    <Button
-                      text={"Registrar Ingreso"}
-                    />
-                  </div>
+                  <Ingresos_Gastos busId={bus.id} userId={userData.uid} />
                 </Card>
               ))}
             </div>

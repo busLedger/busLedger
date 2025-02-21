@@ -4,7 +4,8 @@ import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select, DatePicker } from "antd";
 import Input from "../Input.jsx";
-import { createGasto, getBusesByUser } from "../../../api/gastos.service.js";
+import { createGasto } from "../../../api/gastos.service.js";
+import { getBusesByUser } from "../../../api/buses.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 
 const { Option } = Select;
@@ -107,9 +108,9 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
         acceptText="Registrar"
         hasUnsavedChanges={isDirty}
       >
-        <div className="space-y-4">
+        <div className="space-y-4 mt-4">
           {!busId && (
-            <div>
+            <div className="w-full">
               <label className="block text-sm font-bold mb-2">Bus</label>
               <Select
                 style={{ width: '100%' }}
