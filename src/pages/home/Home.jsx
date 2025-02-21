@@ -29,7 +29,7 @@ export const Home = () => {
     { title: "Dashboard", src: imgDashboard, rol: ["Admin", "Dueño"], ruta:"dashboard" },
     { title: "Unidades", src: imgUnidades, rol: ["Admin", "Dueño"],ruta:"unidades-transporte" },
     { title: "Alumnos", src: imgAlumnos, gap: true, rol: ["Admin", "Dueño", "Conductor"], ruta:"alumnos" },
-    { title: "Pagos", src: imgPagos, rol: ["Admin", "Dueño"], ruta:"pagos" },
+    { title: "Pagos / Ingresos", src: imgPagos, rol: ["Admin", "Dueño"], ruta:"pagos" },
     { title: "Gastos", src: imgGastos, rol: ["Admin", "Dueño"], ruta:"gastos" },
     { title: "Panel Usuario", src: imgPanelUsuario, rol: ["Admin", "Dueño", "Conductor"], ruta:"panel-usuario" },
   ];

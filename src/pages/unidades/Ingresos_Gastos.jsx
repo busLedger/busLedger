@@ -4,9 +4,15 @@ import Button from "../../components/ui/Button";
 import RegisterGastoModal from "../../components/ui/Modales/RegisterGastoModal";
 import RegisterIngresoModal from "../../components/ui/Modales/RegisterIngresoModal";
 
-export const Ingresos_Gastos = ({ busId, userId }) => {
+export const Ingresos_Gastos = ({ busId, userId, onRegistered }) => {
   const [isRegisterGastoModalOpen, setIsRegisterGastoModalOpen] = useState(false);
   const [isRegisterIngresoModalOpen, setIsRegisterIngresoModalOpen] = useState(false);
+
+  const onClose = () => {
+    setIsRegisterGastoModalOpen(false);
+    setIsRegisterIngresoModalOpen(false);
+    onRegistered();
+  }
 
   return (
     <>
@@ -17,7 +23,7 @@ export const Ingresos_Gastos = ({ busId, userId }) => {
       <RegisterGastoModal
         isOpen={isRegisterGastoModalOpen}
         onClose={() => setIsRegisterGastoModalOpen(false)}
-        onGastoRegistered={() => setIsRegisterGastoModalOpen(false)}
+        onGastoRegistered={onClose}
         theme={true} // Puedes ajustar el tema según sea necesario
         currentUser={userId} // Reemplaza con el usuario actual
         busId={busId}
@@ -37,4 +43,5 @@ export const Ingresos_Gastos = ({ busId, userId }) => {
 Ingresos_Gastos.propTypes = {
   busId: PropTypes.string,
   userId: PropTypes.string.isRequired,
+  onRegistered: PropTypes.func.isRequired
 };

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
-import { Ingresos_Gastos } from "./Ingresos_Gastos.jsx";
 import {
   getBusesWithFinancials,
   getAllBusesWithFinancials,
@@ -18,13 +17,13 @@ import { message, ConfigProvider, Select } from "antd";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
-import imgUnidades from "../../assets/bus.png";
-import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
+import imgGastos from "../../assets/gastos.png";
+import RegisterGastoModal from "../../components/ui/Modales/RegisterGastoModal.jsx";
 import Input from "../../components/ui/Input.jsx";
 
 const { Option } = Select;
 
-export const Unidades = () => {
+export const Gastos = () => {
   const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
@@ -34,7 +33,7 @@ export const Unidades = () => {
   const [loading, setLoading] = useState(true);
   const [mesSeleccionado, setMesSeleccionado] = useState("");
   const [mesesDisponibles, setMesesDisponibles] = useState([]);
-  const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false);
+  const [isRegisterGastoModalOpen, setIsRegisterGastoModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
 
   useEffect(() => {
@@ -102,30 +101,17 @@ export const Unidades = () => {
       bus.nombre_ruta.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .map((bus) => {
-      const ingresosFiltrados = bus.ingresos.filter((ingreso) =>
-        ingreso.fecha.startsWith(mesSeleccionado)
-      );
       const gastosFiltrados = bus.gastos.filter((gasto) =>
         gasto.fecha_gasto.startsWith(mesSeleccionado)
       );
 
       return {
         ...bus,
-        ingresos: ingresosFiltrados,
         gastos: gastosFiltrados,
-        totalIngresos: ingresosFiltrados.reduce(
-          (acc, ingreso) => acc + ingreso.total_ingreso,
-          0
-        ),
         totalGastos: gastosFiltrados.reduce(
           (acc, gasto) => acc + gasto.monto,
           0
         ),
-        balance:
-          ingresosFiltrados.reduce(
-            (acc, ingreso) => acc + ingreso.total_ingreso,
-            0
-          ) - gastosFiltrados.reduce((acc, gasto) => acc + gasto.monto, 0),
       };
     });
 
@@ -148,7 +134,7 @@ export const Unidades = () => {
           ref={containerRef}
           className="container-movil container w-full mx-auto p-2"
         >
-          <p className="title-pages">Gestión de Unidades</p>
+          <p className="title-pages">Gestión de Gastos</p>
 
           {/* 🔹 FILTRO DE MESES Y BÚSQUEDA POR NOMBRE DE RUTA */}
           <div className="w-full flex justify-center gap-4 mb-4">
@@ -183,7 +169,7 @@ export const Unidades = () => {
             </Select>
           </div>
 
-          <Fab onClick={() => setIsRegisterBusModalOpen(true)} />
+          <Fab onClick={() => setIsRegisterGastoModalOpen(true)} />
         </section>
 
         {/* 🔹 MOSTRAR BUSES O MENSAJE DE "NO HAY DATOS" */}
@@ -197,7 +183,7 @@ export const Unidades = () => {
                   <CardHeader>
                     <div className="flex gap-2 items-center justify-center">
                       <img
-                        src={imgUnidades}
+                        src={imgGastos}
                         alt="Bus"
                         className="w-16 h-16 rounded-full"
                       />
@@ -212,16 +198,9 @@ export const Unidades = () => {
                       `Dueño: ${bus.dueño}`,
                       `Conductor: ${bus.conductor}`,
                       `Total Alumnos: ${bus.totalAlumnos}`,
-                      `Ingresos: L.${bus.totalIngresos.toFixed(2)}`,
                       `Gastos: L.${bus.totalGastos.toFixed(2)}`,
-                      `Balance: L.${bus.balance.toFixed(2)}`,
                     ]}
                     theme={darkMode}
-                  />
-                  <Ingresos_Gastos
-                    busId={bus.id}
-                    userId={userData.uid}
-                    onRegistered={obtenerBuses}
                   />
                 </Card>
               ))}
@@ -233,11 +212,11 @@ export const Unidades = () => {
           )}
         </div>
 
-        <RegisterBusModal
-          isOpen={isRegisterBusModalOpen}
-          onClose={() => setIsRegisterBusModalOpen(false)}
-          onBusRegistered={() => {
-            setIsRegisterBusModalOpen(false);
+        <RegisterGastoModal
+          isOpen={isRegisterGastoModalOpen}
+          onClose={() => setIsRegisterGastoModalOpen(false)}
+          onGastoRegistered={() => {
+            setIsRegisterGastoModalOpen(false);
             obtenerBuses(mesSeleccionado);
           }}
           theme={darkMode}

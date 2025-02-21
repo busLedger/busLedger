@@ -12,9 +12,9 @@ const { Option } = Select;
 
 const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, currentUser, busId }) => {
   const [formData, setFormData] = useState({
-    descripcion: "",
+    descripcion_gasto: "",
     monto: "",
-    fecha: null,
+    fecha_gasto: null,
     id_bus: busId || "",
   });
 
@@ -60,23 +60,23 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
 
   // Función para manejar el cambio en la fecha
   const handleDateChange = (date) => {
-    setFormData({ ...formData, fecha: date });
+    setFormData({ ...formData, fecha_gasto: date });
     setIsDirty(true);
   };
 
   // Función para registrar un nuevo gasto
   const handleRegisterGasto = async () => {
-    const { descripcion, monto, fecha, id_bus } = formData;
+    const { descripcion_gasto, monto, fecha_gasto, id_bus } = formData;
 
     // Validar que todos los campos estén llenos
-    if (!descripcion || !monto || !fecha || !id_bus) {
+    if (!descripcion_gasto || !monto || !fecha_gasto || !id_bus) {
       mostrarMensaje('error', 'Todos los campos deben estar llenos');
       return;
     }
 
     try {
       mostrarMensaje('loading', 'Registrando gasto...');
-      await createGasto({ descripcion, monto, fecha: fecha.format("YYYY-MM-DD"), id_bus });
+      await createGasto({ descripcion_gasto, monto, fecha_gasto: fecha_gasto.format("YYYY-MM-DD"), id_bus });
       mostrarMensaje('success', 'Gasto registrado correctamente');
       resetForm();
       onClose();
@@ -89,9 +89,9 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
   // Función para resetear el formulario
   const resetForm = () => {
     setFormData({
-      descripcion: "",
+      descripcion_gasto: "",
       monto: "",
-      fecha: null,
+      fecha_gasto: null,
       id_bus: busId || "",
     });
     setIsDirty(false);
@@ -130,8 +130,8 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
             theme={theme}
             label="Descripción"
             type="text"
-            name="descripcion"
-            value={formData.descripcion}
+            name="descripcion_gasto"
+            value={formData.descripcion_gasto}
             onChange={handleInputChange}
             placeholder="Ingrese la descripción del gasto"
           />
@@ -148,7 +148,7 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
             <label className="block text-sm font-bold mb-2">Fecha</label>
             <DatePicker
               style={{ width: '100%' }}
-              value={formData.fecha}
+              value={formData.fecha_gasto}
               onChange={handleDateChange}
               placeholder="Seleccione la fecha del gasto"
               format="YYYY-MM-DD"

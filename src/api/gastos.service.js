@@ -2,10 +2,11 @@ import { supabase } from "../../supabase_connection";
 
 /** Registrar un nuevo gasto */
 const createGasto = async (newGasto) => {
+  console.log("Registrando gasto:", newGasto);	
   try {
     const { data, error } = await supabase
       .from("gastos")
-      .insert([newGasto])
+      .insert(newGasto)
       .select("*")
       .single();
 

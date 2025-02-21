@@ -9,7 +9,7 @@ import {
   checkActiveSession,
 } from "../../api/auth.service";
 
-const Login = () => {
+export const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
@@ -34,7 +34,7 @@ const Login = () => {
   const verifySession = async () => {
     const session = await checkActiveSession();
     if (session.uid != null) {
-      navigate("/home");
+      navigate("/home/dashboard");
     }
   };
 
@@ -97,4 +97,3 @@ const Login = () => {
   );
 };
 
-export default Login;
