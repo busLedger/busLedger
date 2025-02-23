@@ -57,33 +57,23 @@ const getGastosByBus = async (busId) => {
 /** Obtener todos los gastos de los buses de un usuario */
 const getGastosByUser = async (userId) => {
   try {
-    // Obtener los buses donde el usuario es dueño o conductor
-    const { data: buses, error: busError } = await supabase
+    const { data: gastos, error } = await supabase
       .from("buses")
-      .select("id")
-      .or(`id_dueño.eq.${userId},id_conductor.eq.${userId}`);
+      .select(`
+        id, placa, nombre_ruta, id_dueño, modelo,
+        gastos(*)
+      `)
+      .eq("id_dueño", userId);
 
-    if (busError) throw busError;
+    if (error) throw error;
 
-    if (!buses.length) return [];
-
-    // Extraer los IDs de los buses sin duplicados
-    const busIds = [...new Set(buses.map(bus => bus.id))];
-
-    // Obtener los gastos de estos buses
-    const { data: gastos, error: gastosError } = await supabase
-      .from("gastos")
-      .select("*")
-      .in("id_bus", busIds);
-
-    if (gastosError) throw gastosError;
-
-    return gastos;
+    return gastos || [];
   } catch (error) {
     console.error("Error obteniendo gastos por usuario:", error);
     return [];
   }
 };
+
 
 /** Eliminar un gasto por ID */
 const deleteGasto = async (gastoId) => {

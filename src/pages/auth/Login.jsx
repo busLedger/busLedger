@@ -27,7 +27,7 @@ export const Login = () => {
       e.preventDefault();
       const auth = await login(form.email, form.password);
       setLoading(false);
-      if (auth.authenticated === true) navigate("/home");
+      if (auth.authenticated === true) navigate("/home/dashboard");
     }
   };
 

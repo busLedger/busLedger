@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
-import {
-  getBusesWithFinancials,
-  getAllBusesWithFinancials,
-} from "../../api/buses.service";
+import { getGastosByUser, deleteGasto } from "../../api/gastos.service";
 import {
   Card,
   CardHeader,
@@ -20,6 +17,8 @@ import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 import imgGastos from "../../assets/gastos.png";
 import RegisterGastoModal from "../../components/ui/Modales/RegisterGastoModal.jsx";
 import Input from "../../components/ui/Input.jsx";
+import FilterTabs from "../../components/ui/FilterTabs.jsx";
+import Button from "../../components/ui/Button.jsx";
 
 const { Option } = Select;
 
@@ -29,47 +28,40 @@ export const Gastos = () => {
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 
-  const [buses, setBuses] = useState([]);
+  const [gastos, setGastos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mesSeleccionado, setMesSeleccionado] = useState("");
   const [mesesDisponibles, setMesesDisponibles] = useState([]);
-  const [isRegisterGastoModalOpen, setIsRegisterGastoModalOpen] = useState(false);
+  const [isRegisterGastoModalOpen, setIsRegisterGastoModalOpen] =
+    useState(false);
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+  const [selectedRuta, setSelectedRuta] = useState("Todos"); // Estado para la ruta seleccionada
+  const [rutasDisponibles, setRutasDisponibles] = useState([]); // Estado para las rutas disponibles
 
   useEffect(() => {
-    obtenerBuses();
+    obtenerGastos();
   }, []);
 
-  /** 🔹 OBTENER LOS BUSES Y GENERAR LOS MESES DISPONIBLES */
-  const obtenerBuses = async () => {
+  /** 🔹 OBTENER LOS GASTOS Y GENERAR LOS MESES Y RUTAS DISPONIBLES */
+  const obtenerGastos = async () => {
     setLoading(true);
     try {
-      let busesData = [];
-      if (userData.roles.includes("Admin")) {
-        busesData = await getAllBusesWithFinancials();
-      } else {
-        busesData = await getBusesWithFinancials(userData.uid);
-      }
-      setBuses(busesData);
-      generarMesesDisponibles(busesData);
+      const gastosData = await getGastosByUser(userData.uid);
+      console.log("los gastos del usuario:", gastosData);
+      setGastos(gastosData);
+      generarMesesDisponibles(gastosData);
+      generarRutasDisponibles(gastosData);
     } catch (error) {
-      message.error("Error al obtener los buses:" + error.message);
+      message.error("Error al obtener los gastos: " + error.message);
     }
     setLoading(false);
   };
 
-  /** 🔹 GENERAR MESES CON INGRESOS O GASTOS */
-  const generarMesesDisponibles = (busesData) => {
+  /** 🔹 GENERAR MESES CON GASTOS */
+  const generarMesesDisponibles = (gastosData) => {
     const mesesSet = new Set();
 
-    busesData.forEach((bus) => {
-      bus.ingresos.forEach((ingreso) => {
-        if (ingreso.fecha) {
-          const mes = ingreso.fecha.substring(0, 7);
-          mesesSet.add(mes);
-        }
-      });
-
+    gastosData.forEach((bus) => {
       bus.gastos.forEach((gasto) => {
         if (gasto.fecha_gasto) {
           const mes = gasto.fecha_gasto.substring(0, 7);
@@ -95,10 +87,28 @@ export const Gastos = () => {
     setMesSeleccionado(mesActual);
   };
 
-  /** 🔹 FILTRAR LOS BUSES SEGÚN EL MES SELECCIONADO Y EL TÉRMINO DE BÚSQUEDA */
-  const busesFiltrados = buses
+  /** 🔹 GENERAR RUTAS DISPONIBLES */
+  const generarRutasDisponibles = (gastosData) => {
+    const rutasSet = new Set();
+
+    gastosData.forEach((bus) => {
+      if (bus.nombre_ruta) {
+        rutasSet.add(bus.nombre_ruta);
+      }
+    });
+
+    // Convertir a array y agregar la opción "Todos"
+    const rutasOrdenadas = ["Todos", ...rutasSet];
+
+    setRutasDisponibles(rutasOrdenadas);
+  };
+
+  /** 🔹 FILTRAR LOS GASTOS SEGÚN EL MES SELECCIONADO, EL TÉRMINO DE BÚSQUEDA Y LA RUTA SELECCIONADA */
+  const gastosFiltrados = gastos
     .filter((bus) =>
-      bus.nombre_ruta.toLowerCase().includes(searchTerm.toLowerCase())
+      bus.gastos.some((gasto) =>
+        gasto.descripcion_gasto.toLowerCase().includes(searchTerm.toLowerCase())
+      )
     )
     .map((bus) => {
       const gastosFiltrados = bus.gastos.filter((gasto) =>
@@ -113,11 +123,28 @@ export const Gastos = () => {
           0
         ),
       };
-    });
+    })
+    .filter(
+      (bus) => selectedRuta === "Todos" || bus.nombre_ruta === selectedRuta
+    );
 
-  const paginatedBuses = isPaginated
-    ? busesFiltrados.slice((currentPage - 1) * pageSize, currentPage * pageSize)
-    : busesFiltrados;
+  const paginatedGastos = isPaginated
+    ? gastosFiltrados.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+      )
+    : gastosFiltrados;
+
+  /** 🔹 ELIMINAR GASTO */
+  const handleDeleteGasto = async (gastoId) => {
+    try {
+      await deleteGasto(gastoId);
+      message.success("Gasto eliminado correctamente");
+      obtenerGastos();
+    } catch (error) {
+      message.error("Error al eliminar el gasto: " + error.message);
+    }
+  };
 
   const customTheme = {
     token: {
@@ -136,12 +163,12 @@ export const Gastos = () => {
         >
           <p className="title-pages">Gestión de Gastos</p>
 
-          {/* 🔹 FILTRO DE MESES Y BÚSQUEDA POR NOMBRE DE RUTA */}
+          {/* 🔹 FILTRO DE MESES, BÚSQUEDA POR DESCRIPCIÓN DEL GASTO Y FILTRO DE RUTAS */}
           <div className="w-full flex justify-center gap-4 mb-4">
             <Input
               className={`w-3/6 mr-2`}
               theme={darkMode}
-              placeholder={`Buscar por nombre de ruta`}
+              placeholder={`Buscar por descripción del gasto`}
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)} // Actualizar el término de búsqueda
@@ -168,42 +195,60 @@ export const Gastos = () => {
               })}
             </Select>
           </div>
-
+          <div className="w-full flex justify-center">
+            <FilterTabs
+              options={rutasDisponibles}
+              onSelect={setSelectedRuta}
+              theme={darkMode}
+            />
+          </div>
           <Fab onClick={() => setIsRegisterGastoModalOpen(true)} />
         </section>
 
-        {/* 🔹 MOSTRAR BUSES O MENSAJE DE "NO HAY DATOS" */}
+        {/* 🔹 MOSTRAR GASTOS O MENSAJE DE "NO HAY DATOS" */}
         <div className="pt-4 md:pt-0 data-div">
           {loading ? (
             <Load />
-          ) : paginatedBuses.length > 0 ? (
+          ) : paginatedGastos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paginatedBuses.map((bus) => (
-                <Card key={bus.id} theme={darkMode}>
-                  <CardHeader>
-                    <div className="flex gap-2 items-center justify-center">
-                      <img
-                        src={imgGastos}
-                        alt="Bus"
-                        className="w-16 h-16 rounded-full"
-                      />
-                      <div>
-                        <CardTitle>{bus.nombre_ruta}</CardTitle>
-                        <CardTitle>{bus.modelo}</CardTitle>
+              {paginatedGastos.map((bus) =>
+                bus.gastos.map((gasto) => (
+                  <Card key={gasto.id} theme={darkMode}>
+                    <CardHeader>
+                      <div className="flex gap-2 items-center justify-center">
+                        <img
+                          src={imgGastos}
+                          alt="Gasto"
+                          className="w-16 h-16 rounded-full"
+                        />
+                        <div>
+                          <CardTitle>{bus.nombre_ruta}</CardTitle>
+                          <CardTitle>{gasto.descripcion_gasto}</CardTitle>
+                        </div>
                       </div>
+                    </CardHeader>
+                    <CardContent
+                      items={[
+                        `Monto: L.${gasto.monto.toFixed(2)}`,
+                        `Fecha: ${gasto.fecha_gasto}`,
+                      ]}
+                      theme={darkMode}
+                    />
+                    <div className="w-full flex justify-end">
+                      <Button
+                        text="Eliminar"
+                        onClick={handleDeleteGasto.bind(this, gasto.id)}
+                        confirm={true}
+                        confirmTitle="¿Eliminar este elemento?"
+                        confirmDescription="Esta acción no se puede deshacer."
+                        confirmOkText="Sí, eliminar"
+                        confirmCancelText="No"
+                        confirmPlacement="bottom"
+                      />
                     </div>
-                  </CardHeader>
-                  <CardContent
-                    items={[
-                      `Dueño: ${bus.dueño}`,
-                      `Conductor: ${bus.conductor}`,
-                      `Total Alumnos: ${bus.totalAlumnos}`,
-                      `Gastos: L.${bus.totalGastos.toFixed(2)}`,
-                    ]}
-                    theme={darkMode}
-                  />
-                </Card>
-              ))}
+                  </Card>
+                ))
+              )}
             </div>
           ) : (
             <p className="text-center text-gray-400 mt-4">
@@ -217,14 +262,14 @@ export const Gastos = () => {
           onClose={() => setIsRegisterGastoModalOpen(false)}
           onGastoRegistered={() => {
             setIsRegisterGastoModalOpen(false);
-            obtenerBuses(mesSeleccionado);
+            obtenerGastos(mesSeleccionado);
           }}
           theme={darkMode}
           currentUser={userData}
         />
         {isPaginated && (
           <Pagination
-            totalItems={busesFiltrados.length}
+            totalItems={gastosFiltrados.length}
             currentPage={currentPage}
             pageSize={pageSize}
             onPageChange={setCurrentPage}

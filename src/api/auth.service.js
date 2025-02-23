@@ -70,8 +70,8 @@ import {
       console.log("Error al enviar el correo de recuperación:", error.message);
     }
   };
+
   const checkActiveSession = () => {
-    
     return new Promise((resolve) => {
       onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -92,7 +92,12 @@ import {
   const logout = async () => {
     try {
       await signOut(auth);
-      console.log("Sesión cerrada correctamente.");
+      localStorage.removeItem("user");
+      notification.success({
+        message: "Sesión cerrada",
+        description: "Nos vemos pronto!",
+        placement: "topRight",
+      });
       return { success: true };
     } catch (error) {
       console.log("Error al cerrar sesión:", error.message);

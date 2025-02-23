@@ -88,6 +88,9 @@ h1, h3, span {
   background-color: #141414;
   color: white;
 }
+.dark  .ant-popover .ant-popover-inner{
+  background-color: #141414;
+}
 
 input:active, input:focus, input:hover {
   border-color: #747bff!important;

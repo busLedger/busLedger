@@ -6,6 +6,10 @@ import Logo from "../../assets/logo.png";
 
 export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion,darkMode }) => {
   const navigate = useNavigate();
+  const switchTheme = () => {
+    onClose();
+    toggleTheme();
+  }
   const redirigir = (ruta) => {
     navigate(ruta);
     onClose();
@@ -47,7 +51,7 @@ export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion,da
   
             <div>
               <li
-                onClick={toggleTheme}
+                onClick={switchTheme}
                 className="flex rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 mt-2"
               >
                 <img src={imgSwhitch} className="w-6 h-6" />
