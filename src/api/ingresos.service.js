@@ -56,30 +56,19 @@ const getIngresosByBus = async (busId) => {
 /** Obtener todos los ingresos de los buses de un usuario */
 const getIngresosByUser = async (userId) => {
   try {
-    // Obtener los buses donde el usuario es dueño o conductor
-    const { data: buses, error: busError } = await supabase
+    const { data: gastos, error } = await supabase
       .from("buses")
-      .select("id")
-      .or(`id_dueño.eq.${userId},id_conductor.eq.${userId}`);
+      .select(`
+        id, placa, nombre_ruta, id_dueño, modelo,
+        ingresos(*)
+      `)
+      .eq("id_dueño", userId);
 
-    if (busError) throw busError;
+    if (error) throw error;
 
-    if (!buses.length) return [];
-
-    // Extraer los IDs de los buses sin duplicados
-    const busIds = [...new Set(buses.map((bus) => bus.id))];
-
-    // Obtener los ingresos de estos buses
-    const { data: ingresos, error: ingresosError } = await supabase
-      .from("ingresos")
-      .select("*")
-      .in("id_bus", busIds);
-
-    if (ingresosError) throw ingresosError;
-
-    return ingresos;
+    return gastos || [];
   } catch (error) {
-    console.error("Error obteniendo ingresos por usuario:", error);
+    console.error("Error obteniendo gastos por usuario:", error);
     return [];
   }
 };

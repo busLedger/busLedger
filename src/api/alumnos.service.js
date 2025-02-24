@@ -90,7 +90,8 @@ const getAllAlumnosByUser = async (userId) => {
     const { data: alumnos, error: alumnosError } = await supabase
       .from("alumnos")
       .select("*")
-      .in("id_bus", busIds);
+      .in("id_bus", busIds)
+      .eq("activo", true);
 
     if (alumnosError) throw alumnosError;
 
@@ -100,7 +101,6 @@ const getAllAlumnosByUser = async (userId) => {
         acc[alumno.id_bus] = [];
       }
       acc[alumno.id_bus].push(alumno);
-      console.log(acc);
       return acc;
     }, {});
 

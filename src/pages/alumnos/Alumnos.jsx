@@ -11,6 +11,7 @@ import {
   CardContent,
 } from "../../components/ui/CardUsers";
 import { RegisterAlumnoModal } from "../../components/ui/Modales/RegisterAlumnoModal.jsx";
+import { RegisterPagoModal } from "../../components/ui/Modales/RegisterPagoModal.jsx";
 import { message, ConfigProvider } from "antd";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
@@ -32,6 +33,8 @@ export const Alumnos = () => {
   const [selectedBus, setSelectedBus] = useState("Todos");
   const [optionsTab, setOptionTabs] = useState([]);
   const [isRegisterAlumnoModalOpen, setIsRegisterAlumnoModalOpen] = useState(false);
+  const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
+  const [selectedAlumno, setSelectedAlumno] = useState(null);
 
   useEffect(() => {
     obtenerAlumnos();
@@ -83,6 +86,11 @@ export const Alumnos = () => {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleRegisterPagoClick = (alumno) => {
+    setSelectedAlumno(alumno);
+    setIsRegisterPagoModalOpen(true);
   };
 
   const paginatedAlumnos = isPaginated
@@ -153,13 +161,15 @@ export const Alumnos = () => {
                       `Encargado: ${alumno.encargado}`,
                       `No. Encargado: ${alumno.no_encargado}`,
                       `Dirección: ${alumno.direccion}`,
-                      `Ubicación: ${alumno.ubicacion}`,
                       `Costo Transporte: ${alumno.pago_mensual}`,
                     ]}
                     theme={darkMode}
                   />
                   <div className="col-span-2 flex justify-center gap-4">
-                    <Button text={"Registrar Pago"} />
+                    <Button text={"Registrar Pago"} onClick={() => handleRegisterPagoClick(alumno)} />
+                    {alumno.ubicacion !='' && (
+                      <Button text={"Ver Ubicación"} />
+                    )}
                   </div>
                 </Card>
               ))}
@@ -176,6 +186,13 @@ export const Alumnos = () => {
           theme={darkMode}
           onAlumnoRegistered={obtenerAlumnos}
           currentUser={userData}
+        />
+        <RegisterPagoModal
+          isOpen={isRegisterPagoModalOpen}
+          onClose={() => setIsRegisterPagoModalOpen(false)}
+          theme={darkMode}
+          onPagoRegistered={obtenerAlumnos}
+          alumnoData={selectedAlumno}
         />
 
         {/* 🔹 PAGINACIÓN */}

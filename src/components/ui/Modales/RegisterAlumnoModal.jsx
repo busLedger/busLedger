@@ -2,12 +2,12 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
-import { Select } from "antd";
+import { Select, Checkbox } from "antd";
 import Input from "../Input.jsx";
 import { createAlumno } from "../../../api/alumnos.service.js";
 import { getBusesByUser } from "../../../api/buses.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
-import {MapPicker} from "../MapPicker.jsx";
+import { MapPicker } from "../MapPicker.jsx";
 
 const { Option } = Select;
 
@@ -24,6 +24,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
 
   const [buses, setBuses] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
+  const [useMap, setUseMap] = useState(false);
 
   const { mostrarMensaje, contextHolder } = RegisterMessage();
 
@@ -68,11 +69,20 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
 
   // Función para registrar un nuevo alumno
   const handleRegisterAlumno = async () => {
+    if(!useMap){
+      setFormData({ ...formData, ubicacion: "" });
+    }
     const { nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual } = formData;
 
     // Validar que todos los campos estén llenos
     if (!nombre || !encargado || !no_encargado || !id_bus || !direccion || !pago_mensual) {
       mostrarMensaje('error', 'Todos los campos deben estar llenos');
+      return;
+    }
+
+    // Validar que la ubicación esté presente si se seleccionó usar el mapa
+    if (useMap && !ubicacion) {
+      mostrarMensaje('error', 'Debe seleccionar una ubicación en el mapa');
       return;
     }
 
@@ -96,6 +106,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
       setIsDirty(true);
     }
   };
+
   // Función para resetear el formulario
   const resetForm = () => {
     setFormData({
@@ -107,6 +118,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
       ubicacion: "",
       pago_mensual: "",
     });
+    setUseMap(false);
     setIsDirty(false);
   };
 
@@ -174,17 +186,6 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
           />
           <Input
             theme={theme}
-            label="Ubicación"
-            type="text"
-            name="ubicacion"
-            value={formData.ubicacion}
-            onChange={handleInputChange}
-            placeholder="Ingrese la ubicación"
-            disabled
-          />
-          <MapPicker onLocationSelect={handleLocationSelect} />
-          <Input
-            theme={theme}
             label="Pago Mensual"
             type="number"
             name="pago_mensual"
@@ -207,6 +208,33 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
               ))}
             </Select>
           </div>
+
+          <div className="flex items-center">
+            <label className="block text-sm font-bold w-fit mr-5">Agregar ubicacion en el mapa</label>
+            <Checkbox
+            className="mx-2"
+            checked={useMap}
+            onChange={(e) => setUseMap(e.target.checked)}
+            
+          />
+          </div>
+         
+            
+          {useMap && (
+            <>
+              <Input
+                theme={theme}
+                label="Ubicación"
+                type="text"
+                name="ubicacion"
+                value={formData.ubicacion}
+                onChange={handleInputChange}
+                placeholder="Ingrese la ubicación"
+                disabled
+              />
+              <MapPicker onLocationSelect={handleLocationSelect} />
+            </>
+          )}
         </div>
       </Modal>
     </>

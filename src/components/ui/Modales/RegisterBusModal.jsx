@@ -18,6 +18,7 @@ const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser
     id_dueño: currentUser.uid,
     id_conductor: "",
     nombre_ruta: "",
+    conductor_nombre: "",
   });
 
   const [conductores, setConductores] = useState([]);
@@ -58,8 +59,8 @@ const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser
     const { placa, modelo, año, id_dueño, id_conductor, nombre_ruta } = formData;
 
     // Validar que todos los campos estén llenos
-    if (!placa || !modelo || !año || !id_dueño) {
-      mostrarMensaje('error', 'Todos los campos deben estar llenos');
+    if (!placa || !modelo || !año || !id_dueño || !id_conductor) {
+      mostrarMensaje('error', 'Todos los campos deben estar llenos, incluyendo el conductor');
       return;
     }
 
@@ -153,7 +154,6 @@ const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser
               value={formData.id_conductor}
               onChange={handleConductorChange}
             >
-              <Option value="">Ninguno</Option>
               <Option value="self">Asignarme como conductor</Option>
               <Option value="new">Registrar nuevo conductor</Option>
               {conductores.map((conductor) => (

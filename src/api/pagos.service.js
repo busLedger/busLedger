@@ -1,7 +1,7 @@
 import { supabase } from "../../supabase_connection";
 
 /** Registrar un pago de alumno y generar un ingreso automáticamente */
-const registrarPagoAlumno = async (pagoData) => {
+const registrarPagoAlumno = async (pagoData, alumnoData) => {
   try {
     // 1️⃣ Insertar el pago en la tabla `pagos_alumnos`
     const { data: pago, error: pagoError } = await supabase
@@ -12,44 +12,12 @@ const registrarPagoAlumno = async (pagoData) => {
 
     if (pagoError) throw pagoError;
 
-    // 2️⃣ Obtener la información del alumno
-    const { data: alumno, error: alumnoError } = await supabase
-      .from("alumnos")
-      .select("id_bus, nombre")
-      .eq("id", pago.id_alumno)
-      .single();
-
-    if (alumnoError) throw alumnoError;
-
-    const idBus = alumno.id_bus;
-    const nombreAlumno = alumno.nombre;
-    const mesPago = pago.mes_correspondiente; // Mes en formato "YYYY-MM"
-
-    // Extraer el nombre del mes y el año (Ejemplo: "Enero 2025")
-    const meses = [
-      "Enero",
-      "Febrero",
-      "Marzo",
-      "Abril",
-      "Mayo",
-      "Junio",
-      "Julio",
-      "Agosto",
-      "Septiembre",
-      "Octubre",
-      "Noviembre",
-      "Diciembre",
-    ];
-
-    const [año, mes] = mesPago.split("-"); // Separar "YYYY-MM"
-    const nombreMes = meses[parseInt(mes, 10) - 1]; // Obtener nombre del mes
-
-    // Generar descripción en el formato "Pago enero 2025 Jose Luis Cardenas"
-    const descripcion = `Pago ${nombreMes} ${año} ${nombreAlumno}`;
+    const año = new Date().getFullYear();
+    const descripcion = `Pago ${pagoData.mes_correspondiente} ${año} ${alumnoData.nombre}`;
 
     // 3️⃣ Insertar el ingreso en la tabla `ingresos`
     const ingresoData = {
-      id_bus: idBus,
+      id_bus: alumnoData.id_bus,
       fecha: pago.fecha_pago,
       total_ingreso: pago.monto,
       descripcion_ingreso: descripcion,
@@ -160,10 +128,27 @@ const getPagosResumenPorMesUsuario = async (userId, mes) => {
       console.error("Error obteniendo resumen de pagos de usuario:", error);
       return null;
     }
-  };
+};
+
+const obtenerPagosAlumno = async (alumnoId, anio_correspondiente) => {
+    try {
+      console.log("Obteniendo pagos de alumno:", alumnoId, anio_correspondiente);
+        const { data, error } = await supabase
+            .from("pagos_alumnos")
+            .select("*")
+            .eq("id_alumno", alumnoId)
+            .eq("anio_correspondiente", anio_correspondiente);
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error("Error obteniendo pagos de alumno:", error);
+        return [];
+    }
+}
   
 export {
     registrarPagoAlumno, 
     getPagosResumenPorMes,
-    getPagosResumenPorMesUsuario
+    getPagosResumenPorMesUsuario,
+    obtenerPagosAlumno
 };
