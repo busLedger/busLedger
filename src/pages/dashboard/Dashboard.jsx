@@ -1,10 +1,24 @@
+import{ use, useEffect, useState } from "react";
 import ChartTemplate from "../../components/ui/ChartTemplate";
 import { useOutletContext } from "react-router-dom";
+import { getMesesYAniosConRegistros } from "../../api/dashboard.service";
 
 
 export const Dashboard = () => {
+  const [mesesYAnios, setMesesYAnios] = useState([]);
   const { userData, darkMode } = useOutletContext();
-  console.log(userData, darkMode);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getMesesYAniosConRegistros(userData.uid);
+        console.log('Meses y anios:', data);
+        setMesesYAnios(data);
+      } catch (error) {
+        console.error("Error al obtener los meses y años con registros:", error);
+      }
+    };
+    fetchData();
+  },[])
   const paymentData = [
     { name: "Pagado", value: 300 },
     { name: "No Pagado", value: 50 },

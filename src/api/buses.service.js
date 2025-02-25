@@ -113,7 +113,6 @@ const getAllBusesWithFinancials = async () => {
         gastos(*)
         `
       );
-
     const { data, error } = await query;
 
     if (error) throw error;
