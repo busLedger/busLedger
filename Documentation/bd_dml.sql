@@ -66,6 +66,7 @@ BEGIN
         fecha_pago DATE NOT NULL,
         mes_correspondiente VARCHAR(7) NOT NULL,
         monto DECIMAL(10,2) NOT NULL CHECK (monto >= 0),
+        anio_correspondiente NUMERIC,
         FOREIGN KEY (id_alumno) REFERENCES alumnos(id) ON DELETE CASCADE
     );
 

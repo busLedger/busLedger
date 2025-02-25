@@ -35,13 +35,12 @@ export const Unidades = () => {
   const [mesSeleccionado, setMesSeleccionado] = useState("");
   const [mesesDisponibles, setMesesDisponibles] = useState([]);
   const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     obtenerBuses();
   }, []);
 
-  /** 🔹 OBTENER LOS BUSES Y GENERAR LOS MESES DISPONIBLES */
   const obtenerBuses = async () => {
     setLoading(true);
     try {
@@ -59,7 +58,6 @@ export const Unidades = () => {
     setLoading(false);
   };
 
-  /** 🔹 GENERAR MESES CON INGRESOS O GASTOS */
   const generarMesesDisponibles = (busesData) => {
     const mesesSet = new Set();
 
@@ -96,7 +94,6 @@ export const Unidades = () => {
     setMesSeleccionado(mesActual);
   };
 
-  /** 🔹 FILTRAR LOS BUSES SEGÚN EL MES SELECCIONADO Y EL TÉRMINO DE BÚSQUEDA */
   const busesFiltrados = buses
     .filter((bus) =>
       bus.nombre_ruta.toLowerCase().includes(searchTerm.toLowerCase())
@@ -150,7 +147,7 @@ export const Unidades = () => {
         >
           <p className="title-pages">Gestión de Unidades</p>
 
-          {/* 🔹 FILTRO DE MESES Y BÚSQUEDA POR NOMBRE DE RUTA */}
+          {/* FILTRO DE MESES Y BÚSQUEDA POR NOMBRE DE RUTA */}
           <div className="w-full flex justify-center gap-4 mb-4">
             <Input
               className={`w-3/6 mr-2`}

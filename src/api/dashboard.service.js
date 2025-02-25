@@ -251,7 +251,7 @@ const getResumenPorMes = async (userId, mes, anio) => {
     // Obtener los ingresos registrados en el mes especificado
     const { data: ingresos, error: ingresosError } = await supabase
       .from("ingresos")
-      .select("monto")
+      .select("total_ingreso")
       .eq("mes", mes)
       .eq("anio", anio)
       .in("id_bus", busIds);
@@ -366,7 +366,7 @@ const getResumenPorAnio = async (userId, anio) => {
     // Obtener los ingresos registrados en el año especificado
     const { data: ingresos, error: ingresosError } = await supabase
       .from("ingresos")
-      .select("monto")
+      .select("total_ingreso")
       .eq("anio", anio)
       .in("id_bus", busIds);
 
