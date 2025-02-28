@@ -19,7 +19,6 @@ export const Dashboard = () => {
     const fetchData = async () => {
       try {
         const data = await getMesesYAniosConRegistros(userData.uid);
-        console.log('Meses y anios:', data);
         setMesesYAnios(data);
         setDefaultMesSeleccionado(data);
       } catch (error) {
@@ -45,23 +44,24 @@ export const Dashboard = () => {
   const handleAnioChange = (anio) => {
     setAnioSeleccionado(anio);
     console.log(`Año seleccionado: ${anio}`);
-    obtenerData();
+    obtenerData(anio, mesSeleccionado);
   };
 
   const handleMesChange = (mes) => {
     setMesSeleccionado(mes);
     console.log(`Mes seleccionado: ${mes}`);
-    obtenerData();
+    obtenerData(anioSeleccionado, mes);
   };
 
-  const obtenerData = async () => {
+  const obtenerData = async (anio, mes) => {
+    console.log("Mes select:", mes);
     try {
-      if (mesSeleccionado === "todos") {
-        const data = await getResumenPorAnio(userData.uid, anioSeleccionado);
+      if (mes === "todos") {
+        const data = await getResumenPorAnio(userData.uid, anio);
         console.log(`Resumen de ${anioSeleccionado}:`, data);
       } else {
-        const data = await getResumenPorMes(userData.uid, anioSeleccionado, mesSeleccionado);
-        console.log(`Resumen de ${mesSeleccionado} de ${anioSeleccionado}:`, data);
+        const data = await getResumenPorMes(userData.uid, anio, mes);
+        console.log(`Resumen de ${mes} de ${anio}:`, data);
       }
     } catch (error) {
       console.error("Error al obtener el resumen:", error);
@@ -146,7 +146,7 @@ export const Dashboard = () => {
             title="Estado de Pagos"
             description="Alumnos que han pagado vs. los que no han pagado"
             data={paymentData}
-            config={{ value: { label: "Alumnos", color: "#ff6384" } }}
+            config={{ value: { label: "Alumnos", color: ["#ff6384"] } }}
             type="pie"
           />
 

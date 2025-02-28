@@ -175,8 +175,31 @@ const getResumenPagosPorAnio = async (userId, anio) => {
 };
 
 ///Función para obtener el resumen de pagos, ingresos y gastos por mes:
-const getResumenPorMes = async (userId, mes, anio) => {
+const getResumenPorMes = async (userId, anio, mes) => {
   try {
+    // Mapeo de nombres de meses a números
+    const mesesMap = {
+      enero: "01",
+      febrero: "02",
+      marzo: "03",
+      abril: "04",
+      mayo: "05",
+      junio: "06",
+      julio: "07",
+      agosto: "08",
+      septiembre: "09",
+      octubre: "10",
+      noviembre: "11",
+      diciembre: "12",
+    };
+
+    // Convertir el nombre del mes a número
+    const mesFormateado = mesesMap[mes.toLowerCase().trim()];
+    if (!mesFormateado) throw new Error(`Mes inválido: ${mes}`);
+
+    // Obtener el último día del mes correctamente
+    const ultimoDia = new Date(anio, parseInt(mesFormateado, 10), 0).getDate();
+
     // Obtener los buses donde el usuario es dueño o conductor
     const { data: buses, error: busError } = await supabase
       .from("buses")
@@ -224,7 +247,7 @@ const getResumenPorMes = async (userId, mes, anio) => {
     const { data: pagos, error: pagosError } = await supabase
       .from("pagos_alumnos")
       .select("id_alumno, monto")
-      .eq("mes_correspondiente", mes)
+      .eq("mes_correspondiente", parseInt(mesFormateado, 10)) // Convertimos a número
       .eq("anio_correspondiente", anio)
       .in(
         "id_alumno",
@@ -252,14 +275,14 @@ const getResumenPorMes = async (userId, mes, anio) => {
     const { data: ingresos, error: ingresosError } = await supabase
       .from("ingresos")
       .select("total_ingreso")
-      .eq("mes", mes)
-      .eq("anio", anio)
+      .filter("fecha", "gte", `${anio}-${mesFormateado}-01`) // Primer día del mes
+      .filter("fecha", "lte", `${anio}-${mesFormateado}-${ultimoDia}`) // Último día del mes
       .in("id_bus", busIds);
 
     if (ingresosError) throw ingresosError;
 
     const totalIngresos = ingresos.reduce(
-      (acc, ingreso) => acc + ingreso.monto,
+      (acc, ingreso) => acc + ingreso.total_ingreso,
       0
     );
 
@@ -267,8 +290,8 @@ const getResumenPorMes = async (userId, mes, anio) => {
     const { data: gastos, error: gastosError } = await supabase
       .from("gastos")
       .select("monto")
-      .eq("mes", mes)
-      .eq("anio", anio)
+      .filter("fecha_gasto", "gte", `${anio}-${mesFormateado}-01`)
+      .filter("fecha_gasto", "lte", `${anio}-${mesFormateado}-${ultimoDia}`)
       .in("id_bus", busIds);
 
     if (gastosError) throw gastosError;
@@ -290,7 +313,6 @@ const getResumenPorMes = async (userId, mes, anio) => {
   }
 };
 
-///Función para obtener el resumen de pagos, ingresos y gastos por año:
 const getResumenPorAnio = async (userId, anio) => {
   try {
     // Obtener los buses donde el usuario es dueño o conductor
@@ -323,7 +345,6 @@ const getResumenPorAnio = async (userId, anio) => {
     if (alumnosError) throw alumnosError;
 
     const totalAlumnos = alumnos.length;
-
     if (totalAlumnos === 0) {
       return {
         totalAlumnos: 0,
@@ -345,7 +366,7 @@ const getResumenPorAnio = async (userId, anio) => {
         "id_alumno",
         alumnos.map((a) => a.id)
       );
-
+      console.log(pagos);
     if (pagosError) throw pagosError;
 
     const alumnosQuePagaron = new Set(pagos.map((p) => p.id_alumno));
@@ -363,17 +384,20 @@ const getResumenPorAnio = async (userId, anio) => {
       return acc;
     }, 0);
 
-    // Obtener los ingresos registrados en el año especificado
-    const { data: ingresos, error: ingresosError } = await supabase
-      .from("ingresos")
-      .select("total_ingreso")
-      .eq("anio", anio)
-      .in("id_bus", busIds);
 
-    if (ingresosError) throw ingresosError;
+    const { data: ingresos, error: ingresosError } = await supabase
+    .from("ingresos")
+    .select("total_ingreso, id_bus, id")
+    .filter("fecha", "gte", `${anio}-01-01`) 
+    .filter("fecha", "lte", `${anio}-12-31`)
+    .in("id_bus", busIds);
+    console.log(ingresos);
+  
+  if (ingresosError) throw ingresosError;
+  
 
     const totalIngresos = ingresos.reduce(
-      (acc, ingreso) => acc + ingreso.monto,
+      (acc, ingreso) => acc + ingreso.total_ingreso,
       0
     );
 
@@ -381,7 +405,8 @@ const getResumenPorAnio = async (userId, anio) => {
     const { data: gastos, error: gastosError } = await supabase
       .from("gastos")
       .select("monto")
-      .eq("anio", anio)
+      .filter("fecha_gasto", "gte", `${anio}-01-01`) 
+      .filter("fecha_gasto", "lte", `${anio}-12-31`)
       .in("id_bus", busIds);
 
     if (gastosError) throw gastosError;
