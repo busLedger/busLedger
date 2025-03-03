@@ -51,6 +51,7 @@ export const Home = () => {
       setDarkMode(JSON.parse(savedTheme));
       document.documentElement.classList.toggle("dark", JSON.parse(savedTheme));
     }
+    navigate("/home/dashboard");
   }, []);
 
   const toggleTheme = () => {

@@ -27,14 +27,14 @@ export const Login = () => {
       e.preventDefault();
       const auth = await login(form.email, form.password);
       setLoading(false);
-      if (auth.authenticated === true) navigate("/home/dashboard");
+      if (auth.authenticated === true) navigate("/home");
     }
   };
 
   const verifySession = async () => {
     const session = await checkActiveSession();
     if (session.uid != null) {
-      navigate("/home/dashboard");
+      navigate("/home");
     }
   };
 
