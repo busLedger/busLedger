@@ -10,7 +10,7 @@ const FilterTabs = ({ options, onSelect, theme }) => {
   };
 
   return (
-    <div id="div-filter-tabs" className="flex gap-2 p-2 overflow-x-auto whitespace-nowrap justify-center">
+    <div id="div-filter-tabs" className="flex gap-2 p-2 overflow-x-auto whitespace-nowrap">
       {options.map((option) => (
         <button
           key={option}

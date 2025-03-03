@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../../api/auth.service";
 import { Outlet } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
@@ -19,6 +19,7 @@ import imgPanelUsuario from "../../assets/user_panel.png";
 
 export const Home = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [offcanvasOpen, setOffcanvasOpen] = useState(false);
@@ -51,7 +52,11 @@ export const Home = () => {
       setDarkMode(JSON.parse(savedTheme));
       document.documentElement.classList.toggle("dark", JSON.parse(savedTheme));
     }
+    console.log(location.pathname);
+    if (location.pathname === "/home" || location.pathname === "/home/dashboard") {
     navigate("/home/dashboard");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleTheme = () => {

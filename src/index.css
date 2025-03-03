@@ -102,6 +102,10 @@ input:active, input:focus, input:hover {
   --ant-message-content-bg: #424242;
 }
 
+.dark .ant-select-open{
+  background-color: #141414;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: var(--text-color-light);
@@ -177,14 +181,13 @@ input:active, input:focus, input:hover {
 
 
 #div-filter-tabs {
-  margin-top: 10px;
   scrollbar-width: thin; /* Para navegadores Firefox */
   scrollbar-color: #747bff #747bff; /* Color del pulgar y del track para Firefox */
 }
 
 /* Estilos para navegadores basados en WebKit (Chrome, Safari) */
 #div-filter-tabs::-webkit-scrollbar {
-  height: 4px; /* Altura de la barra de desplazamiento horizontal */
+  height: 1px!important; /* Altura de la barra de desplazamiento horizontal */
 }
 
 #div-filter-tabs::-webkit-scrollbar-thumb {

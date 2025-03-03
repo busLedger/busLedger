@@ -135,7 +135,6 @@ export const Alumnos = () => {
           <Fab onClick={() => setIsRegisterAlumnoModalOpen(true)} />
         </section>
 
-        {/* 🔹 MOSTRAR ALUMNOS O MENSAJE DE "NO HAY DATOS" */}
         <div className="pt-4 md:pt-0 data-div">
           {loading ? (
             <Load />
