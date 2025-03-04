@@ -5,15 +5,19 @@ import { useOutletContext } from "react-router-dom";
 import { getMesesYAniosConRegistros, getResumenPorMes, getResumenPorAnio } from "../../api/dashboard.service";
 import { ConfigProvider, Select } from "antd";
 import ChartTemplate from "../../components/ui/ChartTemplate";
+import { Load } from "../../components/ui/Load.jsx";
 
 const { Option } = Select;
 
 export const Dashboard = () => {
   const containerRef = useContainerHeight();
+  const [dashboardData, setDashboardData] = useState([]);
   const [mesesYAnios, setMesesYAnios] = useState([]);
   const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
+  const [paymentData, setPaymentData] = useState([]);
   const [mesSeleccionado, setMesSeleccionado] = useState("todos");
   const { userData, darkMode } = useOutletContext();
+  const [load, setLoad] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,6 +25,7 @@ export const Dashboard = () => {
         const data = await getMesesYAniosConRegistros(userData.uid);
         setMesesYAnios(data);
         setDefaultMesSeleccionado(data);
+    
       } catch (error) {
         console.error("Error al obtener los meses y años con registros:", error);
       }
@@ -28,7 +33,7 @@ export const Dashboard = () => {
     fetchData();
   }, []);
 
-  const setDefaultMesSeleccionado = (data) => {
+  const setDefaultMesSeleccionado = async (data) => {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().toLocaleString('es-ES', { month: 'long' }).toLowerCase();
     const currentYearData = data.find(item => item.anio === currentYear);
@@ -36,6 +41,8 @@ export const Dashboard = () => {
     if (currentYearData && !currentYearData.meses.includes(currentMonth)) {
       currentYearData.meses.push(currentMonth);
     }
+    await obtenerData(currentYear, currentMonth);
+
 
     setAnioSeleccionado(currentYear);
     setMesSeleccionado(currentMonth);
@@ -43,28 +50,32 @@ export const Dashboard = () => {
 
   const handleAnioChange = (anio) => {
     setAnioSeleccionado(anio);
-    console.log(`Año seleccionado: ${anio}`);
     obtenerData(anio, mesSeleccionado);
   };
 
   const handleMesChange = (mes) => {
     setMesSeleccionado(mes);
-    console.log(`Mes seleccionado: ${mes}`);
     obtenerData(anioSeleccionado, mes);
   };
 
   const obtenerData = async (anio, mes) => {
-    console.log("Mes select:", mes);
+    setLoad(true);
+    let data=[];
     try {
       if (mes === "todos") {
-        const data = await getResumenPorAnio(userData.uid, anio);
-        console.log(`Resumen de ${anioSeleccionado}:`, data);
+        data = await getResumenPorAnio(userData.uid, anio);
       } else {
-        const data = await getResumenPorMes(userData.uid, anio, mes);
-        console.log(`Resumen de ${mes} de ${anio}:`, data);
+        data = await getResumenPorMes(userData.uid, anio, mes);
       }
+      setDashboardData(data);
+      setPaymentData([
+        { name: "Pagado", value: data.alumnosPagaron },
+        { name: "No Pagado", value: data.alumnosNoPagaron },
+      ]);
     } catch (error) {
       console.error("Error al obtener el resumen:", error);
+    }finally{
+      setLoad(false);
     }
   }
 
@@ -76,27 +87,22 @@ export const Dashboard = () => {
     },
   };
 
-  const paymentData = [
-    { name: "Pagado", value: 300 },
-    { name: "No Pagado", value: 50 },
-  ];
-
-  const busData = [
+  {/*const busData = [
     { name: "Bus 1", students: 30 },
     { name: "Bus 2", students: 25 },
     { name: "Bus 3", students: 35 },
     { name: "Bus 4", students: 20 },
     { name: "Bus 5", students: 28 },
   ];
-
-  const monthlyData = [
+*/}
+{ /* const monthlyData = [
     { name: "Ene", students: 280 },
     { name: "Feb", students: 300 },
     { name: "Mar", students: 310 },
     { name: "Abr", students: 325 },
     { name: "May", students: 350 },
     { name: "Jun", students: 340 },
-  ];
+  ];*/}
 
   const aniosDisponibles = [...new Set(mesesYAnios.map(item => item.anio))];
   const mesesDisponibles = mesesYAnios.find(item => item.anio === anioSeleccionado)?.meses || [];
@@ -140,43 +146,51 @@ export const Dashboard = () => {
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 data-div">
-          {/* 📊 Gráfico de pagos (Pie Chart) */}
+          {load ? (
+            <Load />
+          ) : (
+            <>
+             {/* 📊 Gráfico de pagos (Pie Chart) */}
           <ChartTemplate
             title="Estado de Pagos"
             description="Alumnos que han pagado vs. los que no han pagado"
             data={paymentData}
-            config={{ value: { label: "Alumnos", color: ["#ff6384"] } }}
+            config={{ value: { label: "Alumnos", color: ["#b41c6b", "#725EFF"] } }}
             type="pie"
           />
 
-          {/* 📊 Gráfico de alumnos por bus (Bar Chart) */}
+          {/* 📊 Gráfico de alumnos por bus (Bar Chart) 
           <ChartTemplate
             title="Alumnos por Bus"
             description="Cantidad de alumnos en cada bus"
             data={busData}
             config={{ students: { label: "Alumnos", color: "#36a2eb" } }}
             type="bar"
-          />
+          />*/}
 
-          {/* 📊 Gráfico de evolución de alumnos (Line Chart) */}
+          {/* 📊 Gráfico de evolución de alumnos (Line Chart) 
           <ChartTemplate
             title="Evolución de Alumnos"
             description="Número de alumnos por mes"
             data={monthlyData}
             config={{ students: { label: "Alumnos", color: "#ffce56" } }}
             type="line"
-          />
+          />*/}
 
           {/* 📋 Resumen */}
           <div className="bg-dark-purple p-4 rounded-lg shadow">
             <h2 className="text-xl font-bold mb-2">Resumen</h2>
-            <p>Total de alumnos: {paymentData.reduce((sum, item) => sum + item.value, 0)}</p>
-            <p>Número de buses: {busData.length}</p>
+            <p>Total de alumnos: {dashboardData.totalAlumnos}</p>
+            <p>Número de buses: {dashboardData.totalBuses}</p>
+            <p>Ingresos: L. {dashboardData.totalIngresos} </p>
+            <p>Gastos: L. {dashboardData.totalGastos}</p>
             <p>
               Promedio de alumnos por bus:{" "}
-              {(busData.reduce((sum, item) => sum + item.students, 0) / busData.length).toFixed(2)}
+              {dashboardData.totalAlumnos / dashboardData.totalBuses}
             </p>
           </div>
+            </>)}
+          
         </div>
       </div>
     </ConfigProvider>

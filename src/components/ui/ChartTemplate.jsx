@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./Card";
-import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip, LineChart, Line, BarChart, Bar, PieChart, Pie } from "recharts";
-
+import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend, Tooltip, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 
 const ChartTemplate = ({ title, description, data, config, type }) => {
   const renderChart = () => {
@@ -35,6 +34,7 @@ const ChartTemplate = ({ title, description, data, config, type }) => {
         );
 
       case "pie":
+        { const colors = config[Object.keys(config)[0]].color;
         return (
           <PieChart>
             <Pie
@@ -44,13 +44,16 @@ const ChartTemplate = ({ title, description, data, config, type }) => {
               cx="50%"
               cy="50%"
               outerRadius={80}
-              fill={config[Object.keys(config)[0]].color}
               label
-            />
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              ))}
+            </Pie>
             <Tooltip />
             <Legend />
           </PieChart>
-        );
+        ); }
 
       default:
         return null;

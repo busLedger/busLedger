@@ -197,18 +197,16 @@ const getResumenPorMes = async (userId, anio, mes) => {
     const mesFormateado = mesesMap[mes.toLowerCase().trim()];
     if (!mesFormateado) throw new Error(`Mes inválido: ${mes}`);
 
-    // Obtener el último día del mes correctamente
     const ultimoDia = new Date(anio, parseInt(mesFormateado, 10), 0).getDate();
-
-    // Obtener los buses donde el usuario es dueño o conductor
     const { data: buses, error: busError } = await supabase
       .from("buses")
       .select("id")
       .eq("id_dueño", userId);
     if (busError) throw busError;
-
+    const totalBuses = buses.length;
     if (!buses.length) {
       return {
+        totalBuses: 0,
         totalAlumnos: 0,
         alumnosPagaron: 0,
         alumnosNoPagaron: 0,
@@ -233,6 +231,7 @@ const getResumenPorMes = async (userId, anio, mes) => {
 
     if (totalAlumnos === 0) {
       return {
+        totalBuses: totalBuses,
         totalAlumnos: 0,
         alumnosPagaron: 0,
         alumnosNoPagaron: 0,
@@ -243,11 +242,13 @@ const getResumenPorMes = async (userId, anio, mes) => {
       };
     }
 
+    mes= capitalizeFirstLetter(mes);
+
     // Obtener los pagos registrados en el mes especificado
     const { data: pagos, error: pagosError } = await supabase
       .from("pagos_alumnos")
       .select("id_alumno, monto")
-      .eq("mes_correspondiente", parseInt(mesFormateado, 10)) // Convertimos a número
+      .eq("mes_correspondiente", mes)
       .eq("anio_correspondiente", anio)
       .in(
         "id_alumno",
@@ -299,6 +300,7 @@ const getResumenPorMes = async (userId, anio, mes) => {
     const totalGastos = gastos.reduce((acc, gasto) => acc + gasto.monto, 0);
 
     return {
+      totalBuses,
       totalAlumnos,
       alumnosPagaron,
       alumnosNoPagaron,
@@ -366,7 +368,6 @@ const getResumenPorAnio = async (userId, anio) => {
         "id_alumno",
         alumnos.map((a) => a.id)
       );
-      console.log(pagos);
     if (pagosError) throw pagosError;
 
     const alumnosQuePagaron = new Set(pagos.map((p) => p.id_alumno));
@@ -391,7 +392,6 @@ const getResumenPorAnio = async (userId, anio) => {
     .filter("fecha", "gte", `${anio}-01-01`) 
     .filter("fecha", "lte", `${anio}-12-31`)
     .in("id_bus", busIds);
-    console.log(ingresos);
   
   if (ingresosError) throw ingresosError;
   
@@ -505,6 +505,9 @@ const getMesesYAniosConRegistros = async (userId) => {
     return [];
   }
 };
-
+const capitalizeFirstLetter = (string) => {
+  if (!string) return '';
+  return string.charAt(0).toUpperCase() + string.slice(1);
+};
 export { getResumenPorMes, getResumenPorAnio, getMesesYAniosConRegistros };
 export { getResumenPagosPorMes, getResumenPagosPorAnio };
