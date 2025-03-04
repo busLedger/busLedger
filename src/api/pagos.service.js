@@ -2,6 +2,9 @@ import { supabase } from "../../supabase_connection";
 
 /** Registrar un pago de alumno y generar un ingreso automáticamente */
 const registrarPagoAlumno = async (pagoData, alumnoData) => {
+  if(pagoData.anio_correspondiente  === undefined) {
+    pagoData.anio_correspondiente = new Date().getFullYear();
+  }
   try {
     // 1️⃣ Insertar el pago en la tabla `pagos_alumnos`
     const { data: pago, error: pagoError } = await supabase
@@ -40,7 +43,6 @@ const registrarPagoAlumno = async (pagoData, alumnoData) => {
 
 const obtenerPagosAlumno = async (alumnoId, anio_correspondiente) => {
     try {
-      console.log("Obteniendo pagos de alumno:", alumnoId, anio_correspondiente);
         const { data, error } = await supabase
             .from("pagos_alumnos")
             .select("*")

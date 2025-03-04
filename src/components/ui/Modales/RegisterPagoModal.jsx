@@ -30,7 +30,6 @@ export const RegisterPagoModal = ({ isOpen, onClose, onPagoRegistered, theme, al
   const obtenerMesesDisponibles = async () => {
     const anioActual = new Date().getFullYear();
     const pagos = await obtenerPagosAlumno(alumnoData.id, anioActual);
-
     const mesesPagados = pagos.map(pago => pago.mes_correspondiente);
     const todosLosMeses = [
        "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -56,7 +55,7 @@ export const RegisterPagoModal = ({ isOpen, onClose, onPagoRegistered, theme, al
 
   // Función para registrar un nuevo pago
   const handleRegisterPago = async () => {
-    const { monto, mes_correspondiente, fecha_pago, anio_correspondiente } = formData;
+    const { monto, mes_correspondiente, fecha_pago } = formData;
 
     // Validar que todos los campos estén llenos
     if (!monto || !mes_correspondiente || !fecha_pago) {
@@ -69,7 +68,7 @@ export const RegisterPagoModal = ({ isOpen, onClose, onPagoRegistered, theme, al
       mes_correspondiente,
       fecha_pago,
       id_alumno: alumnoData.id,
-      anio_correspondiente
+      anio_correspondiente: new Date().getFullYear()
     };
 
     try {

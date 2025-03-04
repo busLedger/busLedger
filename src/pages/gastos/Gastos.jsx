@@ -20,8 +20,6 @@ import Input from "../../components/ui/Input.jsx";
 import FilterTabs from "../../components/ui/FilterTabs.jsx";
 import Button from "../../components/ui/Button.jsx";
 
-const { Option } = Select;
-
 export const Gastos = () => {
   const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
@@ -178,19 +176,37 @@ export const Gastos = () => {
               onChange={setMesSeleccionado}
               className="w-2/6"
               placeholder="Seleccionar Mes"
+              dropdownRender={(menu) => (
+                <div
+                  style={{
+                    backgroundColor: darkMode ? "#141414" : "#fff",
+                    color: darkMode ? "#fff" : "#000",
+                    borderRadius: 4,
+                    padding: 0,
+                    border: 1,
+                  }}
+                >
+                  {menu}
+                </div>
+              )}
             >
               {mesesDisponibles.map((mes) => {
-                const [year, month] = mes.split("-"); // Extraer año y mes
+                const [year, month] = mes.split("-");
                 const nombreMes = new Intl.DateTimeFormat("es-ES", {
                   month: "long",
-                }).format(
-                  new Date(parseInt(year), parseInt(month) - 1) // Ajuste de mes en `Date`
-                );
+                }).format(new Date(parseInt(year), parseInt(month) - 1));
 
                 return (
-                  <Option key={mes} value={mes}>
-                    {`${nombreMes} ${year}`} {/* Formato correcto */}
-                  </Option>
+                  <Select.Option
+                    key={mes}
+                    value={mes}
+                    style={{
+                      backgroundColor: darkMode ? "#000" : "#fff",
+                      color: darkMode ? "#fff" : "#000",
+                    }}
+                  >
+                    {`${nombreMes} ${year}`}
+                  </Select.Option>
                 );
               })}
             </Select>

@@ -137,7 +137,6 @@ export const Dashboard = () => {
             ))}
           </Select>
         </div>
-
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 data-div">
