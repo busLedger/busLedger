@@ -155,7 +155,7 @@ export const Dashboard = () => {
             title="Estado de Pagos"
             description="Alumnos que han pagado vs. los que no han pagado"
             data={paymentData}
-            config={{ value: { label: "Alumnos", color: ["#b41c6b", "#725EFF"] } }}
+            config={{ value: { label: "Alumnos", color: ["#725EFF", "#b41c6b"] } }}
             type="pie"
           />
 
