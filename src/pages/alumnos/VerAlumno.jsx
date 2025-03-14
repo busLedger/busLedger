@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useParams, useNavigate } from "react-router-dom";
-import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getAlumno, deleteAlumno } from "../../api/alumnos.service";
@@ -14,9 +13,8 @@ import { message } from "antd";
 
 export const VerAlumno = () => {
   const navigate = useNavigate();
-
-  const containerRef = useContainerHeight();
-  const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
+   // Estado para el FAB y modal de pago
+   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
   const { darkMode } = useOutletContext();
   const [optFilter, setOptFilter] = useState(["Datos", "Pagos"]);
   const [load, setLoad] = useState(true);
@@ -43,11 +41,12 @@ export const VerAlumno = () => {
     try {
       await deleteAlumno(id);
       message.success("Alumno eliminado correctamente.");
-      navigate("/home/alumnos");
+ navigate("/home/alumnos");
     } catch (error) {
       console.error("Error al eliminar el alumno:", error);
     }
-  };
+
+  }
   useEffect(() => {
     fetchAlumno();
   }, []);
@@ -64,18 +63,21 @@ export const VerAlumno = () => {
 
   return (
     <section className="p-3">
-      <div ref={containerRef} className="container-movil container w-full mx-auto p-2">
-        <div className="flex justify-center w-full">
-          <p className="title-pages w-4/5">Información del alumno</p>
-        </div>
-        <FilterTabs
-          options={optFilter}
-          onSelect={setSelectedTab}
-          theme={darkMode}
-        />
+      <div>
+      <div className="flex justify-center w-full">
+        <p className="title-pages w-4/5">
+          Información del alumno
+        </p>
       </div>
-
-      <div className="data-div p-4">
+      <FilterTabs
+        options={optFilter}
+        onSelect={setSelectedTab}
+        theme={darkMode}
+      />
+      </div>
+      
+      
+      <div className="mt-4">
         <p className="text-center mt-4 mb-2 text-xl font-semibold">
           {alumno.nombre}
         </p>
@@ -151,16 +153,14 @@ export const VerAlumno = () => {
               </tbody>
             </table>
             <div className="w-full flex justify-center gap-4 mt-4">
-              <Button
-                text={"Eliminar Alumno"}
+              <Button text={"Eliminar Alumno"} 
                 onClick={handleDeleteAlumno.bind(this, alumno.id)}
                 confirm={true}
                 confirmTitle="¿Eliminar alumno?"
                 confirmDescription="Esta acción no se puede deshacer y eliminara todos los registros relaciondas con este alumno."
                 confirmOkText="Sí, eliminar"
                 confirmCancelText="No"
-                confirmPlacement="top"
-              />
+                confirmPlacement="top"/>
             </div>
           </div>
         )}
@@ -230,7 +230,7 @@ export const VerAlumno = () => {
               isOpen={isRegisterPagoModalOpen}
               onClose={() => setIsRegisterPagoModalOpen(false)}
               theme={darkMode}
-              onPagoRegistered={fetchAlumno}
+              onPagoRegistered={fetchAlumno} 
               alumnoData={alumno}
             />
           </>
