@@ -32,7 +32,7 @@ export const Home = () => {
     { title: "Alumnos", src: imgAlumnos, gap: true, rol: ["Admin", "Dueño", "Conductor"], ruta:"alumnos" },
     { title: "Pagos / Ingresos", src: imgPagos, rol: ["Admin", "Dueño"], ruta:"pagos" },
     { title: "Gastos", src: imgGastos, rol: ["Admin", "Dueño"], ruta:"gastos" },
-    { title: "Panel Usuario", src: imgPanelUsuario, rol: ["Admin", "Dueño", "Conductor"], ruta:"panel-usuario" },
+    { title: "Panel Usuario", src: imgPanelUsuario, rol: ["Admin"], ruta:"panel-usuario" },
   ];
   
   useEffect(() => {
@@ -115,7 +115,7 @@ export const Home = () => {
         </>
       )}
 
-      <div className="h-screen min-h-screen flex-1 p-7 overflow-y-auto">
+      <div className="h-screen min-h-screen flex-1 p-3 overflow-y-auto">
       <Outlet context={{ userData, darkMode }} />
       </div>
     </div>

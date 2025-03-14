@@ -2,9 +2,14 @@
 import { useEffect, useState } from "react";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useOutletContext } from "react-router-dom";
-import { getMesesYAniosConRegistros, getResumenPorMes, getResumenPorAnio } from "../../api/dashboard.service";
+import {
+  getMesesYAniosConRegistros,
+  getResumenPorMes,
+  getResumenPorAnio,
+} from "../../api/dashboard.service";
 import { ConfigProvider, Select } from "antd";
 import ChartTemplate from "../../components/ui/ChartTemplate";
+import { CardResum } from "../../components/ui/CardResum.jsx";
 import { Load } from "../../components/ui/Load.jsx";
 
 const { Option } = Select;
@@ -13,30 +18,33 @@ export const Dashboard = () => {
   const containerRef = useContainerHeight();
   const [dashboardData, setDashboardData] = useState([]);
   const [mesesYAnios, setMesesYAnios] = useState([]);
-  const [anioSeleccionado, setAnioSeleccionado] = useState(new Date().getFullYear());
+  const [anioSeleccionado, setAnioSeleccionado] = useState(
+    new Date().getFullYear()
+  );
   const [paymentData, setPaymentData] = useState([]);
   const [mesSeleccionado, setMesSeleccionado] = useState("todos");
   const { userData, darkMode } = useOutletContext();
   const [load, setLoad] = useState(true);
 
   useEffect(() => {
-
     const initialFetch = async () => {
       const initialFetch = localStorage.getItem("init_login");
       if (initialFetch) {
         localStorage.removeItem("init_login");
         window.location.reload();
       }
-    }
+    };
 
     const fetchData = async () => {
       try {
         const data = await getMesesYAniosConRegistros(userData.uid);
         setMesesYAnios(data);
         setDefaultMesSeleccionado(data);
-    
       } catch (error) {
-        console.error("Error al obtener los meses y años con registros:", error);
+        console.error(
+          "Error al obtener los meses y años con registros:",
+          error
+        );
       }
     };
     initialFetch();
@@ -45,14 +53,15 @@ export const Dashboard = () => {
 
   const setDefaultMesSeleccionado = async (data) => {
     const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().toLocaleString('es-ES', { month: 'long' }).toLowerCase();
-    const currentYearData = data.find(item => item.anio === currentYear);
+    const currentMonth = new Date()
+      .toLocaleString("es-ES", { month: "long" })
+      .toLowerCase();
+    const currentYearData = data.find((item) => item.anio === currentYear);
 
     if (currentYearData && !currentYearData.meses.includes(currentMonth)) {
       currentYearData.meses.push(currentMonth);
     }
     await obtenerData(currentYear, currentMonth);
-
 
     setAnioSeleccionado(currentYear);
     setMesSeleccionado(currentMonth);
@@ -70,7 +79,7 @@ export const Dashboard = () => {
 
   const obtenerData = async (anio, mes) => {
     setLoad(true);
-    let data=[];
+    let data = [];
     try {
       if (mes === "todos") {
         data = await getResumenPorAnio(userData.uid, anio);
@@ -84,10 +93,10 @@ export const Dashboard = () => {
       ]);
     } catch (error) {
       console.error("Error al obtener el resumen:", error);
-    }finally{
+    } finally {
       setLoad(false);
     }
-  }
+  };
 
   const customTheme = {
     token: {
@@ -97,25 +106,30 @@ export const Dashboard = () => {
     },
   };
 
-  {/*const busData = [
+  {
+    /*const busData = [
     { name: "Bus 1", students: 30 },
     { name: "Bus 2", students: 25 },
     { name: "Bus 3", students: 35 },
     { name: "Bus 4", students: 20 },
     { name: "Bus 5", students: 28 },
   ];
-*/}
-{ /* const monthlyData = [
+*/
+  }
+  {
+    /* const monthlyData = [
     { name: "Ene", students: 280 },
     { name: "Feb", students: 300 },
     { name: "Mar", students: 310 },
     { name: "Abr", students: 325 },
     { name: "May", students: 350 },
     { name: "Jun", students: 340 },
-  ];*/}
+  ];*/
+  }
 
-  const aniosDisponibles = [...new Set(mesesYAnios.map(item => item.anio))];
-  const mesesDisponibles = mesesYAnios.find(item => item.anio === anioSeleccionado)?.meses || [];
+  const aniosDisponibles = [...new Set(mesesYAnios.map((item) => item.anio))];
+  const mesesDisponibles =
+    mesesYAnios.find((item) => item.anio === anioSeleccionado)?.meses || [];
 
   return (
     <ConfigProvider theme={customTheme}>
@@ -125,34 +139,34 @@ export const Dashboard = () => {
           className="container-movil container w-full mx-auto p-2"
         >
           <p className="title-pages">Dashboard</p>
-           {/* Filtros de Año y Mes */}
-        <div className="w-full flex justify-center gap-4 mb-4">
-          <Select
-            value={anioSeleccionado}
-            onChange={handleAnioChange}
-            className="w-2/6"
-            placeholder="Seleccionar Año"
-          >
-            {aniosDisponibles.map(anio => (
-              <Option key={anio} value={anio}>
-                {anio}
-              </Option>
-            ))}
-          </Select>
-          <Select
-            value={mesSeleccionado}
-            onChange={handleMesChange}
-            className="w-2/6"
-            placeholder="Seleccionar Mes"
-          >
-            <Option value="todos">Todos</Option>
-            {mesesDisponibles.map(mes => (
-              <Option key={mes} value={mes}>
-                {mes.charAt(0).toUpperCase() + mes.slice(1)}
-              </Option>
-            ))}
-          </Select>
-        </div>
+          {/* Filtros de Año y Mes */}
+          <div className="w-full flex justify-center gap-4 mb-4">
+            <Select
+              value={anioSeleccionado}
+              onChange={handleAnioChange}
+              className="w-2/6"
+              placeholder="Seleccionar Año"
+            >
+              {aniosDisponibles.map((anio) => (
+                <Option key={anio} value={anio}>
+                  {anio}
+                </Option>
+              ))}
+            </Select>
+            <Select
+              value={mesSeleccionado}
+              onChange={handleMesChange}
+              className="w-2/6"
+              placeholder="Seleccionar Mes"
+            >
+              <Option value="todos">Todos</Option>
+              {mesesDisponibles.map((mes) => (
+                <Option key={mes} value={mes}>
+                  {mes.charAt(0).toUpperCase() + mes.slice(1)}
+                </Option>
+              ))}
+            </Select>
+          </div>
         </section>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 data-div">
@@ -160,16 +174,18 @@ export const Dashboard = () => {
             <Load />
           ) : (
             <>
-             {/* 📊 Gráfico de pagos (Pie Chart) */}
-          <ChartTemplate
-            title="Estado de Pagos"
-            description="Alumnos que han pagado vs. los que no han pagado"
-            data={paymentData}
-            config={{ value: { label: "Alumnos", color: ["#725EFF", "#b41c6b"] } }}
-            type="pie"
-          />
+              {/* 📊 Gráfico de pagos (Pie Chart) */}
+              <ChartTemplate
+                title="Estado de Pagos"
+                description="Alumnos al dia vs. pendientes de pago"
+                data={paymentData}
+                config={{
+                  value: { label: "Alumnos", color: ["#725EFF", "#b41c6b"] },
+                }}
+                type="pie"
+              />
 
-          {/* 📊 Gráfico de alumnos por bus (Bar Chart) 
+              {/* 📊 Gráfico de alumnos por bus (Bar Chart) 
           <ChartTemplate
             title="Alumnos por Bus"
             description="Cantidad de alumnos en cada bus"
@@ -178,7 +194,7 @@ export const Dashboard = () => {
             type="bar"
           />*/}
 
-          {/* 📊 Gráfico de evolución de alumnos (Line Chart) 
+              {/* 📊 Gráfico de evolución de alumnos (Line Chart) 
           <ChartTemplate
             title="Evolución de Alumnos"
             description="Número de alumnos por mes"
@@ -187,9 +203,9 @@ export const Dashboard = () => {
             type="line"
           />*/}
 
-          {/* 📋 Resumen */}
-          <div className="bg-dark-purple p-4 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-2">Resumen</h2>
+              {/* 📋 Resumen */}
+              {/*<div className="bg-dark-purple p-4 rounded-lg shadow">
+            <h2 className="text-xl text-center font-bold mb-2">Resumen</h2>
             <p>Total de alumnos: {dashboardData.totalAlumnos}</p>
             <p>Número de buses: {dashboardData.totalBuses}</p>
             <p>Ingresos: L. {dashboardData.totalIngresos} </p>
@@ -199,9 +215,43 @@ export const Dashboard = () => {
               {dashboardData.totalAlumnos / dashboardData.totalBuses}
             </p>
             <p>Efectivo Disponible: L. {dashboardData.totalIngresos - dashboardData.totalGastos}</p>
-          </div>
-            </>)}
-          
+          </div>*/}
+              <div className="grid grid-cols-2 gap-4">
+                <CardResum
+                  title="Cantidad de Alumnos"
+                  description={`${dashboardData.totalAlumnos}`}
+                  theme={darkMode}
+                />
+                 <CardResum
+                  title="Efectivo Disponible"
+                  description={`${dashboardData.totalIngresos - dashboardData.totalGastos} Lps`}
+                  theme={darkMode}
+                />
+                 <CardResum
+                  title="Ingresos Totales"
+                  description={`${dashboardData.totalIngresos} Lps`}
+                  theme={darkMode}
+                />
+                <CardResum
+                  title="Gastos"
+                  description={`${dashboardData.totalGastos} Lps`}
+                  theme={darkMode}
+                />
+                 <CardResum
+                  title="Numero de buses"
+                  description={`${dashboardData.totalBuses}`}
+                  theme={darkMode}
+                />
+               
+                <CardResum
+                  title="Promedios de Alumnos por Bus"
+                  description={`${dashboardData.totalAlumnos / dashboardData.totalBuses}`}
+                  theme={darkMode}
+                />
+               
+              </div>
+            </>
+          )}
         </div>
       </div>
     </ConfigProvider>
