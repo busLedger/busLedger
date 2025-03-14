@@ -63,7 +63,7 @@ export const VerAlumno = () => {
   return (
     <section className="h-[95vh] p-3">
       <div className="h-[20%] mb-4">
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center w-full pt-4">
           <p className="title-pages w-4/5">Información del alumno</p>
         </div>
         <FilterTabs
