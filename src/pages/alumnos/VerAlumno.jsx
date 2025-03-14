@@ -63,9 +63,12 @@ export const VerAlumno = () => {
 
   return (
     <section className="p-3">
-      <p className="title-pages text-xl font-semibold mb-4">
-        Información del alumno
-      </p>
+      <div className="flex justify-center w-full mb-4">
+        <p className="title-pages w-4/5">
+          Información del alumno
+        </p>
+      </div>
+      
       <FilterTabs
         options={optFilter}
         onSelect={setSelectedTab}
