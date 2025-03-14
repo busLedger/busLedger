@@ -13,8 +13,8 @@ import { message } from "antd";
 
 export const VerAlumno = () => {
   const navigate = useNavigate();
-   // Estado para el FAB y modal de pago
-   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
+  // Estado para el FAB y modal de pago
+  const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
   const { darkMode } = useOutletContext();
   const [optFilter, setOptFilter] = useState(["Datos", "Pagos"]);
   const [load, setLoad] = useState(true);
@@ -41,12 +41,11 @@ export const VerAlumno = () => {
     try {
       await deleteAlumno(id);
       message.success("Alumno eliminado correctamente.");
- navigate("/home/alumnos");
+      navigate("/home/alumnos");
     } catch (error) {
       console.error("Error al eliminar el alumno:", error);
     }
-
-  }
+  };
   useEffect(() => {
     fetchAlumno();
   }, []);
@@ -62,27 +61,24 @@ export const VerAlumno = () => {
   const ingresosAnualesEsperados = alumno?.pago_mensual * 10 || 0;
 
   return (
-    <section className="p-3">
-      <div>
-      <div className="flex justify-center w-full">
-        <p className="title-pages w-4/5">
-          Información del alumno
-        </p>
+    <section className="h-[95vh] p-3">
+      <div className="h-[20%] mb-4">
+        <div className="flex justify-center w-full">
+          <p className="title-pages w-4/5">Información del alumno</p>
+        </div>
+        <FilterTabs
+          options={optFilter}
+          onSelect={setSelectedTab}
+          theme={darkMode}
+        />
       </div>
-      <FilterTabs
-        options={optFilter}
-        onSelect={setSelectedTab}
-        theme={darkMode}
-      />
-      </div>
-      
-      
-      <div className="mt-4">
+
+      <div className="h-[70%]">
         <p className="text-center mt-4 mb-2 text-xl font-semibold">
           {alumno.nombre}
         </p>
         {selectedTab === "Datos" && alumno && (
-          <div className="overflow-auto max-h-[60vh]">
+          <div className="overflow-auto max-h-[80%]">
             <table
               className={`w-full border-collapse rounded-lg ${
                 darkMode
@@ -153,22 +149,24 @@ export const VerAlumno = () => {
               </tbody>
             </table>
             <div className="w-full flex justify-center gap-4 mt-4">
-              <Button text={"Eliminar Alumno"} 
+              <Button
+                text={"Eliminar Alumno"}
                 onClick={handleDeleteAlumno.bind(this, alumno.id)}
                 confirm={true}
                 confirmTitle="¿Eliminar alumno?"
                 confirmDescription="Esta acción no se puede deshacer y eliminara todos los registros relaciondas con este alumno."
                 confirmOkText="Sí, eliminar"
                 confirmCancelText="No"
-                confirmPlacement="top"/>
+                confirmPlacement="top"
+              />
             </div>
           </div>
         )}
 
         {selectedTab === "Pagos" && alumno?.pagos_alumnos.length >= 0 && (
-          <>
+          <div>
             {/* 📌 Sección de estadísticas con CardResum */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="h-[20%] grid grid-cols-2 gap-4 mb-4">
               <CardResum
                 title="Total Recibido"
                 description={`${totalRecibido} Lps`}
@@ -184,7 +182,7 @@ export const VerAlumno = () => {
             </div>
 
             {/* 📌 Tabla de pagos con scroll y sin paginación */}
-            <div className="overflow-auto max-h-[60vh]">
+            <div className="overflow-auto max-h-[75%]">
               <table
                 className={`w-full border-collapse rounded-lg ${
                   darkMode
@@ -230,15 +228,15 @@ export const VerAlumno = () => {
               isOpen={isRegisterPagoModalOpen}
               onClose={() => setIsRegisterPagoModalOpen(false)}
               theme={darkMode}
-              onPagoRegistered={fetchAlumno} 
+              onPagoRegistered={fetchAlumno}
               alumnoData={alumno}
             />
-          </>
+          </div>
         )}
 
         {selectedTab === "Ubicación" && (
           <div
-            className={`overflow-auto max-h-[60vh] rounded-lg p-4 text-center text-lg font-semibold ${
+            className={`overflow-auto max-h-[95%] rounded-lg p-4 text-center text-lg font-semibold ${
               darkMode ? "bg-dark-purple text-white" : "bg-gray-100 text-black"
             }`}
           >
