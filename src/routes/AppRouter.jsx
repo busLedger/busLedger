@@ -7,6 +7,8 @@ import { Alumnos } from "../pages/alumnos/Alumnos";
 import { Ingresos } from "../pages/ingresos/Ingresos";
 import { Gastos } from "../pages/gastos/Gastos";
 import {Dashboard}  from "../pages/dashboard/Dashboard";
+import { VerUnidad } from "../pages/unidades/VerUnidad";
+import { VerAlumno } from "../pages/alumnos/VerAlumno";
 const AppRouter = () => {
     return (
         <Router>
@@ -16,7 +18,9 @@ const AppRouter = () => {
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="admin-panel" element={<AdminPanel />} />
                         <Route path="unidades-transporte" element={<Unidades />} />
+                        <Route path="unidades-transporte/:id" element={<VerUnidad />} />
                         <Route path="alumnos" element={<Alumnos />} />
+                        <Route path="alumnos/:id" element={<VerAlumno />} />
                         <Route path="pagos" element={<Ingresos />} />
                         <Route path="gastos" element={<Gastos />} />
                     </Route>

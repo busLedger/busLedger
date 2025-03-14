@@ -20,6 +20,15 @@ export const Dashboard = () => {
   const [load, setLoad] = useState(true);
 
   useEffect(() => {
+
+    const initialFetch = async () => {
+      const initialFetch = localStorage.getItem("init_login");
+      if (initialFetch) {
+        localStorage.removeItem("init_login");
+        window.location.reload();
+      }
+    }
+
     const fetchData = async () => {
       try {
         const data = await getMesesYAniosConRegistros(userData.uid);
@@ -30,6 +39,7 @@ export const Dashboard = () => {
         console.error("Error al obtener los meses y años con registros:", error);
       }
     };
+    initialFetch();
     fetchData();
   }, []);
 
@@ -188,6 +198,7 @@ export const Dashboard = () => {
               Promedio de alumnos por bus:{" "}
               {dashboardData.totalAlumnos / dashboardData.totalBuses}
             </p>
+            <p>Efectivo Disponible: L. {dashboardData.totalIngresos - dashboardData.totalGastos}</p>
           </div>
             </>)}
           

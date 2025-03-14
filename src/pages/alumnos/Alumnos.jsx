@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
@@ -22,9 +23,11 @@ import Input from "../../components/ui/Input.jsx";
 import imgAlumno from "../../assets/school.png";
 
 export const Alumnos = () => {
+  const navigate = useNavigate();
   const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
-  const { pageSize, currentPage, setCurrentPage, isPaginated } = useResponsivePagination(3);
+  const { pageSize, currentPage, setCurrentPage, isPaginated } =
+    useResponsivePagination(3);
 
   const [alumnos, setAlumnos] = useState([]);
   const [filteredAlumnos, setFilteredAlumnos] = useState([]);
@@ -32,7 +35,8 @@ export const Alumnos = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBus, setSelectedBus] = useState("Todos");
   const [optionsTab, setOptionTabs] = useState([]);
-  const [isRegisterAlumnoModalOpen, setIsRegisterAlumnoModalOpen] = useState(false);
+  const [isRegisterAlumnoModalOpen, setIsRegisterAlumnoModalOpen] =
+    useState(false);
   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
   const [selectedAlumno, setSelectedAlumno] = useState(null);
 
@@ -49,12 +53,17 @@ export const Alumnos = () => {
     setLoading(true);
     try {
       const busesData = await getAllAlumnosByUser(userData.uid);
-      const allAlumnos = busesData.flatMap(bus => bus.alumnos.map(alumno => ({ ...alumno, bus: bus.nombre_ruta })));
+      const allAlumnos = busesData.flatMap((bus) =>
+        bus.alumnos.map((alumno) => ({ ...alumno, bus: bus.nombre_ruta }))
+      );
       setAlumnos(allAlumnos);
       setFilteredAlumnos(allAlumnos);
 
       // Extraer nombres de las rutas y establecer en optionsTab
-      const busOptions = ["Todos", ...new Set(busesData.map(bus => bus.nombre_ruta))];
+      const busOptions = [
+        "Todos",
+        ...new Set(busesData.map((bus) => bus.nombre_ruta)),
+      ];
       setOptionTabs(busOptions);
     } catch (error) {
       message.error("Error al obtener los alumnos: " + error.message);
@@ -67,11 +76,11 @@ export const Alumnos = () => {
     let filtered = alumnos;
 
     if (selectedBus !== "Todos") {
-      filtered = filtered.filter(alumno => alumno.bus === selectedBus);
+      filtered = filtered.filter((alumno) => alumno.bus === selectedBus);
     }
 
     if (searchTerm) {
-      filtered = filtered.filter(alumno =>
+      filtered = filtered.filter((alumno) =>
         alumno.nombre.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -93,8 +102,16 @@ export const Alumnos = () => {
     setIsRegisterPagoModalOpen(true);
   };
 
+  const VerAlumno = (id) => () => {
+    console.log("Ver alumno", id);
+    navigate(`${id}`);
+  };
+
   const paginatedAlumnos = isPaginated
-    ? filteredAlumnos.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+    ? filteredAlumnos.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+      )
     : filteredAlumnos; // En móviles, mostrar todos sin paginar
 
   const customTheme = {
@@ -108,7 +125,10 @@ export const Alumnos = () => {
   return (
     <ConfigProvider theme={customTheme}>
       <div className="p-4 bg-dark-purple w-full">
-        <section ref={containerRef} className="container-movil container w-full mx-auto p-2">
+        <section
+          ref={containerRef}
+          className="container-movil container w-full mx-auto p-2"
+        >
           <p className="title-pages">Gestión de Alumnos</p>
 
           <div className="pages-option-container">
@@ -141,36 +161,42 @@ export const Alumnos = () => {
           ) : filteredAlumnos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {paginatedAlumnos.map((alumno) => (
-                <Card key={alumno.id} theme={darkMode}>
-                  <CardHeader>
-                    <div className="flex gap-2 items-center justify-center">
-                      <img
-                        src={imgAlumno}
-                        alt="Alumno"
-                        className="w-16 h-16 rounded-full"
-                      />
-                      <div>
-                        <CardTitle>{alumno.nombre}</CardTitle>
-                        <CardTitle>{alumno.apellido}</CardTitle>
+                  <Card key={alumno.id} theme={darkMode}>
+                    <div onClick={VerAlumno(alumno.id)}>
+                    <CardHeader>
+                      <div className="flex gap-2 items-center justify-center">
+                        <img
+                          src={imgAlumno}
+                          alt="Alumno"
+                          className="w-16 h-16 rounded-full"
+                        />
+                        <div>
+                          <CardTitle>{alumno.nombre}</CardTitle>
+                          <CardTitle>{alumno.apellido}</CardTitle>
+                        </div>
                       </div>
+                    </CardHeader>
+                    <CardContent
+                      items={[
+                        `Encargado: ${alumno.encargado}`,
+                        `No. Encargado: ${alumno.no_encargado}`,
+                        `Dirección: ${alumno.direccion}`,
+                        `Costo Transporte: ${alumno.pago_mensual}`,
+                      ]}
+                      theme={darkMode}
+                    />
                     </div>
-                  </CardHeader>
-                  <CardContent
-                    items={[
-                      `Encargado: ${alumno.encargado}`,
-                      `No. Encargado: ${alumno.no_encargado}`,
-                      `Dirección: ${alumno.direccion}`,
-                      `Costo Transporte: ${alumno.pago_mensual}`,
-                    ]}
-                    theme={darkMode}
-                  />
-                  <div className="col-span-2 flex justify-center gap-4">
-                    <Button text={"Registrar Pago"} onClick={() => handleRegisterPagoClick(alumno)} />
-                    {alumno.ubicacion !='' && (
-                      <Button text={"Ver Ubicación"} />
-                    )}
-                  </div>
-                </Card>
+                  
+                    <div className="col-span-2 flex justify-center gap-4">
+                      <Button
+                        text={"Registrar Pago"}
+                        onClick={() => handleRegisterPagoClick(alumno)}
+                      />
+                      {alumno.ubicacion != "" && (
+                        <Button text={"Ver Ubicación"} />
+                      )}
+                    </div>
+                  </Card>
               ))}
             </div>
           ) : (

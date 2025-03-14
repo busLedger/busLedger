@@ -90,9 +90,6 @@ const deleteIngreso = async (ingresoId) => {
   }
 };
 
-
-
-// ✅ Exportando todas las funciones al final
 export {
   createIngreso,
   getIngreso,

@@ -42,10 +42,11 @@ const getAlumno = async (alumnoId) => {
   try {
     const { data, error } = await supabase
       .from("alumnos")
-      .select("*")
-      .eq("id", alumnoId)
-      .single();
-
+      .select(`
+        id, nombre, encargado, no_encargado,id_bus, direccion, ubicacion, pago_mensual, activo,
+        pagos_alumnos(*)
+        `)
+      .eq("id", alumnoId);
     if (error) throw error;
 
     return data;

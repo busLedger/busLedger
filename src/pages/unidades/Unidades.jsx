@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+//import { useNavigate } from "react-router-dom";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
@@ -23,6 +24,7 @@ import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
 import Input from "../../components/ui/Input.jsx";
 
 export const Unidades = () => {
+ // const navigate = useNavigate();
   const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
@@ -34,6 +36,11 @@ export const Unidades = () => {
   const [mesesDisponibles, setMesesDisponibles] = useState([]);
   const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const verUnidad = (id) => {
+    console.log("Ver Unidad", id);
+   // navigate(`${id}`);
+  }
 
   useEffect(() => {
     obtenerBuses();
@@ -206,8 +213,10 @@ export const Unidades = () => {
           ) : paginatedBuses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {paginatedBuses.map((bus) => (
-                <Card key={bus.id} theme={darkMode}>
-                  <CardHeader>
+
+                  <Card key={bus.id} theme={darkMode}>
+                    <div onClick={() => verUnidad(bus.id)}>
+                    <CardHeader>
                     <div className="flex gap-2 items-center justify-center">
                       <img
                         src={imgUnidades}
@@ -231,6 +240,8 @@ export const Unidades = () => {
                     ]}
                     theme={darkMode}
                   />
+                    </div>
+                 
                   <Ingresos_Gastos
                     busId={bus.id}
                     userId={userData.uid}

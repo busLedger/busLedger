@@ -20,6 +20,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
     direccion: "",
     ubicacion: "",
     pago_mensual: "",
+    activo: true
   });
 
   const [buses, setBuses] = useState([]);
@@ -72,7 +73,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
     if(!useMap){
       setFormData({ ...formData, ubicacion: "" });
     }
-    const { nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual } = formData;
+    const { nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual, activo } = formData;
 
     // Validar que todos los campos estén llenos
     if (!nombre || !encargado || !no_encargado || !id_bus || !direccion || !pago_mensual) {
@@ -88,7 +89,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
 
     try {
       mostrarMensaje('loading', 'Registrando alumno...');
-      await createAlumno({ nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual });
+      await createAlumno({ nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual, activo });
       mostrarMensaje('success', 'Alumno registrado correctamente');
       resetForm();
       onClose();
@@ -117,6 +118,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
       direccion: "",
       ubicacion: "",
       pago_mensual: "",
+      activo: true
     });
     setUseMap(false);
     setIsDirty(false);

@@ -65,7 +65,7 @@ h1 {
   line-height: 1.1;
 }
 
-h1, h3, span {
+h1, h3, span{
   color: var(--text-color-light);
 }
 
@@ -90,6 +90,9 @@ h1, h3, span {
 }
 .dark  .ant-popover .ant-popover-inner{
   background-color: #141414;
+}
+.dark .ant-popconfirm-inner-content .ant-popconfirm-title .ant-popconfirm-description{
+  color: white!important;
 }
 
 input:active, input:focus, input:hover {

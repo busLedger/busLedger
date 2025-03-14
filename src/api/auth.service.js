@@ -41,6 +41,7 @@ import {
           `Bienvenido`,
         placement: "topRight",
       });
+      localStorage.setItem("init_login",true );
       return { authenticated: true};
     } catch (error) {
        handleAuthError(error);
@@ -80,6 +81,7 @@ import {
             uid: user.uid
           }
           localStorage.setItem("user", JSON.stringify(user_data));
+          localStorage.setItem("init_login",true );
           resolve({ uid: user.uid });
         } else {
           console.log("No hay sesión activa.");
@@ -91,8 +93,8 @@ import {
   
   const logout = async () => {
     try {
-      await signOut(auth);
       localStorage.removeItem("user");
+      await signOut(auth);
       notification.success({
         message: "Sesión cerrada",
         description: "Nos vemos pronto!",
