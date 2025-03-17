@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
+import "./ingresos.css"
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import { getIngresosByUser, deleteIngreso } from "../../api/ingresos.service";
@@ -21,7 +21,6 @@ import FilterTabs from "../../components/ui/FilterTabs.jsx";
 import Button from "../../components/ui/Button.jsx";
 
 export const Ingresos = () => {
-  const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
@@ -44,16 +43,26 @@ export const Ingresos = () => {
   const obtenerIngresos = async () => {
     setLoading(true);
     try {
-      const ingresosData = await getIngresosByUser(userData.uid);
-      console.log("los ingresos del usuario:", ingresosData);
-      setIngresos(ingresosData);
-      generarMesesDisponibles(ingresosData);
-      generarRutasDisponibles(ingresosData);
+        const ingresosData = await getIngresosByUser(userData.uid);
+        console.log("Los ingresos del usuario (sin ordenar):", ingresosData);
+
+        // Ordenar los ingresos por fecha de manera descendente (más recientes primero)
+        const ingresosOrdenados = ingresosData.map(bus => ({
+            ...bus,
+            ingresos: bus.ingresos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+        }));
+
+        console.log("Los ingresos del usuario (ordenados):", ingresosOrdenados);
+
+        setIngresos(ingresosOrdenados);
+        generarMesesDisponibles(ingresosOrdenados);
+        generarRutasDisponibles(ingresosOrdenados);
     } catch (error) {
-      message.error("Error al obtener los ingresos: " + error.message);
+        message.error("Error al obtener los ingresos: " + error.message);
     }
     setLoading(false);
-  };
+};
+
 
   /** 🔹 GENERAR MESES CON INGRESOS */
   const generarMesesDisponibles = (ingresosData) => {
@@ -154,14 +163,9 @@ export const Ingresos = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full">
-        <section
-          ref={containerRef}
-          className="container-movil container w-full mx-auto p-2"
-        >
+      <div className="p-4 bg-dark-purple w-full h-[97vh]">
+        <section className="container-movil container w-full mx-auto p-2 ingresos-filter-heigth">
           <p className="title-pages">Gestión de Ingresos</p>
-
-          {/* 🔹 FILTRO DE MESES, BÚSQUEDA POR DESCRIPCIÓN DEL INGRESO Y FILTRO DE RUTAS */}
           <div className="w-full flex justify-center gap-4 mb-4">
             <Input
               className={`w-3/6 mr-2`}
@@ -169,7 +173,7 @@ export const Ingresos = () => {
               placeholder={`Buscar por descripción del ingreso`}
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Actualizar el término de búsqueda
+              onChange={(e) => setSearchTerm(e.target.value)} 
             />
             <Select
   value={mesSeleccionado}
@@ -222,7 +226,7 @@ export const Ingresos = () => {
         </section>
 
         {/* 🔹 MOSTRAR INGRESOS O MENSAJE DE "NO HAY DATOS" */}
-        <div className="pt-4 md:pt-0 data-div">
+        <div className="pt-4 md:pt-0 ingresos-data-div">
           {loading ? (
             <Load />
           ) : paginatedIngresos.length > 0 ? (

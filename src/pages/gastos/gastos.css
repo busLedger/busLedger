@@ -1,0 +1,18 @@
+.gastos-section-filters{
+    height: 25%;
+}
+.gastos-data-div{
+    height: 75%;
+    margin-top: 5%;
+}
+
+@media(max-width:580px){
+    .gastos-section-filters{
+        height: 20%;
+    }
+    .gastos-data-div{
+        height: 78%;
+        margin-top: 48%;
+        overflow-y: auto;
+    }
+}

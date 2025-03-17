@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
+import "./gastos.css"
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import { getGastosByUser, deleteGasto } from "../../api/gastos.service";
@@ -21,7 +21,6 @@ import FilterTabs from "../../components/ui/FilterTabs.jsx";
 import Button from "../../components/ui/Button.jsx";
 
 export const Gastos = () => {
-  const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
@@ -45,10 +44,16 @@ export const Gastos = () => {
     setLoading(true);
     try {
       const gastosData = await getGastosByUser(userData.uid);
-      console.log("los gastos del usuario:", gastosData);
-      setGastos(gastosData);
-      generarMesesDisponibles(gastosData);
-      generarRutasDisponibles(gastosData);
+      // Verifica si el array de datos tiene buses y si cada bus tiene gastos
+      const gastosOrdenados = gastosData.map((bus) => ({
+        ...bus,
+        gastos: bus.gastos.sort(
+          (a, b) => new Date(b.fecha_gasto) - new Date(a.fecha_gasto)
+        ),
+      }));
+      setGastos(gastosOrdenados);
+      generarMesesDisponibles(gastosOrdenados);
+      generarRutasDisponibles(gastosOrdenados);
     } catch (error) {
       message.error("Error al obtener los gastos: " + error.message);
     }
@@ -154,11 +159,8 @@ export const Gastos = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full">
-        <section
-          ref={containerRef}
-          className="container-movil container w-full mx-auto p-2"
-        >
+      <div className="p-4 bg-dark-purple w-full h-[97vh]">
+        <section className="container-movil container w-full mx-auto p-2 gastos-section-filters">
           <p className="title-pages">Gestión de Gastos</p>
 
           {/* 🔹 FILTRO DE MESES, BÚSQUEDA POR DESCRIPCIÓN DEL GASTO Y FILTRO DE RUTAS */}
@@ -222,7 +224,7 @@ export const Gastos = () => {
         </section>
 
         {/* 🔹 MOSTRAR GASTOS O MENSAJE DE "NO HAY DATOS" */}
-        <div className="pt-4 md:pt-0 data-div">
+        <div className="pt-4 md:pt-0 gastos-data-div">
           {loading ? (
             <Load />
           ) : paginatedGastos.length > 0 ? (
@@ -271,26 +273,26 @@ export const Gastos = () => {
               No hay datos disponibles
             </p>
           )}
-        </div>
 
-        <RegisterGastoModal
-          isOpen={isRegisterGastoModalOpen}
-          onClose={() => setIsRegisterGastoModalOpen(false)}
-          onGastoRegistered={() => {
-            setIsRegisterGastoModalOpen(false);
-            obtenerGastos(mesSeleccionado);
-          }}
-          theme={darkMode}
-          currentUser={userData}
-        />
-        {isPaginated && (
-          <Pagination
-            totalItems={gastosFiltrados.length}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={setCurrentPage}
+          <RegisterGastoModal
+            isOpen={isRegisterGastoModalOpen}
+            onClose={() => setIsRegisterGastoModalOpen(false)}
+            onGastoRegistered={() => {
+              setIsRegisterGastoModalOpen(false);
+              obtenerGastos(mesSeleccionado);
+            }}
+            theme={darkMode}
+            currentUser={userData}
           />
-        )}
+          {isPaginated && (
+            <Pagination
+              totalItems={gastosFiltrados.length}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+            />
+          )}
+        </div>
       </div>
     </ConfigProvider>
   );

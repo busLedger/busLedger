@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import "./alumnos.css"
 import { useNavigate } from "react-router-dom";
-import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import { getAllAlumnosByUser } from "../../api/alumnos.service.js";
@@ -24,7 +24,6 @@ import imgAlumno from "../../assets/school.png";
 
 export const Alumnos = () => {
   const navigate = useNavigate();
-  const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
@@ -48,7 +47,6 @@ export const Alumnos = () => {
     filterAlumnos();
   }, [alumnos, searchTerm, selectedBus]);
 
-  /** 🔹 OBTENER LOS ALUMNOS DEL USUARIO */
   const obtenerAlumnos = async () => {
     setLoading(true);
     try {
@@ -58,8 +56,6 @@ export const Alumnos = () => {
       );
       setAlumnos(allAlumnos);
       setFilteredAlumnos(allAlumnos);
-
-      // Extraer nombres de las rutas y establecer en optionsTab
       const busOptions = [
         "Todos",
         ...new Set(busesData.map((bus) => bus.nombre_ruta)),
@@ -71,7 +67,6 @@ export const Alumnos = () => {
     setLoading(false);
   };
 
-  /** 🔹 FILTRAR ALUMNOS */
   const filterAlumnos = () => {
     let filtered = alumnos;
 
@@ -112,7 +107,7 @@ export const Alumnos = () => {
         (currentPage - 1) * pageSize,
         currentPage * pageSize
       )
-    : filteredAlumnos; // En móviles, mostrar todos sin paginar
+    : filteredAlumnos; 
 
   const customTheme = {
     token: {
@@ -124,45 +119,39 @@ export const Alumnos = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full">
-        <section
-          ref={containerRef}
-          className="container-movil container w-full mx-auto p-2"
-        >
-          <p className="title-pages">Gestión de Alumnos</p>
-
-          <div className="pages-option-container">
-            <div className="w-full sm:w-1/2 lg:w-1/2">
-              <FilterTabs
-                options={optionsTab}
-                onSelect={handleFilterChange}
-                theme={darkMode}
-              />
+      <div className="p-4 bg-dark-purple w-full h-[95vh]">
+        <section className="container-movil container w-full mx-auto p-2 alumnos-filters-heigth">
+            <p className="title-pages">Gestión de Alumnos</p>
+            <div className="pages-option-container">
+              <div className="w-full sm:w-1/2 lg:w-1/2">
+                <FilterTabs
+                  options={optionsTab}
+                  onSelect={handleFilterChange}
+                  theme={darkMode}
+                />
+              </div>
+              <div className="center-item">
+                <Input
+                  className="w-full md:w-3/4 md:mt-1"
+                  theme={darkMode}
+                  type="text"
+                  name="nombre"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  placeholder="Buscar alumno por nombre"
+                />
+              </div>
             </div>
-            <div className="center-item">
-              <Input
-                className="w-full md:w-3/4 md:mt-1"
-                theme={darkMode}
-                type="text"
-                name="nombre"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="Buscar alumno por nombre"
-              />
-            </div>
-          </div>
-
-          <Fab onClick={() => setIsRegisterAlumnoModalOpen(true)} />
         </section>
 
-        <div className="pt-4 md:pt-0 data-div">
+        <div className="pt-4 md:pt-0 alumnos-data-div">
           {loading ? (
             <Load />
           ) : filteredAlumnos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {paginatedAlumnos.map((alumno) => (
-                  <Card key={alumno.id} theme={darkMode}>
-                    <div onClick={VerAlumno(alumno.id)}>
+                <Card key={alumno.id} theme={darkMode}>
+                  <div onClick={VerAlumno(alumno.id)}>
                     <CardHeader>
                       <div className="flex gap-2 items-center justify-center">
                         <img
@@ -185,18 +174,18 @@ export const Alumnos = () => {
                       ]}
                       theme={darkMode}
                     />
-                    </div>
-                  
-                    <div className="col-span-2 flex justify-center gap-4">
-                      <Button
-                        text={"Registrar Pago"}
-                        onClick={() => handleRegisterPagoClick(alumno)}
-                      />
-                      {alumno.ubicacion != "" && (
-                        <Button text={"Ver Ubicación"} />
-                      )}
-                    </div>
-                  </Card>
+                  </div>
+
+                  <div className="col-span-2 flex justify-center gap-4">
+                    <Button
+                      text={"Registrar Pago"}
+                      onClick={() => handleRegisterPagoClick(alumno)}
+                    />
+                    {alumno.ubicacion != "" && (
+                      <Button text={"Ver Ubicación"} />
+                    )}
+                  </div>
+                </Card>
               ))}
             </div>
           ) : (
@@ -204,7 +193,7 @@ export const Alumnos = () => {
               No hay datos disponibles
             </p>
           )}
-        </div>
+          
         <RegisterAlumnoModal
           isOpen={isRegisterAlumnoModalOpen}
           onClose={() => setIsRegisterAlumnoModalOpen(false)}
@@ -229,6 +218,9 @@ export const Alumnos = () => {
             onPageChange={(page) => setCurrentPage(page)}
           />
         )}
+        
+        <Fab onClick={() => setIsRegisterAlumnoModalOpen(true)} />
+        </div>
       </div>
     </ConfigProvider>
   );

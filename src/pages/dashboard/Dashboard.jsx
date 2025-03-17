@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useOutletContext } from "react-router-dom";
+import "./dashboard.css"
 import {
   getMesesYAniosConRegistros,
   getResumenPorMes,
@@ -15,7 +15,6 @@ import { Load } from "../../components/ui/Load.jsx";
 const { Option } = Select;
 
 export const Dashboard = () => {
-  const containerRef = useContainerHeight();
   const [dashboardData, setDashboardData] = useState([]);
   const [mesesYAnios, setMesesYAnios] = useState([]);
   const [anioSeleccionado, setAnioSeleccionado] = useState(
@@ -106,26 +105,6 @@ export const Dashboard = () => {
     },
   };
 
-  {
-    /*const busData = [
-    { name: "Bus 1", students: 30 },
-    { name: "Bus 2", students: 25 },
-    { name: "Bus 3", students: 35 },
-    { name: "Bus 4", students: 20 },
-    { name: "Bus 5", students: 28 },
-  ];
-*/
-  }
-  {
-    /* const monthlyData = [
-    { name: "Ene", students: 280 },
-    { name: "Feb", students: 300 },
-    { name: "Mar", students: 310 },
-    { name: "Abr", students: 325 },
-    { name: "May", students: 350 },
-    { name: "Jun", students: 340 },
-  ];*/
-  }
 
   const aniosDisponibles = [...new Set(mesesYAnios.map((item) => item.anio))];
   const mesesDisponibles =
@@ -133,11 +112,8 @@ export const Dashboard = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full">
-        <section
-          ref={containerRef}
-          className="container-movil container w-full mx-auto p-2"
-        >
+      <div className="p-4 bg-dark-purple w-full h-[97vh]">
+        <section className="container-movil container w-full mx-auto p-2 filters-height">
           <p className="title-pages">Dashboard</p>
           {/* Filtros de Año y Mes */}
           <div className="w-full flex justify-center gap-4 mb-4">
@@ -169,7 +145,7 @@ export const Dashboard = () => {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 data-div">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 info-height " >
           {load ? (
             <Load />
           ) : (

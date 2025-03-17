@@ -1,0 +1,15 @@
+.filters-height{
+    height: 12%;
+}
+
+.info-height{
+    height: 85%;
+    margin-top: 5%;
+    overflow-y: auto;
+}
+
+@media(max-width:580px){
+    .info-height{
+        margin-top: 35%;
+    }
+}

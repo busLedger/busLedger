@@ -428,7 +428,6 @@ const getResumenPorAnio = async (userId, anio) => {
   }
 };
 
-///Función para obtener los meses y años en los que hay registros:
 const getMesesYAniosConRegistros = async (userId) => {
   try {
     // Obtener los buses donde el usuario es dueño o conductor
@@ -509,5 +508,4 @@ const capitalizeFirstLetter = (string) => {
   if (!string) return '';
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
-export { getResumenPorMes, getResumenPorAnio, getMesesYAniosConRegistros };
-export { getResumenPagosPorMes, getResumenPagosPorAnio };
+export { getResumenPagosPorMes, getResumenPagosPorAnio, getResumenPorMes, getResumenPorAnio, getMesesYAniosConRegistros };

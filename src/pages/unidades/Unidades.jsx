@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import "./unidades.css"
 //import { useNavigate } from "react-router-dom";
-import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import { Ingresos_Gastos } from "./Ingresos_Gastos.jsx";
@@ -25,7 +25,6 @@ import Input from "../../components/ui/Input.jsx";
 
 export const Unidades = () => {
  // const navigate = useNavigate();
-  const containerRef = useContainerHeight();
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
@@ -145,11 +144,8 @@ export const Unidades = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full">
-        <section
-          ref={containerRef}
-          className="container-movil container w-full mx-auto p-2"
-        >
+      <div className="p-4 bg-dark-purple w-full h-[95vh]">
+        <section className="container-movil container w-full mx-auto p-2 unidades-section-filters">
           <p className="title-pages">Gestión de Unidades</p>
 
           {/* FILTRO DE MESES Y BÚSQUEDA POR NOMBRE DE RUTA */}
@@ -207,7 +203,7 @@ export const Unidades = () => {
         </section>
 
         {/* 🔹 MOSTRAR BUSES O MENSAJE DE "NO HAY DATOS" */}
-        <div className="pt-4 md:pt-0 data-div">
+        <div className="pt-4 md:pt-0 unidades-data-div">
           {loading ? (
             <Load />
           ) : paginatedBuses.length > 0 ? (

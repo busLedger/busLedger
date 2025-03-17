@@ -1,0 +1,19 @@
+.alumnos-filters-heigth{
+    height: 20%;
+}
+
+.alumnos-data-div{
+    height: 75%;
+    margin-top: 5%;
+}
+
+@media(max-width:580px){
+    .alumnos-filters-heigth{
+        height: 10%;
+    }
+    .alumnos-data-div{
+        height: 75%;
+        margin-top: 53%;
+        overflow-y: auto;
+    }
+}
