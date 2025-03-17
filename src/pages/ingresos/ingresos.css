@@ -7,12 +7,8 @@
 }
 
 @media(max-width:580px){
-    .ingresos-filter-heigth{
-        height: 20%;
-    }
     .ingresos-data-div{
-        height: 80%;
-        margin-top: 45%;
+        margin-top: 50%;
         overflow-y: auto;
     } 
 }

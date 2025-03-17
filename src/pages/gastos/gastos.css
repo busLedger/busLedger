@@ -7,11 +7,7 @@
 }
 
 @media(max-width:580px){
-    .gastos-section-filters{
-        height: 20%;
-    }
     .gastos-data-div{
-        height: 78%;
         margin-top: 48%;
         overflow-y: auto;
     }
