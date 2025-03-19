@@ -9,23 +9,29 @@ import FilterTabs from "../../components/ui/FilterTabs";
 import Button from "../../components/ui/Button";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { RegisterPagoModal } from "../../components/ui/Modales/RegisterPagoModal.jsx";
-import { message } from "antd";
+import { generarFacturaPDF } from "../facturas/FacturaPdf.jsx";
+import { message, Spin } from "antd";
+import { LoadingOutlined, DownloadOutlined } from "@ant-design/icons";
 
 export const VerAlumno = () => {
   const navigate = useNavigate();
-  // Estado para el FAB y modal de pago
   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
-  const { darkMode } = useOutletContext();
+  const { darkMode, userData } = useOutletContext();
   const [optFilter, setOptFilter] = useState(["Datos", "Pagos"]);
   const [load, setLoad] = useState(true);
   const [alumno, setAlumno] = useState(null);
   const { id } = useParams();
   const [selectedTab, setSelectedTab] = useState("Datos");
+  const [openAccordion, setOpenAccordion] = useState(null);
+  const [donwload, setDownload] = useState(false);
+
+  const toggleAccordion = (pagoId) => {
+    setOpenAccordion(openAccordion === pagoId ? null : pagoId);
+  };
 
   const fetchAlumno = async () => {
     try {
       const alumnoData = await getAlumno(id);
-      console.log("Alumno:", alumnoData);
       if (alumnoData?.ubicacion !== "") {
         setOptFilter(["Datos", "Pagos", "Ubicación"]);
       }
@@ -46,17 +52,87 @@ export const VerAlumno = () => {
       console.error("Error al eliminar el alumno:", error);
     }
   };
+
+  const descargarFactura = async (pago) => {
+    let data = {
+      colaborador: userData.nombre,
+      data_pago: pago,
+      alumno_data: alumno,
+      invoiceNumber: `FAC-00${alumno.id}-00${pago.id}`,
+      date: "2023-10-15",
+      companyName: "BusLedger",
+      companyAddress: "Calle Principal 123\n28001 Madrid",
+      companyPhone: userData.whatsapp,
+      companyEmail: userData.correo,
+      clientName: alumno.encargado,
+      clientAddress: alumno.direccion,
+      clientEmail: alumno.no_encargado,
+      item: [
+        {
+          id: alumno.id,
+          description: `Pago de transporte de ${pago.mes_correspondiente} ${pago.anio_correspondiente} del alumno ${alumno.nombre}`,
+          fecha_pago: pago.fecha_pago,
+          quantity: 1,
+          price: parseFloat(pago.monto),
+        },
+      ],
+      taxRate: 0,
+      paymentTerms: "Se aceptan pagos en efectivo y transferencias bancarias",
+      notes:
+        "Gracias por su confianza.\nCualquier consulta, no dude en contactarnos.",
+    };
+    setDownload(true);
+    try {
+      await generarFacturaPDF(data);
+    } catch (error) {
+      console.error("Error al imprimir la factura: ", error);
+    } finally {
+      donwload(false);
+    }
+  };
+
+  const verFactura = async (pago) => {
+    let data = {
+      colaborador: userData.nombre,
+      data_pago: pago,
+      alumno_data: alumno,
+      invoiceNumber: `FAC-00${alumno.id}-00${pago.id}`,
+      date: "2023-10-15",
+      companyName: "BusLedger",
+      companyAddress: "Calle Principal 123\n28001 Madrid",
+      companyPhone: userData.whatsapp,
+      companyEmail: userData.correo,
+      clientName: alumno.encargado,
+      clientAddress: alumno.direccion,
+      clientEmail: alumno.no_encargado,
+      item: [
+        {
+          id: alumno.id,
+          description: `Pago de transporte de ${pago.mes_correspondiente} ${pago.anio_correspondiente} del alumno ${alumno.nombre}`,
+          fecha_pago: pago.fecha_pago,
+          quantity: 1,
+          price: parseFloat(pago.monto),
+        },
+      ],
+      taxRate: 0,
+      paymentTerms: "Se aceptan pagos en efectivo y transferencias bancarias",
+      notes:
+        "Gracias por su confianza.\nCualquier consulta, no dude en contactarnos.",
+    };
+    navigate("factura", {
+      state: data,
+    });
+  };
   useEffect(() => {
     fetchAlumno();
   }, []);
 
   if (load) return <Load />;
 
-  // **Cálculo del total recibido y pagos faltantes**
   const pagosRealizados = alumno?.pagos_alumnos.length || 0;
   const totalRecibido =
     alumno?.pagos_alumnos.reduce((sum, pago) => sum + pago.monto, 0) || 0;
-  const pagosEsperados = 10; // Se esperan 10 pagos anuales
+  const pagosEsperados = 10;
   const pagosFaltantes = pagosEsperados - pagosRealizados;
   const ingresosAnualesEsperados = alumno?.pago_mensual * 10 || 0;
 
@@ -183,45 +259,117 @@ export const VerAlumno = () => {
 
             {/* 📌 Tabla de pagos con scroll y sin paginación */}
             <div className="overflow-auto max-h-[75%]">
-              <table
-                className={`w-full border-collapse rounded-lg ${
+              <div
+                className={`rounded-lg ${
                   darkMode
                     ? "bg-dark-purple text-white"
                     : "bg-white text-black border border-gray-300"
                 }`}
               >
-                <thead>
-                  <tr
-                    className={`border-b ${
-                      darkMode
-                        ? "border-gray-600 hover:bg-dark-purple/80"
-                        : "border-gray-200 hover:bg-gray-100"
-                    }`}
-                  >
-                    <th className="p-3">Mes</th>
-                    <th className="p-3">Monto</th>
-                    <th className="p-3">Fecha de Pago</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alumno.pagos_alumnos.map((pago) => (
-                    <tr
-                      key={pago.id}
-                      className={`border-b ${
+                {alumno.pagos_alumnos.map((pago, index) => (
+                  <div key={pago.id} className="border-b last:border-b-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordion(pago.id)}
+                      className={`flex items-center justify-between w-full p-5 font-medium ${
                         darkMode
-                          ? "border-gray-600 hover:bg-dark-purple/80"
-                          : "border-gray-200 hover:bg-gray-100"
+                          ? "hover:bg-gray-800 text-gray-300"
+                          : "hover:bg-gray-100 text-gray-600"
+                      } ${index === 0 ? "rounded-t-lg" : ""} transition-colors`}
+                    >
+                      <span>Pago de {pago.mes_correspondiente}</span>
+                      <svg
+                        className={`w-4 h-4 transform transition-transform ${
+                          openAccordion === pago.id ? "rotate-180" : ""
+                        } ${darkMode ? "text-gray-400" : "text-gray-500"}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                    <div
+                      className={`${
+                        openAccordion === pago.id ? "block" : "hidden"
+                      } p-5 ${
+                        darkMode ? "bg-dark-purple" : "bg-gray-50"
+                      } border-t ${
+                        darkMode ? "border-gray-700" : "border-gray-200"
                       }`}
                     >
-                      <td className="p-3">{pago.mes_correspondiente}</td>
-                      <td className="p-3">{pago.monto} Lps</td>
-                      <td className="p-3">
-                        {new Date(pago.fecha_pago).toLocaleDateString("es-ES")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p
+                            className={`font-semibold ${
+                              darkMode ? "text-gray-300" : "text-gray-600"
+                            }`}
+                          >
+                            Monto:
+                          </p>
+                          <p
+                            className={
+                              darkMode ? "text-gray-400" : "text-gray-500"
+                            }
+                          >
+                            {pago.monto} Lps
+                          </p>
+                        </div>
+                        <div>
+                          <p
+                            className={`font-semibold ${
+                              darkMode ? "text-gray-300" : "text-gray-600"
+                            }`}
+                          >
+                            Fecha de Pago:
+                          </p>
+                          <p
+                            className={
+                              darkMode ? "text-gray-400" : "text-gray-500"
+                            }
+                          >
+                            {new Date(pago.fecha_pago).toLocaleDateString(
+                              "es-ES"
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="col-span-2 flex justify-center gap-4">
+                       {/* <Button text={"Eliminar Registro"}></Button>*/}
+
+                        <Button
+                          text={"Ver Factura"}
+                          onClick={() => verFactura(pago)}
+                        ></Button>
+                        <button
+                          className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2"
+                          onClick={()=>descargarFactura(pago)}
+                          disabled={load}
+                        >
+                          {load ? (
+                            <Spin
+                              indicator={
+                                <LoadingOutlined
+                                  style={{ fontSize: 24, color: "white" }}
+                                  spin
+                                />
+                              }
+                            />
+                          ) : (
+                            <DownloadOutlined  style={{ fontSize: 24, color: "white" }} />
+                          )}
+                        </button>
+                        <button></button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
             <Fab onClick={() => setIsRegisterPagoModalOpen(true)} />
             <RegisterPagoModal

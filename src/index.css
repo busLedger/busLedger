@@ -199,3 +199,18 @@ input:active, input:focus, input:hover {
   background-color: #747bff; /* Color del track */
 }
 
+
+
+/* En tu archivo CSS global */
+@media print {
+  body > *:not(.print-ready) {
+    display: none !important;
+  }
+  
+  .print-ready {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0 !important;
+  }
+}

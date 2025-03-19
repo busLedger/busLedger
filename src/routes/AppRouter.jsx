@@ -9,6 +9,7 @@ import { Gastos } from "../pages/gastos/Gastos";
 import {Dashboard}  from "../pages/dashboard/Dashboard";
 import { VerUnidad } from "../pages/unidades/VerUnidad";
 import { VerAlumno } from "../pages/alumnos/VerAlumno";
+import { Factura } from "../pages/facturas/Factura";
 const AppRouter = () => {
     return (
         <Router>
@@ -21,6 +22,7 @@ const AppRouter = () => {
                         <Route path="unidades-transporte/:id" element={<VerUnidad />} />
                         <Route path="alumnos" element={<Alumnos />} />
                         <Route path="alumnos/:id" element={<VerAlumno />} />
+                        <Route path="alumnos/:id/factura" element={<Factura />} />
                         <Route path="pagos" element={<Ingresos />} />
                         <Route path="gastos" element={<Gastos />} />
                     </Route>
