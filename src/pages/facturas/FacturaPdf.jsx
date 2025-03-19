@@ -67,7 +67,7 @@ export const generarFacturaPDF = async (data) => {
         <tbody>
           <tr style="border-bottom: 1px solid #dee2e6;">
             <td style="padding: 12px; font-size: 11pt; color: #000000;">${data.item[0].description}</td>
-            <td style="padding: 12px; text-align: right; font-size: 11pt; color: #000000;">${formatDate(data.item[0].fecha_pago)}</td>
+            <td style="padding: 12px; text-align: right; font-size: 11pt; color: #000000;">${data.item[0].fecha_pago}</td>
             <td style="padding: 12px; text-align: right; font-size: 11pt; color: #000000;">${data.item[0].price.toFixed(2)} Lps</td>
           </tr>
         </tbody>
