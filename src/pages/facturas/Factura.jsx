@@ -11,8 +11,6 @@ export const Factura = () => {
   const { state: data } = useLocation();
   const [isMounted, setIsMounted] = useState(false);
   const [load, setLoad] = useState(false);
-  console.log(data)
-
   useEffect(() => {
     setIsMounted(true);
     return () => setIsMounted(false);
@@ -99,7 +97,7 @@ export const Factura = () => {
             <tbody>
               <tr className="border-b">
                 <td className="py-3 px-3 text-sm md:text-base">{item.description}</td>
-                <td className="py-3 px-3 text-right text-sm md:text-base">{item[0].fecha_pago}</td>
+                <td className="py-3 px-3 text-right text-sm md:text-base">{item.fecha_pago}</td>
                 <td className="py-3 px-3 text-right text-sm md:text-base">{(item.price).toFixed(2)} Lps</td>
               </tr>
             </tbody>

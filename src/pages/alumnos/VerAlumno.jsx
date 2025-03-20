@@ -333,9 +333,7 @@ export const VerAlumno = () => {
                               darkMode ? "text-gray-400" : "text-gray-500"
                             }
                           >
-                            {new Date(pago.fecha_pago).toLocaleDateString(
-                              "es-ES"
-                            )}
+                            {pago.fecha_pago}
                           </p>
                         </div>
                       </div>
