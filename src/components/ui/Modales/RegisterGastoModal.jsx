@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
-import { Select, DatePicker } from "antd";
+import { Select, DatePicker, Checkbox } from "antd";
 import Input from "../Input.jsx";
 import { createGasto } from "../../../api/gastos.service.js";
 import { getBusesByUser } from "../../../api/buses.service.js";
@@ -20,6 +20,7 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
 
   const [buses, setBuses] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
+  const [isCombustible, setIsCombustible] = useState(false);
 
   const { mostrarMensaje, contextHolder } = RegisterMessage();
 
@@ -64,6 +65,18 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
     setIsDirty(true);
   };
 
+  // Función para manejar el cambio en el checkbox de combustible
+  const handleCombustibleChange = (e) => {
+    const checked = e.target.checked;
+    setIsCombustible(checked);
+    if (checked) {
+      setFormData({ ...formData, descripcion_gasto: "Combustible" });
+    } else {
+      setFormData({ ...formData, descripcion_gasto: "" });
+    }
+    setIsDirty(true);
+  };
+
   // Función para registrar un nuevo gasto
   const handleRegisterGasto = async () => {
     const { descripcion_gasto, monto, fecha_gasto, id_bus } = formData;
@@ -94,6 +107,7 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
       fecha_gasto: null,
       id_bus: busId || "",
     });
+    setIsCombustible(false);
     setIsDirty(false);
   };
 
@@ -126,6 +140,11 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
               </Select>
             </div>
           )}
+          <div className="flex items-center">
+            <Checkbox checked={isCombustible} onChange={handleCombustibleChange}>
+              Combustible
+            </Checkbox>
+          </div>
           <Input
             theme={theme}
             label="Descripción"
@@ -134,6 +153,7 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
             value={formData.descripcion_gasto}
             onChange={handleInputChange}
             placeholder="Ingrese la descripción del gasto"
+            disabled={isCombustible}
           />
           <Input
             theme={theme}

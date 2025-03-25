@@ -290,13 +290,13 @@ const getResumenPorMes = async (userId, anio, mes) => {
     // Obtener los gastos registrados en el mes especificado
     const { data: gastos, error: gastosError } = await supabase
       .from("gastos")
-      .select("monto")
+      .select("monto, descripcion_gasto")
       .filter("fecha_gasto", "gte", `${anio}-${mesFormateado}-01`)
       .filter("fecha_gasto", "lte", `${anio}-${mesFormateado}-${ultimoDia}`)
       .in("id_bus", busIds);
 
     if (gastosError) throw gastosError;
-
+    const totalCombustible = gastos.filter((gasto) => gasto.descripcion_gasto === "Combustible").reduce((acc, gasto) => acc + gasto.monto, 0); 
     const totalGastos = gastos.reduce((acc, gasto) => acc + gasto.monto, 0);
 
     return {
@@ -308,6 +308,7 @@ const getResumenPorMes = async (userId, anio, mes) => {
       totalDineroFaltante,
       totalIngresos,
       totalGastos,
+      totalCombustible
     };
   } catch (error) {
     console.error("Error obteniendo resumen por mes:", error);

@@ -54,6 +54,7 @@ export const Alumnos = () => {
       const allAlumnos = busesData.flatMap((bus) =>
         bus.alumnos.map((alumno) => ({ ...alumno, bus: bus.nombre_ruta }))
       );
+      console.log("Data Alumnos: ", allAlumnos)
       setAlumnos(allAlumnos);
       setFilteredAlumnos(allAlumnos);
       const busOptions = [

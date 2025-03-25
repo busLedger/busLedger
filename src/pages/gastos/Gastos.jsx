@@ -159,7 +159,7 @@ export const Gastos = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full h-[97vh]">
+      <div className="p-4 bg-dark-purple w-full h-[98vh]">
         <section className="container-movil container w-full mx-auto p-2 gastos-section-filters">
           <p className="title-pages">Gestión de Gastos</p>
 

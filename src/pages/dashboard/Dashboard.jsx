@@ -85,6 +85,7 @@ export const Dashboard = () => {
       } else {
         data = await getResumenPorMes(userData.uid, anio, mes);
       }
+      console.log(data);
       setDashboardData(data);
       setPaymentData([
         { name: "Pagado", value: data.alumnosPagaron },
@@ -161,14 +162,14 @@ export const Dashboard = () => {
                 type="pie"
               />
 
-              {/* 📊 Gráfico de alumnos por bus (Bar Chart) 
-          <ChartTemplate
+           
+          {/* <ChartTemplate
             title="Alumnos por Bus"
             description="Cantidad de alumnos en cada bus"
             data={busData}
             config={{ students: { label: "Alumnos", color: "#36a2eb" } }}
             type="bar"
-          />*/}
+          /> */}
 
               {/* 📊 Gráfico de evolución de alumnos (Line Chart) 
           <ChartTemplate
@@ -179,19 +180,6 @@ export const Dashboard = () => {
             type="line"
           />*/}
 
-              {/* 📋 Resumen */}
-              {/*<div className="bg-dark-purple p-4 rounded-lg shadow">
-            <h2 className="text-xl text-center font-bold mb-2">Resumen</h2>
-            <p>Total de alumnos: {dashboardData.totalAlumnos}</p>
-            <p>Número de buses: {dashboardData.totalBuses}</p>
-            <p>Ingresos: L. {dashboardData.totalIngresos} </p>
-            <p>Gastos: L. {dashboardData.totalGastos}</p>
-            <p>
-              Promedio de alumnos por bus:{" "}
-              {dashboardData.totalAlumnos / dashboardData.totalBuses}
-            </p>
-            <p>Efectivo Disponible: L. {dashboardData.totalIngresos - dashboardData.totalGastos}</p>
-          </div>*/}
               <div className="grid grid-cols-2 gap-4">
                 <CardResum
                   title="Cantidad de Alumnos"
@@ -203,13 +191,18 @@ export const Dashboard = () => {
                   description={`${dashboardData.totalIngresos - dashboardData.totalGastos} Lps`}
                   theme={darkMode}
                 />
+                <CardResum
+                  title="Gasto en Combustible"
+                  description={`${dashboardData.totalCombustible} Lps`}
+                  theme={darkMode}
+                />
                  <CardResum
                   title="Ingresos Totales"
                   description={`${dashboardData.totalIngresos} Lps`}
                   theme={darkMode}
                 />
                 <CardResum
-                  title="Gastos"
+                  title="Gastos Totales"
                   description={`${dashboardData.totalGastos} Lps`}
                   theme={darkMode}
                 />
@@ -219,11 +212,11 @@ export const Dashboard = () => {
                   theme={darkMode}
                 />
                
-                <CardResum
+                {/* <CardResum
                   title="Promedios de Alumnos por Bus"
                   description={`${dashboardData.totalAlumnos / dashboardData.totalBuses}`}
                   theme={darkMode}
-                />
+                /> */}
                
               </div>
             </>

@@ -12,6 +12,7 @@ import { RegisterPagoModal } from "../../components/ui/Modales/RegisterPagoModal
 import { generarFacturaPDF } from "../facturas/FacturaPdf.jsx";
 import { message, Spin } from "antd";
 import { LoadingOutlined, DownloadOutlined } from "@ant-design/icons";
+import { eliminarPagoAlumno } from "../../api/pagos.service.js";
 
 export const VerAlumno = () => {
   const navigate = useNavigate();
@@ -123,6 +124,16 @@ export const VerAlumno = () => {
       state: data,
     });
   };
+
+  const handleDeletePago = async (pago) => {
+    try {
+      await eliminarPagoAlumno(pago, alumno.nombre);
+      fetchAlumno();
+    } catch (error) {
+      console.error("Error al eliminar el pago:", error);
+    }
+  };
+
   useEffect(() => {
     fetchAlumno();
   }, []);
@@ -138,7 +149,7 @@ export const VerAlumno = () => {
 
   return (
     <section className="h-[95vh] p-3">
-      <div className="h-[20%] mb-4">
+      <div className="h-[25%] mb-4">
         <div className="flex justify-center w-full pt-4">
           <p className="title-pages w-4/5">Información del alumno</p>
         </div>
@@ -149,8 +160,8 @@ export const VerAlumno = () => {
         />
       </div>
 
-      <div className="h-[70%]">
-        <p className="text-center mt-4 mb-2 text-xl font-semibold">
+      <div className="h-[75%]">
+        <p className="text-center pt-5 mb-2 text-xl font-semibold">
           {alumno.nombre}
         </p>
         {selectedTab === "Datos" && alumno && (
@@ -225,6 +236,7 @@ export const VerAlumno = () => {
               </tbody>
             </table>
             <div className="w-full flex justify-center gap-4 mt-4">
+              {/* <Button text={"Editar Alumno"} /> */}
               <Button
                 text={"Eliminar Alumno"}
                 onClick={handleDeleteAlumno.bind(this, alumno.id)}
@@ -338,15 +350,23 @@ export const VerAlumno = () => {
                         </div>
                       </div>
                       <div className="col-span-2 flex justify-center gap-4">
-                       {/* <Button text={"Eliminar Registro"}></Button>*/}
-
+                        <Button
+                          text="Eliminar"
+                          onClick={() => handleDeletePago(pago)}
+                          confirm={true}
+                          confirmTitle="¿Eliminar este pago?"
+                          confirmDescription="Esta acción no se puede deshacer."
+                          confirmOkText="Sí, eliminar"
+                          confirmCancelText="No"
+                          confirmPlacement="bottom"
+                        />
                         <Button
                           text={"Ver Factura"}
                           onClick={() => verFactura(pago)}
                         ></Button>
                         <button
                           className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-500 transition-colors flex items-center justify-center gap-2"
-                          onClick={()=>descargarFactura(pago)}
+                          onClick={() => descargarFactura(pago)}
                           disabled={load}
                         >
                           {load ? (
@@ -359,7 +379,9 @@ export const VerAlumno = () => {
                               }
                             />
                           ) : (
-                            <DownloadOutlined  style={{ fontSize: 24, color: "white" }} />
+                            <DownloadOutlined
+                              style={{ fontSize: 24, color: "white" }}
+                            />
                           )}
                         </button>
                         <button></button>

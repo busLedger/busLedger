@@ -55,8 +55,29 @@ const obtenerPagosAlumno = async (alumnoId, anio_correspondiente) => {
         return [];
     }
 }
+const eliminarPagoAlumno = async (data, alumno) =>{
+  try {
+    const { errorPago } = await supabase
+      .from("pagos_alumnos")
+      .delete()
+      .eq("id", data.id);
+
+    if (errorPago) throw errorPago;
+
+    const {errorIngreso} = await supabase 
+    .from("ingresos")
+    .delete()
+    .eq("descripcion_ingreso", `Pago ${data.mes_correspondiente} ${data.anio_correspondiente} ${alumno}`)
+    if (errorIngreso) throw errorIngreso;
+    return true;
+  } catch (error) {
+    console.error("Error eliminando gasto:", error);
+    return false;
+  }
+}
   
 export {
     registrarPagoAlumno,
-    obtenerPagosAlumno
+    obtenerPagosAlumno,
+    eliminarPagoAlumno
 };
