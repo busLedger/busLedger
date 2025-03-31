@@ -188,22 +188,22 @@ export const Dashboard = () => {
                 />
                  <CardResum
                   title="Efectivo Disponible"
-                  description={`${dashboardData.totalIngresos - dashboardData.totalGastos} Lps`}
+                  description={`$${(dashboardData.totalIngresos - dashboardData.totalGastos).toFixed(2)} Lps`}
                   theme={darkMode}
                 />
                 <CardResum
                   title="Gasto en Combustible"
-                  description={`${dashboardData.totalCombustible} Lps`}
+                  description={`${(dashboardData.totalCombustible).toFixed(2)} Lps`}
                   theme={darkMode}
                 />
                  <CardResum
                   title="Ingresos Totales"
-                  description={`${dashboardData.totalIngresos} Lps`}
+                  description={`${(dashboardData.totalIngresos).toFixed(2)} Lps`}
                   theme={darkMode}
                 />
                 <CardResum
                   title="Gastos Totales"
-                  description={`${dashboardData.totalGastos} Lps`}
+                  description={`${(dashboardData.totalGastos).toFixed(2)} Lps`}
                   theme={darkMode}
                 />
                  <CardResum
