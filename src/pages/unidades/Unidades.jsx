@@ -230,9 +230,9 @@ export const Unidades = () => {
                       `Dueño: ${bus.dueño}`,
                       `Conductor: ${bus.conductor}`,
                       `Total Alumnos: ${bus.totalAlumnos}`,
-                      `Ingresos: L.${bus.totalIngresos.toFixed(2)}`,
-                      `Gastos: L.${bus.totalGastos.toFixed(2)}`,
-                      `Balance: L.${bus.balance.toFixed(2)}`,
+                      `Ingresos: ${bus.totalIngresos.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LPS`,
+                      `Gastos: ${bus.totalGastos.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LPS`,
+                      `Balance: ${bus.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LPS`,
                     ]}
                     theme={darkMode}
                   />

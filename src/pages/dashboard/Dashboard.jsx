@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import "./dashboard.css"
+import "./dashboard.css";
 import {
   getMesesYAniosConRegistros,
   getResumenPorMes,
@@ -53,7 +53,7 @@ export const Dashboard = () => {
   const setDefaultMesSeleccionado = async (data) => {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date()
-      .toLocaleString("es-ES", { month: "long" })
+      .toLocaleString("es-US", { month: "long" })
       .toLowerCase();
     const currentYearData = data.find((item) => item.anio === currentYear);
 
@@ -106,7 +106,6 @@ export const Dashboard = () => {
     },
   };
 
-
   const aniosDisponibles = [...new Set(mesesYAnios.map((item) => item.anio))];
   const mesesDisponibles =
     mesesYAnios.find((item) => item.anio === anioSeleccionado)?.meses || [];
@@ -146,7 +145,7 @@ export const Dashboard = () => {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 info-height " >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 info-height ">
           {load ? (
             <Load />
           ) : (
@@ -162,8 +161,7 @@ export const Dashboard = () => {
                 type="pie"
               />
 
-           
-          {/* <ChartTemplate
+              {/* <ChartTemplate
             title="Alumnos por Bus"
             description="Cantidad de alumnos en cada bus"
             data={busData}
@@ -186,38 +184,51 @@ export const Dashboard = () => {
                   description={`${dashboardData.totalAlumnos}`}
                   theme={darkMode}
                 />
-                 <CardResum
+                <CardResum
                   title="Efectivo Disponible"
-                  description={`$${(dashboardData.totalIngresos - dashboardData.totalGastos).toFixed(2)} Lps`}
+                  description={`${(
+                    dashboardData.totalIngresos - dashboardData.totalGastos
+                  ).toLocaleString("es-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })} Lps`}
                   theme={darkMode}
                 />
                 <CardResum
                   title="Gasto en Combustible"
-                  description={`${(dashboardData.totalCombustible).toFixed(2)} Lps`}
+                  description={`${dashboardData.totalCombustible.toLocaleString(
+                    "es-US",
+                    { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                  )} Lps`}
                   theme={darkMode}
                 />
-                 <CardResum
+                <CardResum
                   title="Ingresos Totales"
-                  description={`${(dashboardData.totalIngresos).toFixed(2)} Lps`}
+                  description={`${dashboardData.totalIngresos.toLocaleString(
+                    "es-US",
+                    { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                  )} Lps`}
                   theme={darkMode}
                 />
                 <CardResum
                   title="Gastos Totales"
-                  description={`${(dashboardData.totalGastos).toFixed(2)} Lps`}
+                  description={`${dashboardData.totalGastos.toLocaleString(
+                    "es-US",
+                    { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                  )} Lps`}
                   theme={darkMode}
                 />
-                 <CardResum
+                <CardResum
                   title="Numero de buses"
                   description={`${dashboardData.totalBuses}`}
                   theme={darkMode}
                 />
-               
+
                 {/* <CardResum
                   title="Promedios de Alumnos por Bus"
                   description={`${dashboardData.totalAlumnos / dashboardData.totalBuses}`}
                   theme={darkMode}
                 /> */}
-               
               </div>
             </>
           )}

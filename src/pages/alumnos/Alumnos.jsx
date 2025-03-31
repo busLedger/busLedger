@@ -171,7 +171,7 @@ export const Alumnos = () => {
                         `Encargado: ${alumno.encargado}`,
                         `No. Encargado: ${alumno.no_encargado}`,
                         `Dirección: ${alumno.direccion}`,
-                        `Costo Transporte: ${alumno.pago_mensual}`,
+                        `Costo Transporte: ${alumno.pago_mensual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LPS`,
                       ]}
                       theme={darkMode}
                     />

@@ -247,7 +247,7 @@ export const Gastos = () => {
                     </CardHeader>
                     <CardContent
                       items={[
-                        `Monto: L.${gasto.monto.toFixed(2)}`,
+                       `Monto: L.${gasto.monto.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                         `Fecha: ${gasto.fecha_gasto}`,
                       ]}
                       theme={darkMode}

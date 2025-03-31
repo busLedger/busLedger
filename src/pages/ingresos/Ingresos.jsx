@@ -249,7 +249,7 @@ export const Ingresos = () => {
                     </CardHeader>
                     <CardContent
                       items={[
-                        `Monto: L.${ingreso.total_ingreso.toFixed(2)}`,
+                       `Monto: L.${ingreso.total_ingreso.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                         `Fecha: ${ingreso.fecha}`,
                       ]}
                       theme={darkMode}
