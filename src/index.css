@@ -91,7 +91,10 @@ h1, h3, span{
 .dark  .ant-popover .ant-popover-inner{
   background-color: #141414;
 }
-.dark .ant-popconfirm-inner-content .ant-popconfirm-title .ant-popconfirm-description{
+.dark .ant-popconfirm .ant-popconfirm-message .ant-popconfirm-title {
+  color: white!important;
+}
+.dark .ant-popconfirm .ant-popconfirm-message .ant-popconfirm-description {
   color: white!important;
 }
 

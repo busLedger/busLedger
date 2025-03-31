@@ -327,6 +327,7 @@ const getResumenPorAnio = async (userId, anio) => {
 
     if (!buses.length) {
       return {
+        totalBuses: 0,
         totalAlumnos: 0,
         alumnosPagaron: 0,
         alumnosNoPagaron: 0,
@@ -334,6 +335,7 @@ const getResumenPorAnio = async (userId, anio) => {
         totalDineroFaltante: 0,
         totalIngresos: 0,
         totalGastos: 0,
+        totalCombustible: 0,
       };
     }
 
@@ -350,6 +352,7 @@ const getResumenPorAnio = async (userId, anio) => {
     const totalAlumnos = alumnos.length;
     if (totalAlumnos === 0) {
       return {
+        totalBuses: buses.length,
         totalAlumnos: 0,
         alumnosPagaron: 0,
         alumnosNoPagaron: 0,
@@ -357,6 +360,7 @@ const getResumenPorAnio = async (userId, anio) => {
         totalDineroFaltante: 0,
         totalIngresos: 0,
         totalGastos: 0,
+        totalCombustible: 0,
       };
     }
 
@@ -386,16 +390,15 @@ const getResumenPorAnio = async (userId, anio) => {
       return acc;
     }, 0);
 
-
+    // Obtener los ingresos registrados en el año especificado
     const { data: ingresos, error: ingresosError } = await supabase
-    .from("ingresos")
-    .select("total_ingreso, id_bus, id")
-    .filter("fecha", "gte", `${anio}-01-01`) 
-    .filter("fecha", "lte", `${anio}-12-31`)
-    .in("id_bus", busIds);
-  
-  if (ingresosError) throw ingresosError;
-  
+      .from("ingresos")
+      .select("total_ingreso")
+      .filter("fecha", "gte", `${anio}-01-01`)
+      .filter("fecha", "lte", `${anio}-12-31`)
+      .in("id_bus", busIds);
+
+    if (ingresosError) throw ingresosError;
 
     const totalIngresos = ingresos.reduce(
       (acc, ingreso) => acc + ingreso.total_ingreso,
@@ -405,16 +408,21 @@ const getResumenPorAnio = async (userId, anio) => {
     // Obtener los gastos registrados en el año especificado
     const { data: gastos, error: gastosError } = await supabase
       .from("gastos")
-      .select("monto")
-      .filter("fecha_gasto", "gte", `${anio}-01-01`) 
+      .select("monto, descripcion_gasto")
+      .filter("fecha_gasto", "gte", `${anio}-01-01`)
       .filter("fecha_gasto", "lte", `${anio}-12-31`)
       .in("id_bus", busIds);
 
     if (gastosError) throw gastosError;
 
+    const totalCombustible = gastos
+      .filter((gasto) => gasto.descripcion_gasto === "Combustible")
+      .reduce((acc, gasto) => acc + gasto.monto, 0);
+
     const totalGastos = gastos.reduce((acc, gasto) => acc + gasto.monto, 0);
 
     return {
+      totalBuses: buses.length,
       totalAlumnos,
       alumnosPagaron,
       alumnosNoPagaron,
@@ -422,6 +430,7 @@ const getResumenPorAnio = async (userId, anio) => {
       totalDineroFaltante,
       totalIngresos,
       totalGastos,
+      totalCombustible,
     };
   } catch (error) {
     console.error("Error obteniendo resumen por año:", error);

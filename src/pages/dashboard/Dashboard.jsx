@@ -12,8 +12,6 @@ import ChartTemplate from "../../components/ui/ChartTemplate";
 import { CardResum } from "../../components/ui/CardResum.jsx";
 import { Load } from "../../components/ui/Load.jsx";
 
-const { Option } = Select;
-
 export const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState([]);
   const [mesesYAnios, setMesesYAnios] = useState([]);
@@ -117,31 +115,83 @@ export const Dashboard = () => {
           <p className="title-pages">Dashboard</p>
           {/* Filtros de Año y Mes */}
           <div className="w-full flex justify-center gap-4 mb-4">
-            <Select
-              value={anioSeleccionado}
-              onChange={handleAnioChange}
-              className="w-2/6"
-              placeholder="Seleccionar Año"
-            >
-              {aniosDisponibles.map((anio) => (
-                <Option key={anio} value={anio}>
-                  {anio}
-                </Option>
-              ))}
-            </Select>
-            <Select
-              value={mesSeleccionado}
-              onChange={handleMesChange}
-              className="w-2/6"
-              placeholder="Seleccionar Mes"
-            >
-              <Option value="todos">Todos</Option>
-              {mesesDisponibles.map((mes) => (
-                <Option key={mes} value={mes}>
-                  {mes.charAt(0).toUpperCase() + mes.slice(1)}
-                </Option>
-              ))}
-            </Select>
+          <Select
+  value={anioSeleccionado}
+  onChange={handleAnioChange}
+  className="w-2/6"
+  placeholder="Seleccionar Año"
+  dropdownRender={(menu) => (
+    <div
+      style={{
+        backgroundColor: darkMode ? "#141414" : "#fff",
+        color: darkMode ? "#fff" : "#000",
+        borderRadius: 4,
+        padding: 0,
+        border: 1,
+      }}
+    >
+      {menu}
+    </div>
+  )}
+>
+  {aniosDisponibles.map((anio) => (
+    <Select.Option
+      key={anio}
+      value={anio}
+      style={{
+        backgroundColor: darkMode ? "#000" : "#fff",
+        color: darkMode ? "#fff" : "#000",
+      }}
+    >
+      {anio}
+    </Select.Option>
+  ))}
+</Select>
+
+<Select
+  value={mesSeleccionado}
+  onChange={handleMesChange}
+  className="w-2/6"
+  placeholder="Seleccionar Mes"
+  dropdownRender={(menu) => (
+    <div
+      style={{
+        backgroundColor: darkMode ? "#141414" : "#fff",
+        color: darkMode ? "#fff" : "#000",
+        borderRadius: 4,
+        padding: 0,
+        border: 1,
+      }}
+    >
+      {menu}
+    </div>
+  )}
+>
+  <Select.Option
+    value="todos"
+    style={{
+      backgroundColor: darkMode ? "#000" : "#fff",
+      color: darkMode ? "#fff" : "#000",
+    }}
+  >
+    Todos
+  </Select.Option>
+  {mesesDisponibles.map((mes) => {
+    const nombreMes = mes.charAt(0).toUpperCase() + mes.slice(1);
+    return (
+      <Select.Option
+        key={mes}
+        value={mes}
+        style={{
+          backgroundColor: darkMode ? "#000" : "#fff",
+          color: darkMode ? "#fff" : "#000",
+        }}
+      >
+        {nombreMes}
+      </Select.Option>
+    );
+  })}
+</Select>
           </div>
         </section>
 
