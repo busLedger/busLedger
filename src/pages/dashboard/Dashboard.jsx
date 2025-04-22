@@ -24,29 +24,20 @@ export const Dashboard = () => {
   const [load, setLoad] = useState(true);
 
   useEffect(() => {
-    const initialFetch = async () => {
-      const initialFetch = localStorage.getItem("init_login");
-      if (initialFetch) {
-        localStorage.removeItem("init_login");
-        window.location.reload();
-      }
-    };
-
+    if (!userData?.uid) return;
+  
     const fetchData = async () => {
       try {
         const data = await getMesesYAniosConRegistros(userData.uid);
         setMesesYAnios(data);
         setDefaultMesSeleccionado(data);
       } catch (error) {
-        console.error(
-          "Error al obtener los meses y años con registros:",
-          error
-        );
+        console.error("Error al obtener los meses y años con registros:", error);
       }
     };
-    initialFetch();
+  
     fetchData();
-  }, []);
+  }, [userData?.uid]);
 
   const setDefaultMesSeleccionado = async (data) => {
     const currentYear = new Date().getFullYear();
