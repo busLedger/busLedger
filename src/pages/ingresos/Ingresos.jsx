@@ -143,9 +143,9 @@ export const Ingresos = () => {
     : ingresosFiltrados;
 
   /** 🔹 ELIMINAR INGRESO */
-  const handleDeleteIngreso = async (ingresoId) => {
+  const handleDeleteIngreso = async (ingreso) => {
     try {
-      await deleteIngreso(ingresoId);
+      await deleteIngreso(ingreso);
       message.success("Ingreso eliminado correctamente");
       obtenerIngresos();
     } catch (error) {
@@ -257,7 +257,7 @@ export const Ingresos = () => {
                     <div className="w-full flex justify-end">
                       <Button
                         text="Eliminar"
-                        onClick={handleDeleteIngreso.bind(this, ingreso.id)}
+                        onClick={handleDeleteIngreso.bind(this, ingreso)}
                         confirm={true}
                         confirmTitle="¿Eliminar este elemento?"
                         confirmDescription="Esta acción no se puede deshacer."

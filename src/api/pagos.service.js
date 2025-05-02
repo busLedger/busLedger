@@ -24,6 +24,7 @@ const registrarPagoAlumno = async (pagoData, alumnoData) => {
       fecha: pago.fecha_pago,
       total_ingreso: pago.monto,
       descripcion_ingreso: descripcion,
+      id_pago: pago.id
     };
 
     const { data: ingreso, error: ingresoError } = await supabase
@@ -55,26 +56,27 @@ const obtenerPagosAlumno = async (alumnoId, anio_correspondiente) => {
         return [];
     }
 }
-const eliminarPagoAlumno = async (data, alumno) =>{
+const eliminarPagoAlumno = async (data) => {
   try {
+    const { errorIngreso } = await supabase 
+      .from("ingresos")
+      .delete()
+      .eq("id_pago", data.id);
+    if (errorIngreso) throw errorIngreso;
+
     const { errorPago } = await supabase
       .from("pagos_alumnos")
       .delete()
       .eq("id", data.id);
-
     if (errorPago) throw errorPago;
 
-    const {errorIngreso} = await supabase 
-    .from("ingresos")
-    .delete()
-    .eq("descripcion_ingreso", `Pago ${data.mes_correspondiente} ${data.anio_correspondiente} ${alumno}`)
-    if (errorIngreso) throw errorIngreso;
     return true;
   } catch (error) {
-    console.error("Error eliminando gasto:", error);
+    console.error("Error eliminando pago o ingreso:", error);
     return false;
   }
 }
+
   
 export {
     registrarPagoAlumno,

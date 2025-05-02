@@ -31,6 +31,7 @@ export const VerAlumno = () => {
   };
 
   const fetchAlumno = async () => {
+    setLoad(true);
     try {
       const alumnoData = await getAlumno(id);
       if (alumnoData?.ubicacion !== "") {
@@ -127,9 +128,11 @@ export const VerAlumno = () => {
 
   const handleDeletePago = async (pago) => {
     try {
-      await eliminarPagoAlumno(pago, alumno.nombre);
+      await eliminarPagoAlumno(pago);
+      message.success("Pago eliminado correctamente");
       fetchAlumno();
     } catch (error) {
+      message.error("Error al eliminar el ingreso");
       console.error("Error al eliminar el pago:", error);
     }
   };
@@ -221,7 +224,13 @@ export const VerAlumno = () => {
                   }`}
                 >
                   <td className="p-3 font-semibold">Pago Mensual</td>
-                  <td className="p-3">{alumno.pago_mensual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Lps</td>
+                  <td className="p-3">
+                    {alumno.pago_mensual.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    Lps
+                  </td>
                 </tr>
                 <tr
                   className={`border-b ${
@@ -231,7 +240,13 @@ export const VerAlumno = () => {
                   }`}
                 >
                   <td className="p-3 font-semibold">Ingreso Anual Esperado</td>
-                  <td className="p-3">{ingresosAnualesEsperados.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Lps</td>
+                  <td className="p-3">
+                    {ingresosAnualesEsperados.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    Lps
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -257,7 +272,10 @@ export const VerAlumno = () => {
             <div className="h-[20%] grid grid-cols-2 gap-4 mb-4">
               <CardResum
                 title="Total Recibido"
-                description={`${totalRecibido.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Lps`}
+                description={`${totalRecibido.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })} Lps`}
                 theme={darkMode}
               />
               <CardResum
@@ -329,7 +347,11 @@ export const VerAlumno = () => {
                               darkMode ? "text-gray-400" : "text-gray-500"
                             }
                           >
-                            {pago.monto.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Lps
+                            {pago.monto.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}{" "}
+                            Lps
                           </p>
                         </div>
                         <div>

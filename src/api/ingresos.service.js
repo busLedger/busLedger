@@ -74,14 +74,22 @@ const getIngresosByUser = async (userId) => {
 };
 
 /** Eliminar un ingreso por ID */
-const deleteIngreso = async (ingresoId) => {
+const deleteIngreso = async (ingreso) => {
+  console.log("Ingreso a eliminar:", ingreso);
   try {
     const { error } = await supabase
       .from("ingresos")
       .delete()
-      .eq("id", ingresoId);
-
+      .eq("id", ingreso.id);  
     if (error) throw error;
+
+    if(ingreso.id_pago !== null) {
+     const {errorPago} = await supabase
+        .from("pagos_alumnos")
+        .delete()
+        .eq("id", ingreso.id_pago);
+      if (errorPago) throw error;
+    }
 
     return true;
   } catch (error) {
