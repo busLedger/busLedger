@@ -4,14 +4,14 @@ import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select, Checkbox } from "antd";
 import Input from "../Input.jsx";
-import { createAlumno } from "../../../api/alumnos.service.js";
+import { createAlumno, updateAlumno } from "../../../api/alumnos.service.js";
 import { getBusesByUser } from "../../../api/buses.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 import { MapPicker } from "../MapPicker.jsx";
 
 const { Option } = Select;
 
-export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme, currentUser }) => {
+export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme, currentUser, alumnoToEdit }) => {
   const [formData, setFormData] = useState({
     nombre: "",
     encargado: "",
@@ -73,7 +73,7 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
     if(!useMap){
       setFormData({ ...formData, ubicacion: "" });
     }
-    const { nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual, activo } = formData;
+    const { nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual } = formData;
 
     // Validar que todos los campos estén llenos
     if (!nombre || !encargado || !no_encargado || !id_bus || !direccion || !pago_mensual) {
@@ -88,9 +88,14 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
     }
 
     try {
-      mostrarMensaje('loading', 'Registrando alumno...');
-      await createAlumno({ nombre, encargado, no_encargado, id_bus, direccion, ubicacion, pago_mensual, activo });
-      mostrarMensaje('success', 'Alumno registrado correctamente');
+      mostrarMensaje('loading', alumnoToEdit ? 'Actualizando alumno...' : 'Registrando alumno...');
+      if (alumnoToEdit) {
+        await updateAlumno(alumnoToEdit.id, formData);
+        mostrarMensaje('success', 'Alumno actualizado correctamente');
+      } else {
+        await createAlumno(formData);
+        mostrarMensaje('success', 'Alumno registrado correctamente');
+      }
       resetForm();
       onClose();
       onAlumnoRegistered();
@@ -123,6 +128,24 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
     setUseMap(false);
     setIsDirty(false);
   };
+
+  useEffect(() => {
+    if (isOpen && alumnoToEdit) {
+      setFormData({
+        nombre: alumnoToEdit.nombre || "",
+        encargado: alumnoToEdit.encargado || "",
+        no_encargado: alumnoToEdit.no_encargado || "",
+        id_bus: alumnoToEdit.id_bus || "",
+        direccion: alumnoToEdit.direccion || "",
+        ubicacion: alumnoToEdit.ubicacion || "",
+        pago_mensual: alumnoToEdit.pago_mensual || "",
+        activo: alumnoToEdit.activo !== undefined ? alumnoToEdit.activo : true,
+      });
+      setUseMap(!!alumnoToEdit.ubicacion);
+    } else if (!isOpen) {
+      resetForm();
+    }
+  }, [isOpen, alumnoToEdit]);
 
   return (
     <>
@@ -249,4 +272,5 @@ RegisterAlumnoModal.propTypes = {
   onAlumnoRegistered: PropTypes.func.isRequired,
   theme: PropTypes.bool.isRequired,
   currentUser: PropTypes.object.isRequired,
+  alumnoToEdit: PropTypes.object
 };

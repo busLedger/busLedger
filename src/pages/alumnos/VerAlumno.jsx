@@ -13,7 +13,7 @@ import { generarFacturaPDF } from "../facturas/FacturaPdf.jsx";
 import { message, Spin } from "antd";
 import { LoadingOutlined, DownloadOutlined } from "@ant-design/icons";
 import { eliminarPagoAlumno } from "../../api/pagos.service.js";
-
+import { RegisterAlumnoModal } from "../../components/ui/Modales/RegisterAlumnoModal.jsx";
 export const VerAlumno = () => {
   const navigate = useNavigate();
   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
@@ -25,7 +25,7 @@ export const VerAlumno = () => {
   const [selectedTab, setSelectedTab] = useState("Datos");
   const [openAccordion, setOpenAccordion] = useState(null);
   const [donwload, setDownload] = useState(false);
-
+const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const toggleAccordion = (pagoId) => {
     setOpenAccordion(openAccordion === pagoId ? null : pagoId);
   };
@@ -251,7 +251,7 @@ export const VerAlumno = () => {
               </tbody>
             </table>
             <div className="w-full flex justify-center gap-4 mt-4">
-              {/* <Button text={"Editar Alumno"} /> */}
+             <Button text={"Editar Alumno"} onClick={() => setIsEditModalOpen(true)} />
              <Button
                 text={"Desactivar Alumno"}
                 onClick={handleDeleteAlumno.bind(this, alumno.id)}
@@ -434,6 +434,14 @@ export const VerAlumno = () => {
           </div>
         )}
       </div>
+      <RegisterAlumnoModal
+  isOpen={isEditModalOpen}
+  onClose={() => setIsEditModalOpen(false)}
+  onAlumnoRegistered={fetchAlumno}
+  theme={darkMode}
+  currentUser={userData}
+  alumnoToEdit={alumno}
+/>
     </section>
   );
 };
