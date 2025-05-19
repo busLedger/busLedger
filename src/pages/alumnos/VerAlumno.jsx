@@ -2,7 +2,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getAlumno, deleteAlumno } from "../../api/alumnos.service";
+import { getAlumno, toggleAlumnoStatus } from "../../api/alumnos.service";
 import { Load } from "../../components/ui/Load";
 import { CardResum } from "../../components/ui/CardResum";
 import FilterTabs from "../../components/ui/FilterTabs";
@@ -47,7 +47,7 @@ export const VerAlumno = () => {
   };
   const handleDeleteAlumno = async () => {
     try {
-      await deleteAlumno(id);
+      await toggleAlumnoStatus(id, false);
       message.success("Alumno eliminado correctamente.");
       navigate("/home/alumnos");
     } catch (error) {
@@ -252,11 +252,11 @@ export const VerAlumno = () => {
             </table>
             <div className="w-full flex justify-center gap-4 mt-4">
               {/* <Button text={"Editar Alumno"} /> */}
-              <Button
-                text={"Eliminar Alumno"}
+             <Button
+                text={"Desactivar Alumno"}
                 onClick={handleDeleteAlumno.bind(this, alumno.id)}
                 confirm={true}
-                confirmTitle="¿Eliminar alumno?"
+                confirmTitle="Desactivar alumno?"
                 confirmDescription="Esta acción no se puede deshacer y eliminara todos los registros relaciondas con este alumno."
                 confirmOkText="Sí, eliminar"
                 confirmCancelText="No"

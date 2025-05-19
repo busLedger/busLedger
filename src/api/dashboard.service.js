@@ -26,7 +26,10 @@ const getResumenPagosPorMes = async (userId, mes, anio) => {
     const { data: alumnos, error: alumnosError } = await supabase
       .from("alumnos")
       .select("id, pago_mensual")
-      .in("id_bus", busIds);
+      .in("id_bus", busIds)
+      .filter("activo", "eq", true);
+
+      console.log(alumnos);
 
     if (alumnosError) throw alumnosError;
 
@@ -112,7 +115,8 @@ const getResumenPagosPorAnio = async (userId, anio) => {
     const { data: alumnos, error: alumnosError } = await supabase
       .from("alumnos")
       .select("id, pago_mensual")
-      .in("id_bus", busIds);
+      .in("id_bus", busIds)
+      .filter("activo", "eq", true);
 
     if (alumnosError) throw alumnosError;
 
@@ -201,7 +205,8 @@ const getResumenPorMes = async (userId, anio, mes) => {
     const { data: buses, error: busError } = await supabase
       .from("buses")
       .select("id")
-      .eq("id_dueño", userId);
+      .eq("id_dueño", userId)
+
     if (busError) throw busError;
     const totalBuses = buses.length;
     if (!buses.length) {
@@ -223,7 +228,8 @@ const getResumenPorMes = async (userId, anio, mes) => {
     const { data: alumnos, error: alumnosError } = await supabase
       .from("alumnos")
       .select("id, pago_mensual")
-      .in("id_bus", busIds);
+      .in("id_bus", busIds)
+      .filter("activo", "eq", true);
 
     if (alumnosError) throw alumnosError;
 
@@ -345,7 +351,8 @@ const getResumenPorAnio = async (userId, anio) => {
     const { data: alumnos, error: alumnosError } = await supabase
       .from("alumnos")
       .select("id, pago_mensual")
-      .in("id_bus", busIds);
+      .in("id_bus", busIds)
+      .filter("activo", "eq", true);
 
     if (alumnosError) throw alumnosError;
 
