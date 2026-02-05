@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useCallback, useRef } from "react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { useState, useEffect, useCallback } from "react";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
 
 const containerStyle = {
   width: "100%",
@@ -8,66 +8,88 @@ const containerStyle = {
 };
 
 const defaultCenter = {
-  lat: -3.745, // Ubicación por defecto si no se obtiene la ubicación
+  lat: -3.745,
   lng: -38.523,
 };
 
 export const MapPicker = ({ onLocationSelect }) => {
-  const [markerPosition, setMarkerPosition] = useState(null);
-  const [locationChecked, setLocationChecked] = useState(false); // Para evitar reintentos
-  const mapRef = useRef(null);
+  const [markerPosition, setMarkerPosition] = useState(defaultCenter);
+  const [map, setMap] = useState(null);
+  const [locationChecked, setLocationChecked] = useState(false);
 
-  // Solicita la ubicación del usuario solo la primera vez
+  // Carga del script de Google Maps
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+  });
+
+  // Geolocalización del usuario (solo una vez)
   useEffect(() => {
-    if (!locationChecked && navigator.geolocation) {
-      setLocationChecked(true); // Evita reintentos
+    if (!isLoaded || locationChecked) return;
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const userLocation = { lat: latitude, lng: longitude };
-
-          // Mueve el mapa sin provocar un re-render
-          if (mapRef.current) {
-            mapRef.current.panTo(userLocation);
-          }
-
-          setMarkerPosition(userLocation);
-          onLocationSelect(userLocation);
-        },
-        () => {
-          console.warn("No se pudo obtener la ubicación del usuario.");
-          setMarkerPosition(defaultCenter);
-          if (mapRef.current) {
-            mapRef.current.panTo(defaultCenter);
-          }
-        }
-      );
+    if (!navigator.geolocation) {
+      console.warn("Geolocalización no soportada por el navegador.");
+      setLocationChecked(true);
+      return;
     }
-  }, [locationChecked, onLocationSelect]);
+
+    setLocationChecked(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const userLocation = { lat: latitude, lng: longitude };
+
+        setMarkerPosition(userLocation);
+        onLocationSelect?.(userLocation);
+
+        if (map) {
+          map.panTo(userLocation);
+        }
+      },
+      (error) => {
+        console.warn("No se pudo obtener la ubicación del usuario:", error);
+        // Si falla, se queda con defaultCenter
+        if (map) {
+          map.panTo(defaultCenter);
+        }
+      }
+    );
+  }, [isLoaded, locationChecked, map, onLocationSelect]);
 
   // Permite al usuario mover el marcador manualmente
-  const onMapClick = useCallback(
+  const handleMapClick = useCallback(
     (event) => {
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
-      setMarkerPosition({ lat, lng });
-      onLocationSelect({ lat, lng });
+      const newPos = { lat, lng };
+      setMarkerPosition(newPos);
+      onLocationSelect?.(newPos);
     },
     [onLocationSelect]
   );
 
+  const handleMapLoad = useCallback((mapInstance) => {
+    setMap(mapInstance);
+  }, []);
+
+  if (loadError) {
+    return <p>No se pudo cargar el mapa. Revisa tu API Key.</p>;
+  }
+
+  if (!isLoaded) {
+    return <p>Cargando mapa...</p>;
+  }
+
   return (
-    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        defaultCenter={defaultCenter} // No cambia dinámicamente, usa panTo()
-        zoom={15}
-        onClick={onMapClick}
-        onLoad={(map) => (mapRef.current = map)}
-      >
-        {markerPosition && <Marker position={markerPosition} />}
-      </GoogleMap>
-    </LoadScript>
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={markerPosition || defaultCenter}
+      zoom={15}
+      onClick={handleMapClick}
+      onLoad={handleMapLoad}
+    >
+      {markerPosition && <Marker position={markerPosition} />}
+    </GoogleMap>
   );
 };

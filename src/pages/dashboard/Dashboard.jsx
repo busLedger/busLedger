@@ -7,10 +7,29 @@ import {
   getResumenPorMes,
   getResumenPorAnio,
 } from "../../api/dashboard.service";
-import { ConfigProvider, Select } from "antd";
-import ChartTemplate from "../../components/ui/ChartTemplate";
-import { CardResum } from "../../components/ui/CardResum.jsx";
-import { Load } from "../../components/ui/Load.jsx";
+import SelectList from "@/components/ui/SelectList";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Users,
+  Wallet,
+  Fuel,
+  TrendingUp,
+  TrendingDown,
+  Bus,
+} from "lucide-react";
+import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from "recharts";
 
 export const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState([]);
@@ -20,12 +39,12 @@ export const Dashboard = () => {
   );
   const [paymentData, setPaymentData] = useState([]);
   const [mesSeleccionado, setMesSeleccionado] = useState("todos");
-  const { userData, darkMode } = useOutletContext();
+  const { userData } = useOutletContext();
   const [load, setLoad] = useState(true);
 
   useEffect(() => {
     if (!userData?.uid) return;
-  
+
     const fetchData = async () => {
       try {
         const data = await getMesesYAniosConRegistros(userData.uid);
@@ -35,7 +54,7 @@ export const Dashboard = () => {
         console.error("Error al obtener los meses y años con registros:", error);
       }
     };
-  
+
     fetchData();
   }, [userData?.uid]);
 
@@ -55,12 +74,14 @@ export const Dashboard = () => {
     setMesSeleccionado(currentMonth);
   };
 
-  const handleAnioChange = (anio) => {
+  const handleAnioChange = (e) => {
+    const anio = Number(e.target.value);
     setAnioSeleccionado(anio);
     obtenerData(anio, mesSeleccionado);
   };
 
-  const handleMesChange = (mes) => {
+  const handleMesChange = (e) => {
+    const mes = e.target.value;
     setMesSeleccionado(mes);
     obtenerData(anioSeleccionado, mes);
   };
@@ -77,8 +98,16 @@ export const Dashboard = () => {
       console.log(data);
       setDashboardData(data);
       setPaymentData([
-        { name: "Pagado", value: data.alumnosPagaron },
-        { name: "No Pagado", value: data.alumnosNoPagaron },
+        { 
+          name: "Pagado", 
+          value: data.alumnosPagaron,
+          fill: "#10b981" // verde
+        },
+        { 
+          name: "No Pagado", 
+          value: data.alumnosNoPagaron,
+          fill: "#ef4444" // rojo
+        },
       ]);
     } catch (error) {
       console.error("Error al obtener el resumen:", error);
@@ -87,194 +116,325 @@ export const Dashboard = () => {
     }
   };
 
-  const customTheme = {
-    token: {
-      colorPrimary: darkMode ? "#1890ff" : "#ff4d4f",
-      colorText: darkMode ? "#ffffff" : "#000000",
-      colorBgContainer: darkMode ? "#141414" : "#ffffff",
-    },
-  };
-
   const aniosDisponibles = [...new Set(mesesYAnios.map((item) => item.anio))];
   const mesesDisponibles =
     mesesYAnios.find((item) => item.anio === anioSeleccionado)?.meses || [];
 
+  const efectivoDisponible =
+    dashboardData.totalIngresos - dashboardData.totalGastos;
+
+  const chartConfig = {
+    pagado: {
+      label: "Pagado",
+      color: "#10b981",
+    },
+    noPagado: {
+      label: "No Pagado",
+      color: "#ef4444",
+    },
+  };
+
+  // Formatear opciones para SelectList
+  const aniosOptions = aniosDisponibles.map((anio) => ({
+    value: anio,
+    label: anio.toString(),
+  }));
+
+  const mesesOptions = [
+    { value: "todos", label: "Todos los meses" },
+    ...mesesDisponibles.map((mes) => ({
+      value: mes,
+      label: mes.charAt(0).toUpperCase() + mes.slice(1),
+    })),
+  ];
+
   return (
-    <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full h-[97vh]">
-        <section className="container-movil container w-full mx-auto p-2 filters-height">
-          <p className="title-pages">Dashboard</p>
-          {/* Filtros de Año y Mes */}
-          <div className="w-full flex justify-center gap-4 mb-4">
-          <Select
-  value={anioSeleccionado}
-  onChange={handleAnioChange}
-  className="w-2/6"
-  placeholder="Seleccionar Año"
-  dropdownRender={(menu) => (
-    <div
-      style={{
-        backgroundColor: darkMode ? "#141414" : "#fff",
-        color: darkMode ? "#fff" : "#000",
-        borderRadius: 4,
-        padding: 0,
-        border: 1,
-      }}
-    >
-      {menu}
-    </div>
-  )}
->
-  {aniosDisponibles.map((anio) => (
-    <Select.Option
-      key={anio}
-      value={anio}
-      style={{
-        backgroundColor: darkMode ? "#000" : "#fff",
-        color: darkMode ? "#fff" : "#000",
-      }}
-    >
-      {anio}
-    </Select.Option>
-  ))}
-</Select>
-
-<Select
-  value={mesSeleccionado}
-  onChange={handleMesChange}
-  className="w-2/6"
-  placeholder="Seleccionar Mes"
-  dropdownRender={(menu) => (
-    <div
-      style={{
-        backgroundColor: darkMode ? "#141414" : "#fff",
-        color: darkMode ? "#fff" : "#000",
-        borderRadius: 4,
-        padding: 0,
-        border: 1,
-      }}
-    >
-      {menu}
-    </div>
-  )}
->
-  <Select.Option
-    value="todos"
-    style={{
-      backgroundColor: darkMode ? "#000" : "#fff",
-      color: darkMode ? "#fff" : "#000",
-    }}
-  >
-    Todos
-  </Select.Option>
-  {mesesDisponibles.map((mes) => {
-    const nombreMes = mes.charAt(0).toUpperCase() + mes.slice(1);
-    return (
-      <Select.Option
-        key={mes}
-        value={mes}
-        style={{
-          backgroundColor: darkMode ? "#000" : "#fff",
-          color: darkMode ? "#fff" : "#000",
-        }}
-      >
-        {nombreMes}
-      </Select.Option>
-    );
-  })}
-</Select>
+    <div className="min-h-screen w-full bg-background p-4 md:p-6">
+      <div className="mx-auto max-w-7xl space-y-4">
+        {/* Header - Ajustado para móvil */}
+        <div className="space-y-3">
+          <div>
+            <h2 className="text-3xl md:text-3xl font-bold tracking-tight">Dashboard</h2>
+            <p className="text-sm text-muted-foreground">
+              Vista general de tu sistema
+            </p>
           </div>
-        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 info-height ">
-          {load ? (
-            <Load />
-          ) : (
-            <>
-              {/* 📊 Gráfico de pagos (Pie Chart) */}
-              <ChartTemplate
-                title="Estado de Pagos"
-                description="Alumnos al dia vs. pendientes de pago"
-                data={paymentData}
-                config={{
-                  value: { label: "Alumnos", color: ["#725EFF", "#b41c6b"] },
-                }}
-                type="pie"
-              />
+          {/* Filtros con SelectList */}
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
+            <SelectList
+              options={aniosOptions}
+              value={anioSeleccionado}
+              onChange={handleAnioChange}
+              placeholder="Seleccionar Año"
+              className="sm:w-[180px]"
+            />
 
-              {/* <ChartTemplate
-            title="Alumnos por Bus"
-            description="Cantidad de alumnos en cada bus"
-            data={busData}
-            config={{ students: { label: "Alumnos", color: "#36a2eb" } }}
-            type="bar"
-          /> */}
-
-              {/* 📊 Gráfico de evolución de alumnos (Line Chart) 
-          <ChartTemplate
-            title="Evolución de Alumnos"
-            description="Número de alumnos por mes"
-            data={monthlyData}
-            config={{ students: { label: "Alumnos", color: "#ffce56" } }}
-            type="line"
-          />*/}
-
-              <div className="grid grid-cols-2 gap-4">
-                <CardResum
-                  title="Cantidad de Alumnos"
-                  description={`${dashboardData.totalAlumnos}`}
-                  theme={darkMode}
-                />
-                <CardResum
-                  title="Efectivo Disponible"
-                  description={`${(
-                    dashboardData.totalIngresos - dashboardData.totalGastos
-                  ).toLocaleString("es-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })} Lps`}
-                  theme={darkMode}
-                />
-                <CardResum
-                  title="Gasto en Combustible"
-                  description={`${dashboardData.totalCombustible.toLocaleString(
-                    "es-US",
-                    { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                  )} Lps`}
-                  theme={darkMode}
-                />
-                <CardResum
-                  title="Ingresos Totales"
-                  description={`${dashboardData.totalIngresos.toLocaleString(
-                    "es-US",
-                    { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                  )} Lps`}
-                  theme={darkMode}
-                />
-                <CardResum
-                  title="Gastos Totales"
-                  description={`${dashboardData.totalGastos.toLocaleString(
-                    "es-US",
-                    { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                  )} Lps`}
-                  theme={darkMode}
-                />
-                <CardResum
-                  title="Numero de buses"
-                  description={`${dashboardData.totalBuses}`}
-                  theme={darkMode}
-                />
-
-                {/* <CardResum
-                  title="Promedios de Alumnos por Bus"
-                  description={`${dashboardData.totalAlumnos / dashboardData.totalBuses}`}
-                  theme={darkMode}
-                /> */}
-              </div>
-            </>
-          )}
+            <SelectList
+              options={mesesOptions}
+              value={mesSeleccionado}
+              onChange={handleMesChange}
+              placeholder="Seleccionar Mes"
+              className="sm:w-[180px]"
+            />
+          </div>
         </div>
+
+        {load ? (
+          <div className="space-y-4">
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i}>
+                  <CardHeader className="pb-2">
+                    <Skeleton className="h-3 w-[100px]" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-6 w-[80px]" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Cards de métricas - Grid 2 columnas en móvil */}
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+              {/* Total Alumnos */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Alumnos
+                  </CardTitle>
+                  <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xl md:text-2xl font-bold">
+                    {dashboardData.totalAlumnos}
+                  </div>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">
+                    Registrados
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Efectivo Disponible */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Efectivo
+                  </CardTitle>
+                  <Wallet
+                    className={`h-3 w-3 md:h-4 md:w-4 ${
+                      efectivoDisponible >= 0
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }`}
+                  />
+                </CardHeader>
+                <CardContent>
+                  <div
+                    className={`text-lg md:text-2xl font-bold ${
+                      efectivoDisponible >= 0
+                        ? "text-green-600 dark:text-green-500"
+                        : "text-red-600 dark:text-red-500"
+                    }`}
+                  >
+                    {efectivoDisponible.toLocaleString("es-HN", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    <span className="text-sm">L</span>
+                  </div>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">
+                    Disponible
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Ingresos Totales */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Ingresos
+                  </CardTitle>
+                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg md:text-2xl font-bold">
+                    {dashboardData.totalIngresos.toLocaleString("es-HN", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    <span className="text-sm">L</span>
+                  </div>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">
+                    Total
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Gastos Totales */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Gastos
+                  </CardTitle>
+                  <TrendingDown className="h-3 w-3 md:h-4 md:w-4 text-red-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg md:text-2xl font-bold">
+                    {dashboardData.totalGastos.toLocaleString("es-HN", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    <span className="text-sm">L</span>
+                  </div>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">
+                    Total
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Combustible */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Combustible
+                  </CardTitle>
+                  <Fuel className="h-3 w-3 md:h-4 md:w-4 text-orange-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg md:text-2xl font-bold">
+                    {dashboardData.totalCombustible.toLocaleString("es-HN", {
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    <span className="text-sm">L</span>
+                  </div>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">
+                    Gasto
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Número de Buses */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs md:text-sm font-medium">
+                    Buses
+                  </CardTitle>
+                  <Bus className="h-3 w-3 md:h-4 md:w-4 text-blue-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-xl md:text-2xl font-bold">
+                    {dashboardData.totalBuses}
+                  </div>
+                  <p className="text-[10px] md:text-xs text-muted-foreground">
+                    En operación
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Gráficos */}
+            <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
+              {/* Gráfico de Pastel con shadcn */}
+              <Card className="overflow-hidden">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base md:text-lg">Estado de Pagos</CardTitle>
+                  <CardDescription className="text-xs">
+                    Alumnos al día vs. pendientes
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 pb-4">
+                  <ChartContainer config={chartConfig} className="w-full h-[200px] sm:h-[250px] md:h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Pie
+                          data={paymentData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) =>
+                            `${name}: ${(percent * 100).toFixed(0)}%`
+                          }
+                          outerRadius="60%"
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {paymentData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                        <Legend 
+                          wrapperStyle={{
+                            fontSize: '12px',
+                            paddingTop: '10px'
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+
+              {/* Resumen de Pagos */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base md:text-lg">Resumen de Pagos</CardTitle>
+                  <CardDescription className="text-xs">
+                    Distribución por estado
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium">Alumnos Pagaron</p>
+                      <p className="text-xl md:text-2xl font-bold text-green-600 dark:text-green-500">
+                        {dashboardData.alumnosPagaron}
+                      </p>
+                    </div>
+                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-green-100 dark:bg-green-950 flex items-center justify-center">
+                      <TrendingUp className="h-5 w-5 md:h-6 md:w-6 text-green-600 dark:text-green-500" />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium">Alumnos No Pagaron</p>
+                      <p className="text-xl md:text-2xl font-bold text-red-600 dark:text-red-500">
+                        {dashboardData.alumnosNoPagaron}
+                      </p>
+                    </div>
+                    <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-red-100 dark:bg-red-950 flex items-center justify-center">
+                      <TrendingDown className="h-5 w-5 md:h-6 md:w-6 text-red-600 dark:text-red-500" />
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t">
+                    <div className="flex justify-between text-xs md:text-sm">
+                      <span className="text-muted-foreground">
+                        Porcentaje de pago
+                      </span>
+                      <span className="font-medium">
+                        {dashboardData.totalAlumnos > 0
+                          ? (
+                              (dashboardData.alumnosPagaron /
+                                dashboardData.totalAlumnos) *
+                              100
+                            ).toFixed(1)
+                          : 0}
+                        %
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
       </div>
-    </ConfigProvider>
+    </div>
   );
 };

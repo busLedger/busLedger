@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import "./alumnos.css"
+import "./alumnos.css";
 import { useNavigate } from "react-router-dom";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
@@ -13,7 +13,7 @@ import {
 } from "../../components/ui/CardUsers";
 import { RegisterAlumnoModal } from "../../components/ui/Modales/RegisterAlumnoModal.jsx";
 import { RegisterPagoModal } from "../../components/ui/Modales/RegisterPagoModal.jsx";
-import { message, ConfigProvider } from "antd";
+import { message } from "antd";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import Button from "../../components/ui/Button.jsx";
@@ -21,6 +21,7 @@ import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 import FilterTabs from "../../components/ui/FilterTabs.jsx";
 import Input from "../../components/ui/Input.jsx";
 import imgAlumno from "../../assets/school.png";
+import { Search, MapPin } from "lucide-react";
 
 export const Alumnos = () => {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export const Alumnos = () => {
       const allAlumnos = busesData.flatMap((bus) =>
         bus.alumnos.map((alumno) => ({ ...alumno, bus: bus.nombre_ruta }))
       );
-      console.log("Data Alumnos: ", allAlumnos)
+      console.log("Data Alumnos: ", allAlumnos);
       setAlumnos(allAlumnos);
       setFilteredAlumnos(allAlumnos);
       const busOptions = [
@@ -98,6 +99,18 @@ export const Alumnos = () => {
     setIsRegisterPagoModalOpen(true);
   };
 
+  const handleVerUbicacion = (ubicacion) => {
+    if (!ubicacion || ubicacion === "") {
+      message.warning("No hay ubicación disponible para este alumno");
+      return;
+    }
+
+    // Abrir Google Maps con la ubicación
+    // Formato esperado de ubicación: "latitud,longitud" o dirección
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ubicacion)}`;
+    window.open(mapsUrl, "_blank");
+  };
+
   const VerAlumno = (id) => () => {
     console.log("Ver alumno", id);
     navigate(`${id}`);
@@ -108,121 +121,203 @@ export const Alumnos = () => {
         (currentPage - 1) * pageSize,
         currentPage * pageSize
       )
-    : filteredAlumnos; 
-
-  const customTheme = {
-    token: {
-      colorPrimary: darkMode ? "#1890ff" : "#ff4d4f",
-      colorText: darkMode ? "#ffffff" : "#000000",
-      colorBgContainer: darkMode ? "#141414" : "#ffffff",
-    },
-  };
+    : filteredAlumnos;
 
   return (
-    <ConfigProvider theme={customTheme}>
-      <div className="p-4 bg-dark-purple w-full h-[95vh]">
-        <section className="container-movil container w-full mx-auto p-2 alumnos-filters-heigth">
-            <p className="title-pages">Gestión de Alumnos</p>
-            <div className="pages-option-container">
-              <div className="w-full sm:w-1/2 lg:w-1/2">
-                <FilterTabs
-                  options={optionsTab}
-                  onSelect={handleFilterChange}
-                  theme={darkMode}
-                />
-              </div>
-              <div className="center-item">
-                <Input
-                  className="w-full md:w-3/4 md:mt-1"
-                  theme={darkMode}
-                  type="text"
-                  name="nombre"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  placeholder="Buscar alumno por nombre"
-                />
-              </div>
-            </div>
-        </section>
+    <div className="min-h-screen w-full bg-background p-4 md:p-6">
+      <div className="mx-auto max-w-7xl space-y-4">
+        {/* Header */}
+        <div className="space-y-3">
+          <div>
+            <h2 className="text-3xl md:text-2xl font-bold tracking-tight text-foreground">
+              Gestión de Alumnos
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Administra los estudiantes y sus pagos
+            </p>
+          </div>
 
-        <div className="pt-4 md:pt-0 alumnos-data-div">
+          {/* Filtros */}
+          <div className="flex flex-col gap-3">
+            {/* Tabs de buses */}
+            <div className="w-full">
+              <FilterTabs
+                options={optionsTab}
+                onSelect={handleFilterChange}
+                theme={darkMode}
+              />
+            </div>
+
+            {/* Input de búsqueda */}
+            <div className="relative w-full sm:w-2/3 lg:w-1/2">
+              <Search
+                className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 ${
+                  darkMode ? "text-gray-400" : "text-gray-500"
+                }`}
+              />
+              <Input
+                className="pl-10 w-full"
+                theme={darkMode}
+                type="text"
+                name="nombre"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Buscar alumno por nombre"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Contenido */}
+        <div className="pt-2">
           {loading ? (
-            <Load />
+            <div className="flex items-center justify-center py-12">
+              <Load />
+            </div>
           ) : filteredAlumnos.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {paginatedAlumnos.map((alumno) => (
                 <Card key={alumno.id} theme={darkMode}>
-                  <div onClick={VerAlumno(alumno.id)}>
+                  <div onClick={VerAlumno(alumno.id)} className="cursor-pointer">
                     <CardHeader>
-                      <div className="flex gap-2 items-center justify-center">
-                        <img
-                          src={imgAlumno}
-                          alt="Alumno"
-                          className="w-16 h-16 rounded-full"
-                        />
-                        <div>
-                          <CardTitle>{alumno.nombre}</CardTitle>
-                          <CardTitle>{alumno.apellido}</CardTitle>
+                      <div className="flex gap-3 items-center">
+                        <div className="flex-shrink-0">
+                          <img
+                            src={imgAlumno}
+                            alt="Alumno"
+                            className="w-14 h-14 rounded-full border-2 border-indigo-600"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="truncate">
+                            {alumno.nombre}
+                          </CardTitle>
+                          <p
+                            className={`text-sm truncate mt-1 ${
+                              darkMode ? "text-gray-400" : "text-gray-600"
+                            }`}
+                          >
+                            {alumno.apellido}
+                          </p>
                         </div>
                       </div>
                     </CardHeader>
+
                     <CardContent
                       items={[
                         `Encargado: ${alumno.encargado}`,
                         `No. Encargado: ${alumno.no_encargado}`,
                         `Dirección: ${alumno.direccion}`,
-                        `Costo Transporte: ${alumno.pago_mensual.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} LPS`,
+                        `Costo: ${alumno.pago_mensual.toLocaleString("es-HN", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })} L`,
+                        `Bus: ${alumno.bus}`,
                       ]}
                       theme={darkMode}
                     />
                   </div>
 
-                  <div className="col-span-2 flex justify-center gap-4">
+                  {/* Botones de acción */}
+                  <div
+                    className={`
+                    border-t pt-3 pb-1 px-4 
+                    flex flex-col sm:flex-row gap-2 justify-center
+                    ${darkMode ? "border-gray-700" : "border-gray-200"}
+                  `}
+                  >
                     <Button
-                      text={"Registrar Pago"}
-                      onClick={() => handleRegisterPagoClick(alumno)}
+                      text="Registrar Pago"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRegisterPagoClick(alumno);
+                      }}
+                      className="flex-1 sm:flex-none"
                     />
-                    {alumno.ubicacion != "" && (
-                      <Button text={"Ver Ubicación"} />
+                    {alumno.ubicacion && alumno.ubicacion !== "" && (
+                      <Button
+                        text={
+                          <div className="flex items-center justify-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            <span>Ver Ubicación</span>
+                          </div>
+                        }
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleVerUbicacion(alumno.ubicacion);
+                        }}
+                        className="flex-1 sm:flex-none"
+                      />
                     )}
                   </div>
                 </Card>
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-400 mt-4">
-              No hay datos disponibles
-            </p>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div
+                className={`rounded-full p-6 mb-4 ${
+                  darkMode ? "bg-gray-800" : "bg-gray-100"
+                }`}
+              >
+                <img
+                  src={imgAlumno}
+                  alt="No hay alumnos"
+                  className="w-16 h-16 opacity-50"
+                />
+              </div>
+              <h3
+                className={`text-lg font-semibold mb-2 ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                No hay alumnos disponibles
+              </h3>
+              <p
+                className={`text-sm mb-4 ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {searchTerm || selectedBus !== "Todos"
+                  ? "No se encontraron resultados para tu búsqueda"
+                  : "Comienza agregando tu primer alumno"}
+              </p>
+            </div>
           )}
-          
-        <RegisterAlumnoModal
-          isOpen={isRegisterAlumnoModalOpen}
-          onClose={() => setIsRegisterAlumnoModalOpen(false)}
-          theme={darkMode}
-          onAlumnoRegistered={obtenerAlumnos}
-          currentUser={userData}
-        />
-        <RegisterPagoModal
-          isOpen={isRegisterPagoModalOpen}
-          onClose={() => setIsRegisterPagoModalOpen(false)}
-          theme={darkMode}
-          onPagoRegistered={obtenerAlumnos}
-          alumnoData={selectedAlumno}
-        />
-
-        {/* 🔹 PAGINACIÓN */}
-        {isPaginated && (
-          <Pagination
-            totalItems={filteredAlumnos.length}
-            currentPage={currentPage}
-            pageSize={pageSize}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        )}
-        
-        <Fab onClick={() => setIsRegisterAlumnoModalOpen(true)} />
         </div>
+
+        {/* Paginación */}
+        {isPaginated && filteredAlumnos.length > 0 && (
+          <div className="flex justify-center pt-4">
+            <Pagination
+              totalItems={filteredAlumnos.length}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </div>
-    </ConfigProvider>
+
+      {/* Modales */}
+      <RegisterAlumnoModal
+        isOpen={isRegisterAlumnoModalOpen}
+        onClose={() => setIsRegisterAlumnoModalOpen(false)}
+        theme={darkMode}
+        onAlumnoRegistered={obtenerAlumnos}
+        currentUser={userData}
+      />
+
+      <RegisterPagoModal
+        isOpen={isRegisterPagoModalOpen}
+        onClose={() => setIsRegisterPagoModalOpen(false)}
+        theme={darkMode}
+        onPagoRegistered={obtenerAlumnos}
+        alumnoData={selectedAlumno}
+      />
+
+      {/* FAB */}
+      <Fab onClick={() => setIsRegisterAlumnoModalOpen(true)} />
+    </div>
   );
 };

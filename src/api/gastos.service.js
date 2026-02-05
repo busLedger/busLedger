@@ -2,7 +2,7 @@ import { supabase } from "../../supabase_connection";
 
 /** Registrar un nuevo gasto */
 const createGasto = async (newGasto) => {
-  console.log("Registrando gasto:", newGasto);	
+  console.log("Registrando gasto:", newGasto);
   try {
     const { data, error } = await supabase
       .from("gastos")
@@ -74,6 +74,54 @@ const getGastosByUser = async (userId) => {
   }
 };
 
+/** Obtener meses y años con registros de gastos */
+const getMesesYAniosConRegistros = async (userId) => {
+  try {
+    const { data: buses, error: busError } = await supabase
+      .from("buses")
+      .select("id")
+      .eq("id_dueño", userId);
+
+    if (busError) throw busError;
+    if (!buses.length) return [];
+
+    const busIds = [...new Set(buses.map((bus) => bus.id))];
+
+    const { data: gastos, error: gastosError } = await supabase
+      .from("gastos")
+      .select("fecha_gasto")
+      .in("id_bus", busIds);
+
+    if (gastosError) throw gastosError;
+
+    const registros = {};
+
+    gastos.forEach((gasto) => {
+      const fecha = new Date(gasto.fecha_gasto);
+      const anio = fecha.getFullYear();
+      const mes = new Intl.DateTimeFormat("es-ES", { month: "long" }).format(fecha);
+
+      if (!registros[anio]) {
+        registros[anio] = new Set();
+      }
+      registros[anio].add(mes);
+    });
+
+    const resultado = Object.keys(registros).map((anio) => ({
+      anio: parseInt(anio),
+      meses: [...registros[anio]].sort(
+        (a, b) =>
+          new Date(`${anio}-${a}-01`).getMonth() -
+          new Date(`${anio}-${b}-01`).getMonth()
+      ),
+    }));
+
+    return resultado.sort((a, b) => b.anio - a.anio);
+  } catch (error) {
+    console.error("Error obteniendo meses y años con registros:", error);
+    return [];
+  }
+};
 
 /** Eliminar un gasto por ID */
 const deleteGasto = async (gastoId) => {
@@ -92,5 +140,11 @@ const deleteGasto = async (gastoId) => {
   }
 };
 
-// ✅ Exportando todas las funciones al final
-export { createGasto, getGasto, getGastosByBus, getGastosByUser, deleteGasto };
+export {
+  createGasto,
+  getGasto,
+  getGastosByBus,
+  getGastosByUser,
+  deleteGasto,
+  getMesesYAniosConRegistros,
+};
