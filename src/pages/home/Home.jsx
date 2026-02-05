@@ -138,7 +138,7 @@ export const Home = () => {
       )}
 
       {/* Contenido principal */}
-      <main className={`flex-1 overflow-y-auto bg-background ${!isDesktop ? "pt-14" : ""}`}>
+      <main className={`flex-1 overflow-y-auto bg-background ${!isDesktop ? "pt-18" : ""}`}>
         <Outlet context={{ userData, darkMode }} />
       </main>
     </div>

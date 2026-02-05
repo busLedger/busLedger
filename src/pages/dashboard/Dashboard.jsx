@@ -150,7 +150,7 @@ export const Dashboard = () => {
 
   return (
     <div className="min-h-screen w-full bg-background p-4 md:p-6">
-      <div className="mx-auto max-w-7xl space-y-4">
+      <div className="mx-auto max-w-7xl space-y-5">
         {/* Header - Ajustado para móvil */}
         <div className="space-y-3">
           <div>
