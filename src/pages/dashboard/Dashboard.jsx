@@ -238,12 +238,11 @@ export const Dashboard = () => {
                         ? "text-green-600 dark:text-green-500"
                         : "text-red-600 dark:text-red-500"
                     }`}
-                  >
+                  >L.
                     {efectivoDisponible.toLocaleString("es-HN", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
-                    })}{" "}
-                    <span className="text-sm">L</span>
+                    })}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Disponible
@@ -261,11 +260,10 @@ export const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-lg md:text-2xl font-bold">
-                    {dashboardData.totalIngresos.toLocaleString("es-HN", {
+                    L.{dashboardData.totalIngresos.toLocaleString("es-HN", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
-                    })}{" "}
-                    <span className="text-sm">L</span>
+                    })}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Total
@@ -283,11 +281,10 @@ export const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-lg md:text-2xl font-bold">
-                    {dashboardData.totalGastos.toLocaleString("es-HN", {
+                    L.{dashboardData.totalGastos.toLocaleString("es-HN", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
-                    })}{" "}
-                    <span className="text-sm">L</span>
+                    })}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Total
@@ -305,11 +302,10 @@ export const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="text-lg md:text-2xl font-bold">
-                    {dashboardData.totalCombustible.toLocaleString("es-HN", {
+                    L.{dashboardData.totalCombustible.toLocaleString("es-HN", {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 0,
-                    })}{" "}
-                    <span className="text-sm">L</span>
+                    })}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Gasto

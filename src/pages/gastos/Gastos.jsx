@@ -423,24 +423,24 @@ export const Gastos = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <CardTitle className="truncate text-sm md:text-base">
-                            {bus.nombre_ruta}
+                            {gasto.descripcion_gasto}
                           </CardTitle>
                           <p
                             className={`text-xs md:text-sm truncate mt-0.5 md:mt-1 ${
                               darkMode ? "text-gray-400" : "text-gray-600"
                             }`}
                           >
-                            {gasto.descripcion_gasto}
+                             {bus.nombre_ruta}
                           </p>
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent
                       items={[
-                        `Monto: ${gasto.monto.toLocaleString("es-HN", {
+                        `Monto: L.${gasto.monto.toLocaleString("es-HN", {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2,
-                        })} L`,
+                        })} `,
                         `Fecha: ${gasto.fecha_gasto}`,
                       ]}
                       theme={darkMode}
