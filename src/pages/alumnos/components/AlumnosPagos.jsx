@@ -220,7 +220,7 @@ export const AlumnoPagos = ({
                     text={
                       <div className="flex items-center gap-2">
                         <Trash2 className="h-4 w-4" />
-                        <span>Eliminar</span>
+                        Eliminar
                       </div>
                     }
                     onClick={() => onDeletePago(pago)}
@@ -236,7 +236,7 @@ export const AlumnoPagos = ({
                     text={
                       <div className="flex items-center gap-2">
                         <Eye className="h-4 w-4" />
-                        <span>Ver Factura</span>
+                        Ver Factura
                       </div>
                     }
                     onClick={() => onVerFactura(pago)}
@@ -258,7 +258,7 @@ export const AlumnoPagos = ({
                     ) : (
                       <>
                         <Download className="h-4 w-4" />
-                        <span>Descargar</span>
+                        Descargar
                       </>
                     )}
                   </button>

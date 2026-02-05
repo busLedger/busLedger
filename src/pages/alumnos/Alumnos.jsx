@@ -239,7 +239,7 @@ export const Alumnos = () => {
                         text={
                           <div className="flex items-center justify-center gap-2">
                             <MapPin className="h-4 w-4" />
-                            <span>Ver Ubicación</span>
+                            Ver Ubicación
                           </div>
                         }
                         onClick={(e) => {

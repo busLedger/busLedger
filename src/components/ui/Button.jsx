@@ -22,9 +22,9 @@ const Button = ({
   const buttonElement = (
       <button
             type={type}
-            onClick={!confirm ? onClick : undefined} // Solo ejecuta si `confirm` es `false`
+            onClick={!confirm ? onClick : undefined} 
             disabled={loading}
-            className={`bg-indigo-600 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-indigo-500 transition-all h-auto 
+            className={`bg-indigo-600 cursor-pointer !text-white py-2 px-4 rounded-lg hover:bg-indigo-500 transition-all h-auto 
               ${loading ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
           >
             {loading ? <Spin indicator={<LoadingOutlined style={{ fontSize: 24, color: "white" }} spin />} /> : text}
@@ -34,7 +34,6 @@ const Button = ({
 
   return confirm ? (
     <Popconfirm
-    className="bg-indigo-600 "
       title={confirmTitle}
       description={confirmDescription}
       onConfirm={handleConfirm} // Solo ejecuta la acción si el usuario confirma
