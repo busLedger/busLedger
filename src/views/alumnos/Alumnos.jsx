@@ -1,9 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
-import { getAllAlumnosByUser } from "../../api/alumnos.service.js";
+import { useAlumnos } from "../../Hooks/swr/useAlumnos.js";
 import {
   Card,
   CardHeader,
@@ -24,73 +23,48 @@ import { Search, MapPin } from "lucide-react";
 
 export const Alumnos = () => {
   const navigate = useNavigate();
-  const { darkMode, userData } = useOutletContext();
+  const { darkMode } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 
-  const [alumnos, setAlumnos] = useState([]);
-  const [filteredAlumnos, setFilteredAlumnos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { buses, isLoading: loading } = useAlumnos();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBus, setSelectedBus] = useState("Todos");
-  const [optionsTab, setOptionTabs] = useState([]);
   const [isRegisterAlumnoModalOpen, setIsRegisterAlumnoModalOpen] =
     useState(false);
   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
   const [selectedAlumno, setSelectedAlumno] = useState(null);
 
-  useEffect(() => {
-    obtenerAlumnos();
-  }, []);
-
-  useEffect(() => {
-    filterAlumnos();
-  }, [alumnos, searchTerm, selectedBus]);
-
-  const obtenerAlumnos = async () => {
-    setLoading(true);
-    try {
-      const busesData = await getAllAlumnosByUser(userData.uid);
-      const allAlumnos = busesData.flatMap((bus) =>
+  const alumnos = useMemo(
+    () =>
+      buses.flatMap((bus) =>
         bus.alumnos.map((alumno) => ({ ...alumno, bus: bus.nombre_ruta }))
-      );
-      console.log("Data Alumnos: ", allAlumnos);
-      setAlumnos(allAlumnos);
-      setFilteredAlumnos(allAlumnos);
-      const busOptions = [
-        "Todos",
-        ...new Set(busesData.map((bus) => bus.nombre_ruta)),
-      ];
-      setOptionTabs(busOptions);
-    } catch (error) {
-      message.error("Error al obtener los alumnos: " + error.message);
-    }
-    setLoading(false);
-  };
-
-  const filterAlumnos = () => {
-    let filtered = alumnos;
-
-    if (selectedBus !== "Todos") {
-      filtered = filtered.filter((alumno) => alumno.bus === selectedBus);
-    }
-
-    if (searchTerm) {
-      filtered = filtered.filter((alumno) =>
-        alumno.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredAlumnos(filtered);
-    setCurrentPage(1);
-  };
+      ),
+    [buses]
+  );
+  const optionsTab = useMemo(
+    () => ["Todos", ...new Set(buses.map((bus) => bus.nombre_ruta))],
+    [buses]
+  );
+  const filteredAlumnos = useMemo(
+    () =>
+      alumnos.filter(
+        (alumno) =>
+          (selectedBus === "Todos" || alumno.bus === selectedBus) &&
+          (!searchTerm ||
+            alumno.nombre.toLowerCase().includes(searchTerm.toLowerCase()))
+      ),
+    [alumnos, searchTerm, selectedBus]
+  );
 
   const handleFilterChange = (value) => {
     setSelectedBus(value);
+    setCurrentPage(1);
   };
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   const handleRegisterPagoClick = (alumno) => {
@@ -303,15 +277,14 @@ export const Alumnos = () => {
         isOpen={isRegisterAlumnoModalOpen}
         onClose={() => setIsRegisterAlumnoModalOpen(false)}
         theme={darkMode}
-        onAlumnoRegistered={obtenerAlumnos}
-        currentUser={userData}
+        onAlumnoRegistered={() => setIsRegisterAlumnoModalOpen(false)}
       />
 
       <RegisterPagoModal
         isOpen={isRegisterPagoModalOpen}
         onClose={() => setIsRegisterPagoModalOpen(false)}
         theme={darkMode}
-        onPagoRegistered={obtenerAlumnos}
+        onPagoRegistered={() => setIsRegisterPagoModalOpen(false)}
         alumnoData={selectedAlumno}
       />
 

@@ -180,6 +180,11 @@ Cambios aplicados:
 - Las mutaciones financieras tambien invalidan `/api/buses`, manteniendo
   actualizados ingresos, gastos y balance de las tarjetas de unidades.
 - Se elimino `src/api/buses.service.js`.
+- Alumnos y su vista de detalle ya consumen `useAlumnos`/`useAlumno`.
+- Alta, edicion y desactivacion usan `useAlumnoMutations`.
+- El historial y registro de pagos usan `usePagosAlumno` y
+  `usePagoMutations`; los meses disponibles se derivan de la cache.
+- Se eliminaron `src/api/alumnos.service.js` y `src/api/pagos.service.js`.
 
 ## Validaciones Realizadas
 

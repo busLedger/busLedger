@@ -1,8 +1,7 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getAlumno, toggleAlumnoStatus } from "../../api/alumnos.service";
-import { eliminarPagoAlumno } from "../../api/pagos.service";
+import { useAlumno, useAlumnoMutations } from "../../Hooks/swr/useAlumnos";
+import { usePagoMutations } from "../../Hooks/swr/usePagos";
 import { Load } from "../../components/ui/Load";
 import FilterTabs from "../../components/ui/FilterTabs";
 import { RegisterPagoModal } from "../../components/ui/Modales/RegisterPagoModal.jsx";
@@ -47,35 +46,19 @@ export const VerAlumno = () => {
   const [optFilter, setOptFilter] = useState(["Datos", "Pagos"]);
   const [selectedTab, setSelectedTab] = useState("Datos");
 
-  const [load, setLoad] = useState(true);
-  const [alumno, setAlumno] = useState(null);
-
-  const fetchAlumno = async () => {
-    setLoad(true);
-    try {
-      const alumnoData = await getAlumno(id);
-      const alumnoReal = Array.isArray(alumnoData) ? alumnoData[0] : alumnoData;
-
-      if (alumnoReal?.ubicacion && alumnoReal.ubicacion !== "") {
-        setOptFilter(["Datos", "Pagos", "Ubicación"]);
-      }
-
-      setAlumno(alumnoReal);
-    } catch (error) {
-      console.error("Error al obtener el alumno:", error);
-      message.error("Error al cargar los datos del alumno.");
-    } finally {
-      setLoad(false);
-    }
-  };
+  const { alumno, isLoading: load, mutate: refreshAlumno } = useAlumno(id);
+  const { updateAlumno } = useAlumnoMutations();
+  const { deletePago } = usePagoMutations();
 
   useEffect(() => {
-    fetchAlumno();
-  }, []);
+    setOptFilter(
+      alumno?.ubicacion ? ["Datos", "Pagos", "Ubicación"] : ["Datos", "Pagos"]
+    );
+  }, [alumno?.ubicacion]);
 
   const handleDeleteAlumno = async () => {
     try {
-      await toggleAlumnoStatus(id, false);
+      await updateAlumno(id, { activo: false });
       message.success("Alumno desactivado correctamente.");
       navigate("/home/alumnos");
     } catch (error) {
@@ -86,9 +69,8 @@ export const VerAlumno = () => {
 
   const handleDeletePago = async (pago) => {
     try {
-      await eliminarPagoAlumno(pago);
+      await deletePago(pago.id);
       message.success("Pago eliminado correctamente");
-      fetchAlumno();
     } catch (error) {
       message.error("Error al eliminar el ingreso");
       console.error("Error al eliminar el pago:", error);
@@ -224,14 +206,14 @@ export const VerAlumno = () => {
         isOpen={isRegisterPagoModalOpen}
         onClose={() => setIsRegisterPagoModalOpen(false)}
         theme={darkMode}
-        onPagoRegistered={fetchAlumno}
+        onPagoRegistered={refreshAlumno}
         alumnoData={alumno}
       />
 
       <RegisterAlumnoModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        onAlumnoRegistered={fetchAlumno}
+        onAlumnoRegistered={refreshAlumno}
         theme={darkMode}
         currentUser={userData}
         alumnoToEdit={alumno}

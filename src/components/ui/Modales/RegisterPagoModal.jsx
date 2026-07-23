@@ -1,15 +1,17 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import Input from "../Input.jsx";
 import { Select } from "antd";
-import { registrarPagoAlumno, obtenerPagosAlumno } from "../../../api/pagos.service.js";
+import { usePagoMutations, usePagosAlumno } from "../../../Hooks/swr/usePagos.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 
 const { Option } = Select;
 
 export const RegisterPagoModal = ({ isOpen, onClose, onPagoRegistered, theme, alumnoData }) => {
+  const anioActual = new Date().getFullYear();
+  const { pagos } = usePagosAlumno(isOpen ? alumnoData?.id : null, anioActual);
+  const { createPago } = usePagoMutations();
   const [formData, setFormData] = useState({
     monto: "",
     mes_correspondiente: "",
@@ -18,27 +20,15 @@ export const RegisterPagoModal = ({ isOpen, onClose, onPagoRegistered, theme, al
   });
 
   const [isDirty, setIsDirty] = useState(false);
-  const [mesesDisponibles, setMesesDisponibles] = useState([]);
   const { mostrarMensaje, contextHolder } = RegisterMessage();
-
-  useEffect(() => {
-    if (isOpen) {
-      obtenerMesesDisponibles();
-    }
-  }, [isOpen]);
-
-  const obtenerMesesDisponibles = async () => {
-    const anioActual = new Date().getFullYear();
-    const pagos = await obtenerPagosAlumno(alumnoData.id, anioActual);
+  const mesesDisponibles = useMemo(() => {
     const mesesPagados = pagos.map(pago => pago.mes_correspondiente);
     const todosLosMeses = [
        "Febrero", "Marzo", "Abril", "Mayo", "Junio",
       "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre"
     ];
-
-    const mesesNoPagados = todosLosMeses.filter(mes => !mesesPagados.includes(mes));
-    setMesesDisponibles(mesesNoPagados);
-  };
+    return todosLosMeses.filter(mes => !mesesPagados.includes(mes));
+  }, [pagos]);
 
   // Función para manejar el cambio en los campos del formulario
   const handleInputChange = (e) => {
@@ -68,12 +58,12 @@ export const RegisterPagoModal = ({ isOpen, onClose, onPagoRegistered, theme, al
       mes_correspondiente,
       fecha_pago,
       id_alumno: alumnoData.id,
-      anio_correspondiente: new Date().getFullYear()
+      anio_correspondiente: anioActual
     };
 
     try {
       mostrarMensaje('loading', 'Registrando pago...');
-      const result = await registrarPagoAlumno(pagoData, alumnoData);
+      const result = await createPago(pagoData);
       if (result) {
         mostrarMensaje('success', 'Pago registrado correctamente');
         resetForm();
