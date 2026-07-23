@@ -77,6 +77,17 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
 - El handler antiguo de pagos por `/api/rpc` devuelve `410`.
 - Se agrego `Documentation/migration_next_api.sql` con la columna/relacion
   `ingresos.id_pago` y restricciones unicas para impedir pagos duplicados.
+- El dominio de ingresos fue separado:
+  - `GET/POST /api/ingresos`
+  - `GET/DELETE /api/ingresos/[id]`
+  - `GET /api/ingresos/periodos`
+  - `GET /api/ingresos/resumen`
+- Las rutas derivan los buses accesibles desde el usuario autenticado. El dueño
+  solo accede a sus unidades y el administrador puede consultar el conjunto
+  global.
+- Al eliminar un ingreso generado por un pago, ingreso y pago se eliminan en
+  una sola transaccion.
+- El handler antiguo de ingresos por `/api/rpc` devuelve `410`.
 
 Variables server-side nuevas:
 
@@ -173,8 +184,8 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 
 4. Mejorar la API:
 
-- Continuar separando `/api/rpc` en endpoints por dominio. Buses, alumnos y
-  pagos ya fueron migrados; siguen ingresos, gastos, usuarios y dashboard.
+- Continuar separando `/api/rpc` en endpoints por dominio. Buses, alumnos,
+  pagos e ingresos ya fueron migrados; siguen gastos, usuarios y dashboard.
 - Agregar validacion de payloads.
 - Agregar manejo mas claro de errores SQL.
 - Agregar comprobaciones de propiedad a los recursos que permanecen en el RPC;
