@@ -59,6 +59,14 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
 - Las rutas de buses validan rol, propietario y conductor segun la operacion.
 - El cliente de buses ya consume estas rutas REST.
 - El acceso al handler antiguo de buses por `/api/rpc` devuelve `410`.
+- El dominio de alumnos tambien fue separado:
+  - `GET/POST /api/alumnos`
+  - `GET/PATCH/DELETE /api/alumnos/[id]`
+- Las consultas de alumnos validan la relacion con el bus. Los conductores
+  asignados pueden consultar; solo el dueño del bus o un administrador puede
+  crear, editar, mover, desactivar o eliminar alumnos.
+- El cliente de alumnos ya consume estas rutas REST y el handler antiguo por
+  `/api/rpc` devuelve `410`.
 
 Variables server-side nuevas:
 
@@ -155,8 +163,8 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 
 4. Mejorar la API:
 
-- Continuar separando `/api/rpc` en endpoints por dominio. Buses ya fue migrado;
-  siguen alumnos, pagos, ingresos, gastos, usuarios y dashboard.
+- Continuar separando `/api/rpc` en endpoints por dominio. Buses y alumnos ya
+  fueron migrados; siguen pagos, ingresos, gastos, usuarios y dashboard.
 - Agregar validacion de payloads.
 - Agregar manejo mas claro de errores SQL.
 - Agregar comprobaciones de propiedad a los recursos que permanecen en el RPC;
