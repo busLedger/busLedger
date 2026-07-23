@@ -485,7 +485,7 @@ export async function POST(request) {
     const { service, action, payload: clientPayload = {} } = await request.json();
     const payload = { ...clientPayload, userId: auth.data.uid };
 
-    if (["buses", "alumnos"].includes(service)) {
+    if (["buses", "alumnos", "pagos"].includes(service)) {
       return errorResponse(`Este módulo fue migrado a /api/${service}`, 410);
     }
 

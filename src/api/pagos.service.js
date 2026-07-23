@@ -1,13 +1,18 @@
-import { request } from "../lib/clientApi";
+import { authFetch } from "../lib/clientApi";
 
-const registrarPagoAlumno = async (pagoData, alumnoData) =>
-  request("pagos", "registrarPagoAlumno", { pagoData, alumnoData }).catch(() => null);
+const registrarPagoAlumno = (pagoData) =>
+  authFetch("/api/pagos", {
+    method: "POST",
+    body: JSON.stringify(pagoData),
+  });
 
-const obtenerPagosAlumno = async (alumnoId, anio_correspondiente) =>
-  request("pagos", "obtenerPagosAlumno", { alumnoId, anio_correspondiente }).catch(() => []);
+const obtenerPagosAlumno = (alumnoId, anio_correspondiente) =>
+  authFetch(
+    `/api/pagos?alumnoId=${encodeURIComponent(alumnoId)}&anio=${encodeURIComponent(anio_correspondiente)}`
+  );
 
-const eliminarPagoAlumno = async (data) =>
-  request("pagos", "eliminarPagoAlumno", { data }).catch(() => false);
+const eliminarPagoAlumno = (data) =>
+  authFetch(`/api/pagos/${data.id}`, { method: "DELETE" });
 
 export {
   registrarPagoAlumno,

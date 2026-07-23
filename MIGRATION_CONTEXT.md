@@ -67,6 +67,16 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
   crear, editar, mover, desactivar o eliminar alumnos.
 - El cliente de alumnos ya consume estas rutas REST y el handler antiguo por
   `/api/rpc` devuelve `410`.
+- El dominio de pagos fue separado:
+  - `GET/POST /api/pagos`
+  - `DELETE /api/pagos/[id]`
+- El servidor obtiene el alumno y su bus antes de consultar, registrar o
+  eliminar un pago. Solo el dueño del bus o un administrador puede operar.
+- Registrar un pago y crear su ingreso asociado se ejecutan en una transaccion.
+  La eliminacion tambien borra el ingreso asociado dentro de una transaccion.
+- El handler antiguo de pagos por `/api/rpc` devuelve `410`.
+- Se agrego `Documentation/migration_next_api.sql` con la columna/relacion
+  `ingresos.id_pago` y restricciones unicas para impedir pagos duplicados.
 
 Variables server-side nuevas:
 
@@ -163,8 +173,8 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 
 4. Mejorar la API:
 
-- Continuar separando `/api/rpc` en endpoints por dominio. Buses y alumnos ya
-  fueron migrados; siguen pagos, ingresos, gastos, usuarios y dashboard.
+- Continuar separando `/api/rpc` en endpoints por dominio. Buses, alumnos y
+  pagos ya fueron migrados; siguen ingresos, gastos, usuarios y dashboard.
 - Agregar validacion de payloads.
 - Agregar manejo mas claro de errores SQL.
 - Agregar comprobaciones de propiedad a los recursos que permanecen en el RPC;
