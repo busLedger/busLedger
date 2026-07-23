@@ -43,6 +43,7 @@ const useGastoMutations = () => {
       const result = await authFetch(url, options);
       await Promise.all([
         revalidatePrefix("/api/gastos"),
+        revalidatePrefix("/api/buses"),
         revalidatePrefix("/api/ingresos/resumen"),
         revalidatePrefix("/api/dashboard"),
       ]);

@@ -61,6 +61,7 @@ const useIngresoMutations = () => {
       const result = await authFetch(url, options);
       await Promise.all([
         revalidatePrefix("/api/ingresos"),
+        revalidatePrefix("/api/buses"),
         revalidatePrefix("/api/dashboard"),
       ]);
       return result;

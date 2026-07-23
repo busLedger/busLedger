@@ -1,19 +1,14 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import { Ingresos_Gastos } from "./Ingresos_Gastos.jsx";
-import {
-  getBusesWithFinancials,
-  getAllBusesWithFinancials,
-} from "../../api/buses.service";
+import { useBuses } from "../../Hooks/swr/useBuses";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
 } from "@/components/ui/CardUsers";
-import { message } from "antd";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
@@ -28,10 +23,16 @@ export const Unidades = () => {
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 
-  const [buses, setBuses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [mesSeleccionado, setMesSeleccionado] = useState("");
-  const [mesesDisponibles, setMesesDisponibles] = useState([]);
+  const isAdmin = userData.roles.includes("Admin");
+  const { buses, isLoading: loading } = useBuses({
+    financials: true,
+    all: isAdmin,
+  });
+  const currentYear = new Date().getFullYear();
+  const currentMonth = String(new Date().getMonth() + 1).padStart(2, "0");
+  const [mesSeleccionado, setMesSeleccionado] = useState(
+    `${currentYear}-${currentMonth}`
+  );
   const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -40,31 +41,10 @@ export const Unidades = () => {
     // navigate(`${id}`);
   };
 
-  useEffect(() => {
-    obtenerBuses();
-  }, []);
-
-  const obtenerBuses = async () => {
-    setLoading(true);
-    try {
-      let busesData = [];
-      if (userData.roles.includes("Admin")) {
-        busesData = await getAllBusesWithFinancials();
-      } else {
-        busesData = await getBusesWithFinancials(userData.uid);
-      }
-      setBuses(busesData);
-      generarMesesDisponibles(busesData);
-    } catch (error) {
-      message.error("Error al obtener los buses:" + error.message);
-    }
-    setLoading(false);
-  };
-
-  const generarMesesDisponibles = (busesData) => {
+  const mesesDisponibles = useMemo(() => {
     const mesesSet = new Set();
 
-    busesData.forEach((bus) => {
+    buses.forEach((bus) => {
       bus.ingresos.forEach((ingreso) => {
         if (ingreso.fecha) {
           const mes = ingreso.fecha.substring(0, 7);
@@ -81,10 +61,6 @@ export const Unidades = () => {
     });
 
     // Agregar el mes actual si no está en los datos
-    const currentYear = new Date().getFullYear();
-    const currentMonth = (new Date().getMonth() + 1)
-      .toString()
-      .padStart(2, "0");
     const mesActual = `${currentYear}-${currentMonth}`;
     mesesSet.add(mesActual);
 
@@ -93,9 +69,8 @@ export const Unidades = () => {
       (a, b) => new Date(b + "-01") - new Date(a + "-01")
     );
 
-    setMesesDisponibles(mesesOrdenados);
-    setMesSeleccionado(mesActual);
-  };
+    return mesesOrdenados;
+  }, [buses, currentMonth, currentYear]);
 
   const busesFiltrados = buses
     .filter((bus) =>
@@ -252,8 +227,6 @@ export const Unidades = () => {
   }`}>
     <Ingresos_Gastos
       busId={bus.id}
-      userId={userData.uid}
-      onRegistered={obtenerBuses}
     />
   </div>
 </Card>
@@ -307,7 +280,6 @@ export const Unidades = () => {
         onClose={() => setIsRegisterBusModalOpen(false)}
         onBusRegistered={() => {
           setIsRegisterBusModalOpen(false);
-          obtenerBuses(mesSeleccionado);
         }}
         theme={darkMode}
         currentUser={userData}

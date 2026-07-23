@@ -172,6 +172,14 @@ Cambios aplicados:
   ejemplo, un pago revalida pagos, alumnos, ingresos y dashboard.
 - Dashboard y Admin Panel ya consumen SWR directamente y dejaron de gestionar
   sus cargas iniciales con `useEffect` y estado duplicado.
+- Unidades ya consume `useBuses` para el listado financiero y deriva los meses
+  disponibles con `useMemo`, sin una segunda copia local de los buses.
+- El registro de buses usa `useBusMutations`.
+- Los selectores de buses de los formularios de alumnos, ingresos y gastos
+  comparten la cache de `useBuses`.
+- Las mutaciones financieras tambien invalidan `/api/buses`, manteniendo
+  actualizados ingresos, gastos y balance de las tarjetas de unidades.
+- Se elimino `src/api/buses.service.js`.
 
 ## Validaciones Realizadas
 

@@ -4,13 +4,15 @@ import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select, DatePicker } from "antd";
 import Input from "../Input.jsx";
-import { createIngreso } from "../../../api/ingresos.service.js";
-import { getBusesByUser } from "../../../api/buses.service.js";
+import { useBuses } from "../../../Hooks/swr/useBuses.js";
+import { useIngresoMutations } from "../../../Hooks/swr/useIngresos.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 
 const { Option } = Select;
 
-const RegisterIngresoModal = ({ isOpen, onClose, onIngresoRegistered, theme, currentUser, busId }) => {
+const RegisterIngresoModal = ({ isOpen, onClose, onIngresoRegistered, theme, busId }) => {
+  const { buses } = useBuses();
+  const { createIngreso } = useIngresoMutations();
   const [formData, setFormData] = useState({
     descripcion_ingreso: "",
     total_ingreso: "",
@@ -18,16 +20,9 @@ const RegisterIngresoModal = ({ isOpen, onClose, onIngresoRegistered, theme, cur
     id_bus: busId || "",
   });
 
-  const [buses, setBuses] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
 
   const { mostrarMensaje, contextHolder } = RegisterMessage();
-
-  useEffect(() => {
-    if (!busId) {
-      obtenerBuses();
-    }
-  }, [busId]);
 
   useEffect(() => {
     // Reset form when modal is closed
@@ -35,15 +30,6 @@ const RegisterIngresoModal = ({ isOpen, onClose, onIngresoRegistered, theme, cur
       resetForm();
     }
   }, [isOpen]);
-
-  const obtenerBuses = async () => {
-    try {
-      const busesData = await getBusesByUser(currentUser.uid);
-      setBuses(busesData);
-    } catch (error) {
-      mostrarMensaje("error", `Error al obtener los buses: ${error.message}`);
-    }
-  };
 
   // Función para manejar el cambio en los campos del formulario
   const handleInputChange = (e) => {
@@ -165,7 +151,6 @@ RegisterIngresoModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onIngresoRegistered: PropTypes.func.isRequired,
   theme: PropTypes.bool.isRequired,
-  currentUser: PropTypes.object.isRequired,
   busId: PropTypes.string,
 };
 

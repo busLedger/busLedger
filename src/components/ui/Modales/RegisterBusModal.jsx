@@ -4,13 +4,14 @@ import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select } from "antd";
 import Input from "../Input.jsx";
-import { createBus } from "../../../api/buses.service.js";
+import { useBusMutations } from "../../../Hooks/swr/useBuses.js";
 import RegisterUserModal from "./RegisterUserModal.jsx";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 
 const { Option } = Select;
 
 const RegisterBusModal = ({ isOpen, onClose, onBusRegistered, theme, currentUser }) => {
+  const { createBus } = useBusMutations();
   const [formData, setFormData] = useState({
     placa: "",
     modelo: "",

@@ -35,6 +35,7 @@ const usePagoMutations = () => {
         revalidatePrefix("/api/pagos"),
         revalidatePrefix("/api/alumnos"),
         revalidatePrefix("/api/ingresos"),
+        revalidatePrefix("/api/buses"),
         revalidatePrefix("/api/dashboard"),
       ]);
       return result;

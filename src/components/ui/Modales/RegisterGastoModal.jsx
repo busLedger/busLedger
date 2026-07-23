@@ -4,13 +4,15 @@ import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select, DatePicker, Checkbox } from "antd";
 import Input from "../Input.jsx";
-import { createGasto } from "../../../api/gastos.service.js";
-import { getBusesByUser } from "../../../api/buses.service.js";
+import { useBuses } from "../../../Hooks/swr/useBuses.js";
+import { useGastoMutations } from "../../../Hooks/swr/useGastos.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 
 const { Option } = Select;
 
-const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, currentUser, busId }) => {
+const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, busId }) => {
+  const { buses } = useBuses();
+  const { createGasto } = useGastoMutations();
   const [formData, setFormData] = useState({
     descripcion_gasto: "",
     monto: "",
@@ -18,17 +20,10 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
     id_bus: busId || "",
   });
 
-  const [buses, setBuses] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
   const [isCombustible, setIsCombustible] = useState(false);
 
   const { mostrarMensaje, contextHolder } = RegisterMessage();
-
-  useEffect(() => {
-    if (!busId) {
-      obtenerBuses();
-    }
-  }, [busId]);
 
   useEffect(() => {
     // Reset form when modal is closed
@@ -36,15 +31,6 @@ const RegisterGastoModal = ({ isOpen, onClose, onGastoRegistered, theme, current
       resetForm();
     }
   }, [isOpen]);
-
-  const obtenerBuses = async () => {
-    try {
-      const busesData = await getBusesByUser(currentUser.uid);
-      setBuses(busesData);
-    } catch (error) {
-      mostrarMensaje("error", `Error al obtener los buses: ${error.message}`);
-    }
-  };
 
   // Función para manejar el cambio en los campos del formulario
   const handleInputChange = (e) => {
@@ -185,7 +171,6 @@ RegisterGastoModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onGastoRegistered: PropTypes.func.isRequired,
   theme: PropTypes.bool.isRequired,
-  currentUser: PropTypes.object.isRequired,
   busId: PropTypes.string,
 };
 

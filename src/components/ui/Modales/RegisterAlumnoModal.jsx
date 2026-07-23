@@ -1,17 +1,18 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select, Checkbox } from "antd";
 import Input from "../Input.jsx";
-import { createAlumno, updateAlumno } from "../../../api/alumnos.service.js";
-import { getBusesByUser } from "../../../api/buses.service.js";
+import { useAlumnoMutations } from "../../../Hooks/swr/useAlumnos.js";
+import { useBuses } from "../../../Hooks/swr/useBuses.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 import { MapPicker } from "../MapPicker.jsx";
 
 const { Option } = Select;
 
-export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme, currentUser, alumnoToEdit }) => {
+export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme, alumnoToEdit }) => {
+  const { buses } = useBuses();
+  const { createAlumno, updateAlumno } = useAlumnoMutations();
   const [formData, setFormData] = useState({
     nombre: "",
     encargado: "",
@@ -23,7 +24,6 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
     activo: true
   });
 
-  const [buses, setBuses] = useState([]);
   const [isDirty, setIsDirty] = useState(false);
   const [useMap, setUseMap] = useState(false);
 
@@ -35,19 +35,6 @@ export const RegisterAlumnoModal = ({ isOpen, onClose, onAlumnoRegistered, theme
       resetForm();
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    const fetchBuses = async () => {
-      try {
-        const busesData = await getBusesByUser(currentUser.uid);
-        setBuses(busesData);
-      } catch (error) {
-        mostrarMensaje('error', `Error al obtener los buses: ${error.message}`);
-      }
-    };
-
-    fetchBuses();
-  }, [currentUser.uid]);
 
   // Función para manejar el cambio en los campos del formulario
   const handleInputChange = (e) => {
@@ -271,6 +258,5 @@ RegisterAlumnoModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onAlumnoRegistered: PropTypes.func.isRequired,
   theme: PropTypes.bool.isRequired,
-  currentUser: PropTypes.object.isRequired,
   alumnoToEdit: PropTypes.object
 };
