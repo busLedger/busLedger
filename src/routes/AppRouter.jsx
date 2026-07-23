@@ -10,12 +10,20 @@ import {Dashboard}  from "../views/dashboard/Dashboard";
 import { VerUnidad } from "../views/unidades/VerUnidad";
 import { VerAlumno } from "../views/alumnos/VerAlumno";
 import { Factura } from "../views/facturas/Factura";
+import { ProtectedRoute } from "../views/auth/ProtectedRoute";
 const AppRouter = () => {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
-                    <Route path="/home" element={<Home />}>
+                    <Route
+                        path="/home"
+                        element={
+                            <ProtectedRoute>
+                                <Home />
+                            </ProtectedRoute>
+                        }
+                    >
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="admin-panel" element={<AdminPanel />} />
                         <Route path="unidades-transporte" element={<Unidades />} />

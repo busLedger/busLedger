@@ -1,6 +1,7 @@
-import { auth } from "../../firebase_connection";
+import { getFirebaseAuth } from "../../firebase_connection";
 
 const authFetch = async (url, options = {}) => {
+  const auth = getFirebaseAuth();
   const token = await auth.currentUser?.getIdToken();
   if (!token) {
     throw new Error("No autenticado");

@@ -1,23 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../../firebase_connection";
+import { useCallback } from "react";
+import { useAuth } from "../../components/providers/AuthProvider";
 import { authFetch } from "../../lib/clientApi";
 
 const useFirebaseSession = () => {
-  const [firebaseUser, setFirebaseUser] = useState(auth.currentUser);
-  const [authLoading, setAuthLoading] = useState(true);
-
-  useEffect(
-    () =>
-      onAuthStateChanged(auth, (user) => {
-        setFirebaseUser(user);
-        setAuthLoading(false);
-      }),
-    []
-  );
-
+  const { firebaseUser, authLoading } = useAuth();
   return { firebaseUser, authLoading };
 };
 

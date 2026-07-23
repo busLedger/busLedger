@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { logout } from "../../api/auth.service";
 import { Outlet } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Sidebar } from "../../components/ui/sidebar";
 import { MobileNav } from "../../components/ui/mobile-nav";
 import { useMe } from "../../Hooks/swr/useUsers";
 import { useSWRConfig } from "swr";
+import { useAuth } from "../../components/providers/AuthProvider";
 import { Moon, Sun, Menu } from "lucide-react";
 
 import imgAdminPanel from "../../assets/admin-panel.png";
@@ -21,6 +21,7 @@ export const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { mutate: mutateCache } = useSWRConfig();
+  const { logout } = useAuth();
   const { user: userData, isLoading } = useMe();
   const [open, setOpen] = useState(true);
   const [darkMode, setDarkMode] = useState(false);

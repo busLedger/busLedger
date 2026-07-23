@@ -296,6 +296,17 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 - `src/routes/AppRouter.jsx`
 - `src/views/**`
 
+## Sesion Firebase y SWR
+
+- `AuthProvider` mantiene una unica suscripcion global a Firebase Auth.
+- Login, recuperacion de contraseña y logout consumen el contexto de autenticacion.
+- `/home` esta protegido y redirige al login cuando no existe una sesion valida.
+- La identidad ya no se duplica en `localStorage`; Firebase conserva la sesion.
+- Los hooks SWR reutilizan el estado global y envian el ID token mediante
+  `authFetch`.
+- Firebase Client se inicializa de forma diferida solo en el navegador para no
+  interferir con el prerender de Next.
+
 ## Nota Para Retomar
 
 El build ya funciona y los estilos Tailwind ya se generan. Lo siguiente deberia ser conectar una `DATABASE_URL` real de Neon y hacer pruebas funcionales pantalla por pantalla, corrigiendo SQL segun el esquema real migrado.

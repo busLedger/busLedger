@@ -9,6 +9,7 @@ import "../views/facturas/factura.css";
 import "../views/gastos/gastos.css";
 import "../views/ingresos/ingresos.css";
 import "../views/unidades/unidades.css";
+import { AuthProvider } from "../components/providers/AuthProvider";
 import { SWRProvider } from "../components/providers/SWRProvider";
 
 export const metadata = {
@@ -20,7 +21,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body>
-        <SWRProvider>{children}</SWRProvider>
+        <AuthProvider>
+          <SWRProvider>{children}</SWRProvider>
+        </AuthProvider>
       </body>
     </html>
   );

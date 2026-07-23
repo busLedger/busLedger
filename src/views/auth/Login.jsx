@@ -1,17 +1,13 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
-import {
-  login,
-  forgotPassword,
-  checkActiveSession,
-} from "../../api/auth.service";
+import { useAuth } from "../../components/providers/AuthProvider";
 import { Lock, Mail, Bus, Check } from "lucide-react";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const { firebaseUser, authLoading, login, forgotPassword } = useAuth();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [darkMode, setDarkMode] = useState(true);
@@ -32,19 +28,15 @@ export const Login = () => {
     }
   };
 
-  const verifySession = async () => {
-    const session = await checkActiveSession();
-    if (session.uid != null) {
-      navigate("/home");
-    }
-  };
-
   useEffect(() => {
     setDarkMode(true);
     localStorage.setItem("darkMode", true);
     document.documentElement.classList.add("dark");
-    verifySession();
   }, []);
+
+  useEffect(() => {
+    if (!authLoading && firebaseUser) navigate("/home", { replace: true });
+  }, [authLoading, firebaseUser, navigate]);
 
   const handleForgetPass = async () => {
     await forgotPassword(form.email);
