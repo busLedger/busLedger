@@ -1,10 +1,9 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { Modal } from "../Modal.jsx";
 import { Select } from "antd";
 import Input from "../Input.jsx";
-import { createUser, getRoles } from "../../../api/user.service.js";
+import { useCreateUser, useRoles } from "../../../Hooks/swr/useUsers.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
 
 const { Option } = Select;
@@ -16,6 +15,8 @@ const RegisterUserModal = ({
   theme,
   isOwner,
 }) => {
+  const { roles } = useRoles();
+  const { createUser } = useCreateUser();
   const [formData, setFormData] = useState({
     uid: "",
     nombre: "",
@@ -24,23 +25,9 @@ const RegisterUserModal = ({
     roles: isOwner ? [3] : [],
   });
 
-  const [roles, setRoles] = useState([]);
   const [isDirty, setIsDirty] = useState(false); // Flag para detectar cambios en el formulario
 
   const { mostrarMensaje, contextHolder } = RegisterMessage();
-
-  useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const rolesData = await getRoles();
-        setRoles(rolesData);
-      } catch (error) {
-        mostrarMensaje("error", `Error al obtener los roles: ${error.message}`);
-      }
-    };
-
-    fetchRoles();
-  }, []);
 
   // Función para manejar el cambio en los campos del formulario
   const handleInputChange = (e) => {
@@ -80,10 +67,13 @@ const RegisterUserModal = ({
 
     try {
       mostrarMensaje("loading", "Registrando usuario...");
-      const createdUser = await createUser(
-        { uid: isOwner ? undefined : uid, nombre, correo, whatsapp: `+504${whatsapp}` },
-        roles
-      );
+      const createdUser = await createUser({
+        uid: isOwner ? undefined : uid,
+        nombre,
+        correo,
+        whatsapp: `+504${whatsapp}`,
+        roles,
+      });
       if (isOwner) {
         localStorage.setItem(
           "conductorData",

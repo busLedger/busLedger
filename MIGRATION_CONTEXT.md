@@ -192,6 +192,13 @@ Cambios aplicados:
 - Los datos filtrados por mes y las rutas disponibles se derivan con
   `useMemo`, sin recargas manuales al cambiar filtros.
 - Se eliminaron `src/api/ingresos.service.js` y `src/api/gastos.service.js`.
+- Home obtiene el perfil autenticado con `useMe`.
+- El formulario de usuarios obtiene roles con `useRoles` y crea usuarios con
+  `useCreateUser`.
+- Al cerrar sesion se vacia la cache SWR para evitar reutilizar datos entre
+  usuarios.
+- Se elimino `src/api/user.service.js`; en `src/api` solo permanece el servicio
+  de autenticacion Firebase.
 
 ## Validaciones Realizadas
 

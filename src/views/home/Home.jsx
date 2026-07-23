@@ -5,7 +5,8 @@ import { Outlet } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Sidebar } from "../../components/ui/sidebar";
 import { MobileNav } from "../../components/ui/mobile-nav";
-import { getUserData } from "../../api/user.service";
+import { useMe } from "../../Hooks/swr/useUsers";
+import { useSWRConfig } from "swr";
 import { Moon, Sun, Menu } from "lucide-react";
 
 import imgAdminPanel from "../../assets/admin-panel.png";
@@ -19,11 +20,11 @@ import imgPanelUsuario from "../../assets/user_panel.png";
 export const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { mutate: mutateCache } = useSWRConfig();
+  const { user: userData, isLoading } = useMe();
   const [open, setOpen] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [userData, setUserData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   const Menus = [
     { title: "Admin Panel", src: imgAdminPanel, rol: ["Admin"], ruta: "admin-panel" },
@@ -36,19 +37,6 @@ export const Home = () => {
   ];
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const data = await getUserData();
-        setUserData(data);
-      } catch (error) {
-        console.error("Error obteniendo datos del usuario:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUserInfo();
-
     const savedTheme = localStorage.getItem("darkMode");
     if (savedTheme) {
       const isDark = JSON.parse(savedTheme);
@@ -71,6 +59,7 @@ export const Home = () => {
 
   const cerrarSesion = async () => {
     await logout();
+    await mutateCache(() => true, undefined, { revalidate: false });
     navigate("/");
   };
 
