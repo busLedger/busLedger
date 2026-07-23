@@ -25,9 +25,9 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
   - `index.html`
 - Se elimino `supabase_connection.js`.
 - Los servicios en `src/api/*.service.js` ya no importan Supabase.
-- Se agrego `src/lib/clientApi.js` como cliente HTTP interno hacia `/api/rpc`.
+- Se agrego `src/lib/clientApi.js` como cliente HTTP autenticado para las APIs.
 - Se agrego `src/lib/db.js` con conexion server-side usando `pg`.
-- Se agrego `src/app/api/rpc/route.js` como API route central para ejecutar consultas SQL contra Neon.
+- Las consultas SQL se distribuyeron en rutas REST por dominio.
 - Se agrego `.env.example` con las variables necesarias.
 - Se actualizaron scripts:
   - `dev`: `next dev`
@@ -51,22 +51,22 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
   - obtener el usuario y sus roles desde PostgreSQL;
   - rechazar usuarios inexistentes o inactivos;
   - evitar confiar en el UID enviado por el navegador.
-- El RPC temporal ya exige autenticacion y sustituye `userId`/`uid` por el UID
-  verificado cuando corresponde.
+- Todas las rutas exigen autenticacion y obtienen el UID desde el token
+  verificado.
 - El dominio de buses fue separado del RPC:
   - `GET/POST /api/buses`
   - `GET/PATCH/DELETE /api/buses/[id]`
 - Las rutas de buses validan rol, propietario y conductor segun la operacion.
 - El cliente de buses ya consume estas rutas REST.
-- El acceso al handler antiguo de buses por `/api/rpc` devuelve `410`.
+- El handler antiguo de buses fue retirado.
 - El dominio de alumnos tambien fue separado:
   - `GET/POST /api/alumnos`
   - `GET/PATCH/DELETE /api/alumnos/[id]`
 - Las consultas de alumnos validan la relacion con el bus. Los conductores
   asignados pueden consultar; solo el dueño del bus o un administrador puede
   crear, editar, mover, desactivar o eliminar alumnos.
-- El cliente de alumnos ya consume estas rutas REST y el handler antiguo por
-  `/api/rpc` devuelve `410`.
+- El cliente de alumnos ya consume estas rutas REST y el handler antiguo fue
+  retirado.
 - El dominio de pagos fue separado:
   - `GET/POST /api/pagos`
   - `DELETE /api/pagos/[id]`
@@ -74,7 +74,7 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
   eliminar un pago. Solo el dueño del bus o un administrador puede operar.
 - Registrar un pago y crear su ingreso asociado se ejecutan en una transaccion.
   La eliminacion tambien borra el ingreso asociado dentro de una transaccion.
-- El handler antiguo de pagos por `/api/rpc` devuelve `410`.
+- El handler antiguo de pagos fue retirado.
 - Se agrego `Documentation/migration_next_api.sql` con la columna/relacion
   `ingresos.id_pago` y restricciones unicas para impedir pagos duplicados.
 - El dominio de ingresos fue separado:
@@ -87,7 +87,7 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
   global.
 - Al eliminar un ingreso generado por un pago, ingreso y pago se eliminan en
   una sola transaccion.
-- El handler antiguo de ingresos por `/api/rpc` devuelve `410`.
+- El handler antiguo de ingresos fue retirado.
 - El dominio de gastos fue separado:
   - `GET/POST /api/gastos`
   - `GET/DELETE /api/gastos/[id]`
@@ -95,7 +95,7 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
 - Dueños y administradores pueden consultar y eliminar gastos. Un conductor
   asignado puede registrar un gasto en su unidad, pero las rutas de consulta
   financiera siguen restringidas al dueño o administrador.
-- El handler antiguo de gastos por `/api/rpc` devuelve `410`.
+- El handler antiguo de gastos fue retirado.
 - El dominio de usuarios fue separado:
   - `GET/POST /api/usuarios`
   - `PATCH /api/usuarios/[uid]`
@@ -108,7 +108,15 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
   genera en el servidor y se devuelve al formulario para asignarlo al bus.
 - Activar o desactivar una cuenta administrativa sincroniza PostgreSQL y
   Firebase Auth cuando existe una cuenta Firebase asociada.
-- El handler antiguo de usuarios por `/api/rpc` devuelve `410`.
+- El handler antiguo de usuarios fue retirado.
+- El dashboard fue separado:
+  - `GET /api/dashboard/resumen`
+  - `GET /api/dashboard/pagos`
+  - `GET /api/dashboard/periodos`
+- Los resúmenes mensuales y anuales derivan los buses desde el usuario
+  autenticado; el administrador obtiene datos globales.
+- Al completar la migracion de dashboard se elimino definitivamente
+  `src/app/api/rpc/route.js` y el metodo generico `request()` del cliente.
 
 Variables server-side nuevas:
 
@@ -154,7 +162,7 @@ Resultado:
 
 - Build completado correctamente.
 - Next compila la app.
-- La API route `/api/rpc` queda disponible.
+- Las rutas REST por dominio quedan disponibles.
 - El servidor dev respondio `200 OK` en:
 
 ```text
@@ -205,13 +213,11 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 
 4. Mejorar la API:
 
-- Continuar separando `/api/rpc` en endpoints por dominio. Buses, alumnos,
-  pagos, ingresos, gastos y usuarios ya fueron migrados; sigue dashboard.
+- La separacion del RPC por dominios fue completada.
 - Agregar validacion de payloads.
 - Agregar manejo mas claro de errores SQL.
-- Agregar comprobaciones de propiedad a los recursos que permanecen en el RPC;
-  el token y los roles ya se verifican, pero los IDs de cada alumno, pago,
-  ingreso y gasto deben validarse contra los buses accesibles al usuario.
+- Mantener pruebas de autorizacion por dominio para dueño, conductor y
+  administrador.
 
 5. Migracion Next mas completa:
 
@@ -233,7 +239,7 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 - `.env.example`
 - `src/app/layout.jsx`
 - `src/app/[[...slug]]/page.jsx`
-- `src/app/api/rpc/route.js`
+- `src/app/api/**/route.js`
 - `src/lib/db.js`
 - `src/lib/clientApi.js`
 - `src/index.css`

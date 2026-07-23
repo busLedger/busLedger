@@ -24,11 +24,4 @@ const authFetch = async (url, options = {}) => {
   return result.data;
 };
 
-const request = async (service, action, payload = {}) => {
-  return authFetch("/api/rpc", {
-    method: "POST",
-    body: JSON.stringify({ service, action, payload }),
-  });
-};
-
-export { authFetch, request };
+export { authFetch };

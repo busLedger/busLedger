@@ -1,19 +1,23 @@
-import { request } from "../lib/clientApi";
+import { authFetch } from "../lib/clientApi";
 
-const getResumenPagosPorMes = async (userId, mes, anio) =>
-  request("dashboard", "getResumenPagosPorMes", { userId, mes, anio }).catch(() => null);
+const getResumenPagosPorMes = (_userId, mes, anio) =>
+  authFetch(
+    `/api/dashboard/pagos?anio=${encodeURIComponent(anio)}&mes=${encodeURIComponent(mes)}`
+  );
 
-const getResumenPagosPorAnio = async (userId, anio) =>
-  request("dashboard", "getResumenPagosPorAnio", { userId, anio }).catch(() => null);
+const getResumenPagosPorAnio = (_userId, anio) =>
+  authFetch(`/api/dashboard/pagos?anio=${encodeURIComponent(anio)}`);
 
-const getResumenPorMes = async (userId, anio, mes) =>
-  request("dashboard", "getResumenPorMes", { userId, anio, mes }).catch(() => null);
+const getResumenPorMes = (_userId, anio, mes) =>
+  authFetch(
+    `/api/dashboard/resumen?anio=${encodeURIComponent(anio)}&mes=${encodeURIComponent(mes)}`
+  );
 
-const getResumenPorAnio = async (userId, anio) =>
-  request("dashboard", "getResumenPorAnio", { userId, anio }).catch(() => null);
+const getResumenPorAnio = (_userId, anio) =>
+  authFetch(`/api/dashboard/resumen?anio=${encodeURIComponent(anio)}`);
 
-const getMesesYAniosConRegistros = async (userId) =>
-  request("dashboard", "getMesesYAniosConRegistros", { userId }).catch(() => []);
+const getMesesYAniosConRegistros = () =>
+  authFetch("/api/dashboard/periodos");
 
 export {
   getResumenPagosPorMes,
