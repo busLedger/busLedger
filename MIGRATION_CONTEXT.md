@@ -18,9 +18,7 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
 - Se creo la rama `migration(nextJS-Convertion)`.
 - Se cambio el proyecto de Vite a Next.js.
 - Se agrego App Router en `src/app`.
-- Se conserva temporalmente una ruta catch-all en
-  `src/app/[[...slug]]/page.jsx` unicamente para las pantallas dinamicas de
-  detalle que aun usan `react-router-dom`.
+- Se elimino la ruta catch-all temporal al completar las rutas nativas.
 - Se movio `src/pages` a `src/views` para evitar conflicto con el Pages Router de Next.
 - Se eliminaron archivos propios de Vite:
   - `vite.config.js`
@@ -211,14 +209,19 @@ Cambios aplicados:
   - dashboard;
   - admin panel;
   - unidades;
+  - detalle de unidad;
   - alumnos;
+  - detalle de alumno;
+  - factura de pago;
   - pagos;
   - gastos.
 - Sidebar, navegacion movil, login, logout y proteccion de sesion usan
   `next/navigation`.
-- `HomeProvider` reemplaza el contexto de `Outlet` en las paginas ya migradas.
-- React Router queda limitado temporalmente a las rutas dinamicas de unidad,
-  alumno y factura.
+- `HomeProvider` reemplaza el antiguo contexto de `Outlet`.
+- La factura se reconstruye desde SWR usando `paymentId`, por lo que su URL
+  funciona tambien al abrirla directamente o refrescarla.
+- Se eliminaron el catch-all, `AppRouter`, `BrowserRouter`, `src/App.jsx`,
+  `src/main.jsx` y la dependencia `react-router-dom`.
 
 ## Validaciones Realizadas
 
@@ -291,14 +294,10 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 
 5. Migracion Next mas completa:
 
-- Migrar las rutas dinamicas de unidad, alumno y factura a App Router.
-- Eliminar el catch-all, `AppRouter`, `BrowserRouter` y la dependencia
-  `react-router-dom` al completar esas rutas.
 - Revisar componentes que dependen de `window`, `localStorage`, mapas o impresion.
 
 6. Limpieza posterior:
 
-- Revisar si `src/main.jsx` ya puede eliminarse.
 - Revisar si `src/output.css` todavia es necesario.
 - Agregar plugin/config ESLint de Next.
 - Corregir warnings de `eslint-disable` no usados.
@@ -309,12 +308,10 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 - `postcss.config.cjs`
 - `.env.example`
 - `src/app/layout.jsx`
-- `src/app/[[...slug]]/page.jsx`
 - `src/app/api/**/route.js`
 - `src/lib/db.js`
 - `src/lib/clientApi.js`
 - `src/index.css`
-- `src/routes/AppRouter.jsx`
 - `src/views/**`
 
 ## Sesion Firebase y SWR

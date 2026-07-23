@@ -1,13 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useParams, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { generarFacturaPDF } from './FacturaPdf';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Spin } from 'antd';
+import { useAlumno } from "../../Hooks/swr/useAlumnos";
+import { useHome } from "../../components/providers/HomeProvider";
+import { buildInvoiceData } from "../../lib/invoice";
 
 export const Factura = () => {
-  const { state: data } = useLocation();
+  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const paymentId = searchParams.get("paymentId");
+  const { userData } = useHome();
+  const { alumno, isLoading } = useAlumno(id);
+  const pago = alumno?.pagos_alumnos?.find(
+    (item) => String(item.id) === paymentId
+  );
+  const data =
+    alumno && pago && userData
+      ? buildInvoiceData({ alumno, pago, user: userData })
+      : null;
   const [isMounted, setIsMounted] = useState(false);
   const [load, setLoad] = useState(false);
   useEffect(() => {
@@ -35,8 +49,12 @@ export const Factura = () => {
     }
   };
 
-  if (!isMounted || !data?.item) {
+  if (!isMounted || isLoading) {
     return <div className="p-8">Cargando...</div>;
+  }
+
+  if (!data?.item) {
+    return <div className="p-8">No se encontró el pago de esta factura.</div>;
   }
 
   const item = data.item[0];

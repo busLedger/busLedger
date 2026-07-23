@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useOutletContext } from "react-router-dom";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAlumno, useAlumnoMutations } from "../../Hooks/swr/useAlumnos";
 import { usePagoMutations } from "../../Hooks/swr/usePagos";
@@ -8,6 +8,8 @@ import { RegisterPagoModal } from "../../components/ui/Modales/RegisterPagoModal
 import { RegisterAlumnoModal } from "../../components/ui/Modales/RegisterAlumnoModal.jsx";
 import { generarFacturaPDF } from "../facturas/FacturaPdf.jsx";
 import { message } from "antd";
+import { useHome } from "../../components/providers/HomeProvider";
+import { buildInvoiceData } from "../../lib/invoice";
 
 import { AlumnoDatos } from "./components/AlumnosDatos";
 import { AlumnoPagos } from "./components/AlumnosPagos";
@@ -37,8 +39,8 @@ function parseUbicacion(ubicacion) {
 }
 
 export const VerAlumno = () => {
-  const navigate = useNavigate();
-  const { darkMode, userData } = useOutletContext();
+  const router = useRouter();
+  const { darkMode, userData } = useHome();
   const { id } = useParams();
 
   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
@@ -60,7 +62,7 @@ export const VerAlumno = () => {
     try {
       await updateAlumno(id, { activo: false });
       message.success("Alumno desactivado correctamente.");
-      navigate("/home/alumnos");
+      router.push("/home/alumnos");
     } catch (error) {
       console.error("Error al desactivar el alumno:", error);
       message.error("No se pudo desactivar el alumno.");
@@ -78,34 +80,7 @@ export const VerAlumno = () => {
   };
 
   const descargarFactura = async (pago) => {
-    const data = {
-      colaborador: userData.nombre,
-      data_pago: pago,
-      alumno_data: alumno,
-      invoiceNumber: `FAC-00${alumno.id}-00${pago.id}`,
-      date: "2023-10-15",
-      companyName: "BusLedger",
-      companyAddress: "Calle Principal 123\n28001 Madrid",
-      companyPhone: userData.whatsapp,
-      companyEmail: userData.correo,
-      clientName: alumno.encargado,
-      clientAddress: alumno.direccion,
-      clientEmail: alumno.no_encargado,
-      item: [
-        {
-          id: alumno.id,
-          description: `Pago de transporte de ${pago.mes_correspondiente} ${pago.anio_correspondiente} del alumno ${alumno.nombre}`,
-          fecha_pago: pago.fecha_pago,
-          quantity: 1,
-          price: parseFloat(pago.monto),
-        },
-      ],
-      taxRate: 0,
-      paymentTerms:
-        "Se aceptan pagos en efectivo y transferencias bancarias",
-      notes:
-        "Gracias por su confianza.\nCualquier consulta, no dude en contactarnos.",
-    };
+    const data = buildInvoiceData({ alumno, pago, user: userData });
 
     try {
       await generarFacturaPDF(data);
@@ -116,35 +91,7 @@ export const VerAlumno = () => {
   };
 
   const verFactura = (pago) => {
-    const data = {
-      colaborador: userData.nombre,
-      data_pago: pago,
-      alumno_data: alumno,
-      invoiceNumber: `FAC-00${alumno.id}-00${pago.id}`,
-      date: "2023-10-15",
-      companyName: "BusLedger",
-      companyAddress: "Calle Principal 123\n28001 Madrid",
-      companyPhone: userData.whatsapp,
-      companyEmail: userData.correo,
-      clientName: alumno.encargado,
-      clientAddress: alumno.direccion,
-      clientEmail: alumno.no_encargado,
-      item: [
-        {
-          id: alumno.id,
-          description: `Pago de transporte de ${pago.mes_correspondiente} ${pago.anio_correspondiente} del alumno ${alumno.nombre}`,
-          fecha_pago: pago.fecha_pago,
-          quantity: 1,
-          price: parseFloat(pago.monto),
-        },
-      ],
-      taxRate: 0,
-      paymentTerms:
-        "Se aceptan pagos en efectivo y transferencias bancarias",
-      notes:
-        "Gracias por su confianza.\nCualquier consulta, no dude en contactarnos.",
-    };
-    navigate("factura", { state: data });
+    router.push(`/home/alumnos/${id}/factura?paymentId=${pago.id}`);
   };
 
   if (load || !alumno) return <Load />;

@@ -5,7 +5,6 @@
 @source "./app/**/*.{js,jsx}";
 @source "./views/**/*.{js,jsx}";
 @source "./components/**/*.{js,jsx}";
-@source "./routes/**/*.{js,jsx}";
 @source "./Hooks/**/*.{js,jsx}";
 
 @custom-variant dark (&:is(.dark *));

@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "next/navigation";
 export const VerUnidad = () => {
   const { id } = useParams();
   return (

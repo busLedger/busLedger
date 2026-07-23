@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { usePathname, useRouter } from "next/navigation";
-import { Outlet } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Sidebar } from "../../components/ui/sidebar";
 import { MobileNav } from "../../components/ui/mobile-nav";
@@ -132,7 +131,7 @@ export const Home = ({ children }) => {
       {/* Contenido principal */}
       <main className={`flex-1 overflow-y-auto bg-background ${!isDesktop ? "pt-18" : ""}`}>
         <HomeProvider value={{ userData, darkMode }}>
-          {children ?? <Outlet context={{ userData, darkMode }} />}
+          {children}
         </HomeProvider>
       </main>
     </div>
@@ -140,5 +139,5 @@ export const Home = ({ children }) => {
 };
 
 Home.propTypes = {
-  children: PropTypes.node,
+  children: PropTypes.node.isRequired,
 };
