@@ -1,11 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useState } from "react";
 import {
-  getMesesYAniosConRegistros,
-  getResumenPorMes,
-  getResumenPorAnio,
-} from "../../api/dashboard.service";
+  useDashboardPeriods,
+  useDashboardSummary,
+} from "../../Hooks/swr/useDashboard";
 import SelectList from "@/components/ui/SelectList";
 import {
   Card,
@@ -31,88 +28,35 @@ import {
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from "recharts";
 
 export const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState([]);
-  const [mesesYAnios, setMesesYAnios] = useState([]);
+  const currentDate = new Date();
+  const currentMonth = currentDate
+    .toLocaleString("es-US", { month: "long" })
+    .toLowerCase();
   const [anioSeleccionado, setAnioSeleccionado] = useState(
-    new Date().getFullYear()
+    currentDate.getFullYear()
   );
-  const [paymentData, setPaymentData] = useState([]);
-  const [mesSeleccionado, setMesSeleccionado] = useState("todos");
-  const { userData } = useOutletContext();
-  const [load, setLoad] = useState(true);
-
-  useEffect(() => {
-    if (!userData?.uid) return;
-
-    const fetchData = async () => {
-      try {
-        const data = await getMesesYAniosConRegistros(userData.uid);
-        setMesesYAnios(data);
-        setDefaultMesSeleccionado(data);
-      } catch (error) {
-        console.error("Error al obtener los meses y años con registros:", error);
-      }
-    };
-
-    fetchData();
-  }, [userData?.uid]);
-
-  const setDefaultMesSeleccionado = async (data) => {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date()
-      .toLocaleString("es-US", { month: "long" })
-      .toLowerCase();
-    const currentYearData = data.find((item) => item.anio === currentYear);
-
-    if (currentYearData && !currentYearData.meses.includes(currentMonth)) {
-      currentYearData.meses.push(currentMonth);
-    }
-    await obtenerData(currentYear, currentMonth);
-
-    setAnioSeleccionado(currentYear);
-    setMesSeleccionado(currentMonth);
-  };
+  const [mesSeleccionado, setMesSeleccionado] = useState(currentMonth);
+  const { periods: mesesYAnios, isLoading: periodsLoading } =
+    useDashboardPeriods();
+  const { summary, isLoading: summaryLoading } = useDashboardSummary(
+    anioSeleccionado,
+    mesSeleccionado
+  );
+  const dashboardData = summary ?? {};
+  const load = periodsLoading || summaryLoading;
+  const paymentData = [
+    { name: "Pagado", value: dashboardData.alumnosPagaron ?? 0, fill: "#10b981" },
+    { name: "No Pagado", value: dashboardData.alumnosNoPagaron ?? 0, fill: "#ef4444" },
+  ];
 
   const handleAnioChange = (e) => {
     const anio = Number(e.target.value);
     setAnioSeleccionado(anio);
-    obtenerData(anio, mesSeleccionado);
   };
 
   const handleMesChange = (e) => {
     const mes = e.target.value;
     setMesSeleccionado(mes);
-    obtenerData(anioSeleccionado, mes);
-  };
-
-  const obtenerData = async (anio, mes) => {
-    setLoad(true);
-    let data = [];
-    try {
-      if (mes === "todos") {
-        data = await getResumenPorAnio(userData.uid, anio);
-      } else {
-        data = await getResumenPorMes(userData.uid, anio, mes);
-      }
-      console.log(data);
-      setDashboardData(data);
-      setPaymentData([
-        { 
-          name: "Pagado", 
-          value: data.alumnosPagaron,
-          fill: "#10b981" // verde
-        },
-        { 
-          name: "No Pagado", 
-          value: data.alumnosNoPagaron,
-          fill: "#ef4444" // rojo
-        },
-      ]);
-    } catch (error) {
-      console.error("Error al obtener el resumen:", error);
-    } finally {
-      setLoad(false);
-    }
   };
 
   const aniosDisponibles = [...new Set(mesesYAnios.map((item) => item.anio))];
@@ -120,7 +64,7 @@ export const Dashboard = () => {
     mesesYAnios.find((item) => item.anio === anioSeleccionado)?.meses || [];
 
   const efectivoDisponible =
-    dashboardData.totalIngresos - dashboardData.totalGastos;
+    (dashboardData.totalIngresos ?? 0) - (dashboardData.totalGastos ?? 0);
 
   const chartConfig = {
     pagado: {

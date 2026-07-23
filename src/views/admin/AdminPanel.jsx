@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
-import { getAllUsers, toggleUserStatus } from "../../api/user.service.js";
+import { useToggleUserStatus, useUsers } from "../../Hooks/swr/useUsers.js";
 import {
   Card,
   CardHeader,
@@ -24,22 +24,15 @@ export const AdminPanel = () => {
   const { darkMode } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } = useResponsivePagination(3);
   
-  const [users, setUsers] = useState([]);
+  const { users, isLoading: loading, mutate: refreshUsers } = useUsers();
+  const { toggleUserStatus } = useToggleUserStatus();
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const obtenerUsuarios = async () => {
-    const users = await getAllUsers();
-    setUsers(users);
-    setFilteredUsers(users);
-    setLoading(false);
-  };
-
   useEffect(() => {
-    obtenerUsuarios();
-  }, []);
+    setFilteredUsers(users);
+  }, [users]);
 
   const handleFilterChange = (value) => {
     if (value === "all") {
@@ -55,7 +48,6 @@ export const AdminPanel = () => {
     try {
       await toggleUserStatus(uid, !currentStatus);
       message.success(`Usuario ${!currentStatus ? "activado" : "desactivado"} correctamente`);
-      obtenerUsuarios();
     } catch (error) {
       message.error("Error al cambiar el estado del usuario: " + error.message);
     }
@@ -167,7 +159,7 @@ export const AdminPanel = () => {
           <Pagination totalItems={filteredUsers.length} currentPage={currentPage} pageSize={pageSize} onPageChange={setCurrentPage} />
         )}
 
-        <RegisterUserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onUserRegistered={obtenerUsuarios} theme={darkMode} isOwner={false} />
+        <RegisterUserModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onUserRegistered={refreshUsers} theme={darkMode} isOwner={false} />
       </div>
     </ConfigProvider>
   );

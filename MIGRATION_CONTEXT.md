@@ -150,6 +150,29 @@ Cambios aplicados:
   - `.items-center`
   - `.bg-background`
 
+## Capa de Datos con SWR
+
+- Se agrego `swr` y un `SWRProvider` global en el layout.
+- Configuracion global:
+  - no revalidar al enfocar la ventana;
+  - revalidar al recuperar conexion;
+  - deduplicacion de 30 segundos;
+  - dos reintentos ante errores.
+- Se agrego una sesion reactiva de Firebase mediante `onAuthStateChanged`.
+- Todos los fetchers SWR obtienen el ID token en el momento de la solicitud.
+- Se agregaron hooks por dominio en `src/Hooks/swr`:
+  - dashboard;
+  - usuarios;
+  - buses;
+  - alumnos;
+  - pagos;
+  - ingresos;
+  - gastos.
+- Las mutaciones invalidan tanto su dominio como las caches relacionadas. Por
+  ejemplo, un pago revalida pagos, alumnos, ingresos y dashboard.
+- Dashboard y Admin Panel ya consumen SWR directamente y dejaron de gestionar
+  sus cargas iniciales con `useEffect` y estado duplicado.
+
 ## Validaciones Realizadas
 
 Comando ejecutado:

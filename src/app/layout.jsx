@@ -9,6 +9,7 @@ import "../views/facturas/factura.css";
 import "../views/gastos/gastos.css";
 import "../views/ingresos/ingresos.css";
 import "../views/unidades/unidades.css";
+import { SWRProvider } from "../components/providers/SWRProvider";
 
 export const metadata = {
   title: "BusLedger",
@@ -18,7 +19,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <SWRProvider>{children}</SWRProvider>
+      </body>
     </html>
   );
 }
