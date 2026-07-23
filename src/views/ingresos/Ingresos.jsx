@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
-import "./ingresos.css";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import {

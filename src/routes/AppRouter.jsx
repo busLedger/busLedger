@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import {Login} from "../pages/auth/Login";
-import { Home } from "../pages/home/Home";
-import {AdminPanel}  from "../pages/admin/AdminPanel";
-import { Unidades } from "../pages/unidades/Unidades";
-import { Alumnos } from "../pages/alumnos/Alumnos";
-import { Ingresos } from "../pages/ingresos/Ingresos";
-import { Gastos } from "../pages/gastos/Gastos";
-import {Dashboard}  from "../pages/dashboard/Dashboard";
-import { VerUnidad } from "../pages/unidades/VerUnidad";
-import { VerAlumno } from "../pages/alumnos/VerAlumno";
-import { Factura } from "../pages/facturas/Factura";
+import {Login} from "../views/auth/Login";
+import { Home } from "../views/home/Home";
+import {AdminPanel}  from "../views/admin/AdminPanel";
+import { Unidades } from "../views/unidades/Unidades";
+import { Alumnos } from "../views/alumnos/Alumnos";
+import { Ingresos } from "../views/ingresos/Ingresos";
+import { Gastos } from "../views/gastos/Gastos";
+import {Dashboard}  from "../views/dashboard/Dashboard";
+import { VerUnidad } from "../views/unidades/VerUnidad";
+import { VerAlumno } from "../views/alumnos/VerAlumno";
+import { Factura } from "../views/facturas/Factura";
 const AppRouter = () => {
     return (
         <Router>

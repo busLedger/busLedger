@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import "./dashboard.css";
 import {
   getMesesYAniosConRegistros,
   getResumenPorMes,

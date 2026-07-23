@@ -1,5 +1,4 @@
 import { Pagination as AntPagination } from 'antd';
-import './pagination.css';
 import PropTypes from "prop-types";
 
 export const Pagination = ({ 

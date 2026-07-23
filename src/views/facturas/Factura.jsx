@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import "./factura.css";
 import { useLocation } from 'react-router-dom';
 import { format } from "date-fns";
 import { es } from "date-fns/locale";

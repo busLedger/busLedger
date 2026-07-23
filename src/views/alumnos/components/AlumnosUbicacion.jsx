@@ -5,7 +5,7 @@ import { MapPin } from "lucide-react";
 export const AlumnoUbicacion = ({ ubicacion, darkMode }) => {
   const { isLoaded: isMapLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
   });
 
   const handleOpenInGoogleMaps = () => {
