@@ -18,7 +18,9 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
 - Se creo la rama `migration(nextJS-Convertion)`.
 - Se cambio el proyecto de Vite a Next.js.
 - Se agrego App Router en `src/app`.
-- Se agrego una ruta catch-all en `src/app/[[...slug]]/page.jsx` para conservar temporalmente el routing existente con `react-router-dom`.
+- Se conserva temporalmente una ruta catch-all en
+  `src/app/[[...slug]]/page.jsx` unicamente para las pantallas dinamicas de
+  detalle que aun usan `react-router-dom`.
 - Se movio `src/pages` a `src/views` para evitar conflicto con el Pages Router de Next.
 - Se eliminaron archivos propios de Vite:
   - `vite.config.js`
@@ -197,8 +199,26 @@ Cambios aplicados:
   `useCreateUser`.
 - Al cerrar sesion se vacia la cache SWR para evitar reutilizar datos entre
   usuarios.
-- Se elimino `src/api/user.service.js`; en `src/api` solo permanece el servicio
-  de autenticacion Firebase.
+- Se eliminaron `src/api/user.service.js` y el antiguo servicio de
+  autenticacion; Firebase Auth se consume desde `AuthProvider`.
+
+## Rutas Nativas de Next
+
+- El login ya se sirve desde `src/app/page.jsx`.
+- Se agrego un layout protegido en `src/app/home/layout.jsx`.
+- `/home` redirige a `/home/dashboard` con `redirect()` de Next.
+- Ya existen paginas nativas para:
+  - dashboard;
+  - admin panel;
+  - unidades;
+  - alumnos;
+  - pagos;
+  - gastos.
+- Sidebar, navegacion movil, login, logout y proteccion de sesion usan
+  `next/navigation`.
+- `HomeProvider` reemplaza el contexto de `Outlet` en las paginas ya migradas.
+- React Router queda limitado temporalmente a las rutas dinamicas de unidad,
+  alumno y factura.
 
 ## Validaciones Realizadas
 
@@ -271,8 +291,9 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 
 5. Migracion Next mas completa:
 
-- Reemplazar gradualmente `react-router-dom` por rutas nativas de Next.
-- Convertir pantallas a pages/layouts reales de App Router cuando convenga.
+- Migrar las rutas dinamicas de unidad, alumno y factura a App Router.
+- Eliminar el catch-all, `AppRouter`, `BrowserRouter` y la dependencia
+  `react-router-dom` al completar esas rutas.
 - Revisar componentes que dependen de `window`, `localStorage`, mapas o impresion.
 
 6. Limpieza posterior:

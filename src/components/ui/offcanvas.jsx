@@ -1,11 +1,11 @@
 /* eslint-disable react/prop-types */
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import imgLogOut from "../../assets/logout.png";
 import imgSwhitch from "../../assets/theme-switch.png";
 import Logo from "../../assets/logo.png";
 
 export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion, darkMode }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const switchTheme = () => {
     onClose();
@@ -13,7 +13,7 @@ export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion, d
   };
 
   const redirigir = (ruta) => {
-    navigate(ruta);
+    router.push(ruta);
     onClose();
   };
 

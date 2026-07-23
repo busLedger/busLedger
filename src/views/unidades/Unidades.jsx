@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
-import { useOutletContext } from "react-router-dom";
+import { useHome } from "../../components/providers/HomeProvider";
 import { Ingresos_Gastos } from "./Ingresos_Gastos.jsx";
 import { useBuses } from "../../Hooks/swr/useBuses";
 import {
@@ -19,7 +19,7 @@ import SelectList from "@/components/ui/SelectList";
 import { Search } from "lucide-react";
 
 export const Unidades = () => {
-  const { darkMode, userData } = useOutletContext();
+  const { darkMode, userData } = useHome();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 

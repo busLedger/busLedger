@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useContainerHeight } from "../../Hooks/useContainerHeight.js";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
-import { useOutletContext } from "react-router-dom";
+import { useHome } from "../../components/providers/HomeProvider";
 import { useToggleUserStatus, useUsers } from "../../Hooks/swr/useUsers.js";
 import {
   Card,
@@ -21,7 +21,7 @@ import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
 
 export const AdminPanel = () => {
   const containerMovilRef = useContainerHeight();
-  const { darkMode } = useOutletContext();
+  const { darkMode } = useHome();
   const { pageSize, currentPage, setCurrentPage, isPaginated } = useResponsivePagination(3);
   
   const { users, isLoading: loading, mutate: refreshUsers } = useUsers();

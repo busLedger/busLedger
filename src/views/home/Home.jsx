@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import PropTypes from "prop-types";
+import { usePathname, useRouter } from "next/navigation";
 import { Outlet } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 import { Sidebar } from "../../components/ui/sidebar";
@@ -7,6 +8,7 @@ import { MobileNav } from "../../components/ui/mobile-nav";
 import { useMe } from "../../Hooks/swr/useUsers";
 import { useSWRConfig } from "swr";
 import { useAuth } from "../../components/providers/AuthProvider";
+import { HomeProvider } from "../../components/providers/HomeProvider";
 import { Moon, Sun, Menu } from "lucide-react";
 
 import imgAdminPanel from "../../assets/admin-panel.png";
@@ -17,9 +19,9 @@ import imgPagos from "../../assets/pagos.png";
 import imgGastos from "../../assets/gastos.png";
 import imgPanelUsuario from "../../assets/user_panel.png";
 
-export const Home = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+export const Home = ({ children }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const { mutate: mutateCache } = useSWRConfig();
   const { logout } = useAuth();
   const { user: userData, isLoading } = useMe();
@@ -45,8 +47,8 @@ export const Home = () => {
       document.documentElement.classList.toggle("dark", isDark);
     }
 
-    if (location.pathname === "/home" || location.pathname === "/home/dashboard") {
-      navigate("/home/dashboard");
+    if (pathname === "/home") {
+      router.replace("/home/dashboard");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -61,7 +63,7 @@ export const Home = () => {
   const cerrarSesion = async () => {
     await logout();
     await mutateCache(() => true, undefined, { revalidate: false });
-    navigate("/");
+    router.replace("/");
   };
 
   const filteredMenus = userData
@@ -129,8 +131,14 @@ export const Home = () => {
 
       {/* Contenido principal */}
       <main className={`flex-1 overflow-y-auto bg-background ${!isDesktop ? "pt-18" : ""}`}>
-        <Outlet context={{ userData, darkMode }} />
+        <HomeProvider value={{ userData, darkMode }}>
+          {children ?? <Outlet context={{ userData, darkMode }} />}
+        </HomeProvider>
       </main>
     </div>
   );
+};
+
+Home.propTypes = {
+  children: PropTypes.node,
 };

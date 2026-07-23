@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
-import { useOutletContext } from "react-router-dom";
+import { useHome } from "../../components/providers/HomeProvider";
 import {
   useGastoMutations,
   useGastoPeriods,
@@ -41,7 +41,7 @@ const MONTHS_MAP = {
 };
 
 export const Gastos = () => {
-  const { darkMode } = useOutletContext();
+  const { darkMode } = useHome();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import { useAuth } from "../../components/providers/AuthProvider";
 import { Lock, Mail, Bus, Check } from "lucide-react";
 
 export const Login = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { firebaseUser, authLoading, login, forgotPassword } = useAuth();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
@@ -24,7 +24,7 @@ export const Login = () => {
       setLoading(true);
       const auth = await login(form.email, form.password);
       setLoading(false);
-      if (auth.authenticated === true) navigate("/home");
+      if (auth.authenticated === true) router.push("/home");
     }
   };
 
@@ -35,8 +35,8 @@ export const Login = () => {
   }, []);
 
   useEffect(() => {
-    if (!authLoading && firebaseUser) navigate("/home", { replace: true });
-  }, [authLoading, firebaseUser, navigate]);
+    if (!authLoading && firebaseUser) router.replace("/home");
+  }, [authLoading, firebaseUser, router]);
 
   const handleForgetPass = async () => {
     await forgotPassword(form.email);

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useNavigate, useLocation } from "react-router-dom";
+import { usePathname, useRouter } from "next/navigation";
 import { X, Moon, Sun, User } from "lucide-react";
 import Button from "./Button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,11 +16,11 @@ export const MobileNav = ({
   darkMode,
   userData,
 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const handleNavigation = (ruta) => {
-    navigate(`/home/${ruta}`);
+    router.push(`/home/${ruta}`);
     onClose();
   };
 
@@ -34,7 +34,7 @@ export const MobileNav = ({
   };
 
   const isActiveRoute = (ruta) => {
-    return location.pathname === `/home/${ruta}`;
+    return pathname === `/home/${ruta}`;
   };
 
   return (

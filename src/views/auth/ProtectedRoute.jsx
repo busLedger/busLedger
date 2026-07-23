@@ -1,9 +1,15 @@
 import PropTypes from "prop-types";
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/providers/AuthProvider";
 
 export const ProtectedRoute = ({ children }) => {
   const { authLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) router.replace("/");
+  }, [authLoading, isAuthenticated, router]);
 
   if (authLoading) {
     return (
@@ -13,7 +19,7 @@ export const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+  return isAuthenticated ? children : null;
 };
 
 ProtectedRoute.propTypes = {

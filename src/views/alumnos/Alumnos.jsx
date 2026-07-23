@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
-import { useOutletContext } from "react-router-dom";
+import { useHome } from "../../components/providers/HomeProvider";
 import { useAlumnos } from "../../Hooks/swr/useAlumnos.js";
 import {
   Card,
@@ -22,8 +22,8 @@ import imgAlumno from "../../assets/school.png";
 import { Search, MapPin } from "lucide-react";
 
 export const Alumnos = () => {
-  const navigate = useNavigate();
-  const { darkMode } = useOutletContext();
+  const router = useRouter();
+  const { darkMode } = useHome();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 
@@ -86,7 +86,7 @@ export const Alumnos = () => {
 
   const VerAlumno = (id) => () => {
     console.log("Ver alumno", id);
-    navigate(`${id}`);
+    router.push(`/home/alumnos/${id}`);
   };
 
   const paginatedAlumnos = isPaginated
