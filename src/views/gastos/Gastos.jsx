@@ -1,13 +1,12 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import {
-  getGastosByUser,
-  deleteGasto,
-  getMesesYAniosConRegistros,
-} from "../../api/gastos.service";
-import { getResumenFinancieroPorMes } from "../../api/ingresos.service";
+  useGastoMutations,
+  useGastoPeriods,
+  useGastos,
+} from "../../Hooks/swr/useGastos";
+import { useFinancialSummary } from "../../Hooks/swr/useIngresos";
 import {
   Card,
   CardHeader,
@@ -26,130 +25,64 @@ import Button from "../../components/ui/Button.jsx";
 import SelectList from "@/components/ui/SelectList";
 import { Search, TrendingUp, TrendingDown, Wallet } from "lucide-react";
 
+const MONTHS_MAP = {
+  enero: "01",
+  febrero: "02",
+  marzo: "03",
+  abril: "04",
+  mayo: "05",
+  junio: "06",
+  julio: "07",
+  agosto: "08",
+  septiembre: "09",
+  octubre: "10",
+  noviembre: "11",
+  diciembre: "12",
+};
+
 export const Gastos = () => {
-  const { darkMode, userData } = useOutletContext();
+  const { darkMode } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 
-  const [gastos, setGastos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const currentDate = new Date();
   const [anioSeleccionado, setAnioSeleccionado] = useState(
-    new Date().getFullYear()
+    currentDate.getFullYear()
   );
-  const [mesSeleccionado, setMesSeleccionado] = useState("");
-  const [mesesYAnios, setMesesYAnios] = useState([]);
-  const [resumenFinanciero, setResumenFinanciero] = useState(null);
+  const [mesSeleccionado, setMesSeleccionado] = useState(
+    currentDate.toLocaleString("es-ES", { month: "long" }).toLowerCase()
+  );
+  const { buses: gastosData, isLoading: gastosLoading } = useGastos();
+  const { periods: mesesYAnios, isLoading: periodsLoading } = useGastoPeriods();
+  const { summary: resumenFinanciero, isLoading: summaryLoading } =
+    useFinancialSummary(anioSeleccionado, mesSeleccionado);
+  const { deleteGasto } = useGastoMutations();
+  const loading = gastosLoading || periodsLoading || summaryLoading;
   const [isRegisterGastoModalOpen, setIsRegisterGastoModalOpen] =
     useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRuta, setSelectedRuta] = useState("Todos");
-  const [rutasDisponibles, setRutasDisponibles] = useState([]);
-
-  useEffect(() => {
-    obtenerDatosIniciales();
-  }, []);
-
-  useEffect(() => {
-    if (mesSeleccionado && anioSeleccionado) {
-      obtenerGastos();
-      obtenerResumenFinanciero();
-    }
-  }, [anioSeleccionado, mesSeleccionado]);
-
-  /** Obtener meses y años con registros */
-  const obtenerDatosIniciales = async () => {
-    setLoading(true);
-    try {
-      const data = await getMesesYAniosConRegistros(userData.uid);
-      setMesesYAnios(data);
-      setDefaultMesSeleccionado(data);
-    } catch (error) {
-      message.error("Error al cargar los datos: " + error.message);
-    }
-  };
-
-  /** Establecer mes por defecto */
-  const setDefaultMesSeleccionado = async (data) => {
-    const currentYear = new Date().getFullYear();
-    const currentMonth = new Date()
-      .toLocaleString("es-ES", { month: "long" })
-      .toLowerCase();
-    const currentYearData = data.find((item) => item.anio === currentYear);
-
-    if (currentYearData && !currentYearData.meses.includes(currentMonth)) {
-      currentYearData.meses.push(currentMonth);
-    }
-
-    setAnioSeleccionado(currentYear);
-    setMesSeleccionado(currentMonth);
-  };
-
-  /** Obtener resumen financiero del mes - Reutilizando del servicio de ingresos */
-  const obtenerResumenFinanciero = async () => {
-    try {
-      const resumen = await getResumenFinancieroPorMes(
-        userData.uid,
-        anioSeleccionado,
-        mesSeleccionado
-      );
-      setResumenFinanciero(resumen);
-    } catch (error) {
-      message.error("Error al obtener el resumen financiero: " + error.message);
-    }
-  };
-
-  /** Obtener los gastos del mes seleccionado */
-  const obtenerGastos = async () => {
-    setLoading(true);
-    try {
-      const gastosData = await getGastosByUser(userData.uid);
-
-      const mesesMap = {
-        enero: "01",
-        febrero: "02",
-        marzo: "03",
-        abril: "04",
-        mayo: "05",
-        junio: "06",
-        julio: "07",
-        agosto: "08",
-        septiembre: "09",
-        octubre: "10",
-        noviembre: "11",
-        diciembre: "12",
-      };
-
-      const mesFormateado = mesesMap[mesSeleccionado.toLowerCase()];
-      const mesFiltro = `${anioSeleccionado}-${mesFormateado}`;
-
-      const gastosFiltrados = gastosData.map((bus) => ({
+  const gastos = useMemo(() => {
+    const mesFormateado = MONTHS_MAP[mesSeleccionado.toLowerCase()];
+    const mesFiltro = `${anioSeleccionado}-${mesFormateado}`;
+    return gastosData.map((bus) => ({
         ...bus,
         gastos: bus.gastos
           .filter((gasto) => gasto.fecha_gasto.startsWith(mesFiltro))
           .sort((a, b) => new Date(b.fecha_gasto) - new Date(a.fecha_gasto)),
       }));
-
-      setGastos(gastosFiltrados);
-      generarRutasDisponibles(gastosFiltrados);
-    } catch (error) {
-      message.error("Error al obtener los gastos: " + error.message);
-    }
-    setLoading(false);
-  };
-
-  /** Generar rutas disponibles */
-  const generarRutasDisponibles = (gastosData) => {
-    const rutasSet = new Set();
-
-    gastosData.forEach((bus) => {
-      if (bus.nombre_ruta && bus.gastos.length > 0) {
-        rutasSet.add(bus.nombre_ruta);
-      }
-    });
-
-    const rutasOrdenadas = ["Todos", ...rutasSet];
-    setRutasDisponibles(rutasOrdenadas);
-  };
+  }, [anioSeleccionado, gastosData, mesSeleccionado]);
+  const rutasDisponibles = useMemo(
+    () => [
+      "Todos",
+      ...new Set(
+        gastos
+          .filter((bus) => bus.nombre_ruta && bus.gastos.length)
+          .map((bus) => bus.nombre_ruta)
+      ),
+    ],
+    [gastos]
+  );
 
   /** Manejar cambio de año */
   const handleAnioChange = (e) => {
@@ -192,8 +125,6 @@ export const Gastos = () => {
     try {
       await deleteGasto(gastoId);
       message.success("Gasto eliminado correctamente");
-      obtenerGastos();
-      obtenerResumenFinanciero();
     } catch (error) {
       message.error("Error al eliminar el gasto: " + error.message);
     }
@@ -516,11 +447,8 @@ export const Gastos = () => {
         onClose={() => setIsRegisterGastoModalOpen(false)}
         onGastoRegistered={() => {
           setIsRegisterGastoModalOpen(false);
-          obtenerGastos();
-          obtenerResumenFinanciero();
         }}
         theme={darkMode}
-        currentUser={userData}
       />
 
       <Fab onClick={() => setIsRegisterGastoModalOpen(true)} />

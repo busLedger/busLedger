@@ -185,6 +185,13 @@ Cambios aplicados:
 - El historial y registro de pagos usan `usePagosAlumno` y
   `usePagoMutations`; los meses disponibles se derivan de la cache.
 - Se eliminaron `src/api/alumnos.service.js` y `src/api/pagos.service.js`.
+- Ingresos consume `useIngresos`, `useIngresoPeriods` y
+  `useFinancialSummary`; altas y eliminaciones usan `useIngresoMutations`.
+- Gastos consume `useGastos`, `useGastoPeriods` y el resumen financiero
+  compartido; altas y eliminaciones usan `useGastoMutations`.
+- Los datos filtrados por mes y las rutas disponibles se derivan con
+  `useMemo`, sin recargas manuales al cambiar filtros.
+- Se eliminaron `src/api/ingresos.service.js` y `src/api/gastos.service.js`.
 
 ## Validaciones Realizadas
 
