@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { query, transaction } from "../../../lib/db";
+import { errorResponse, hasRole, isAdmin, verifyAuth } from "../../../lib/auth";
 
 const qid = (identifier) => `"${String(identifier).replaceAll('"', '""')}"`;
 const OWNER = qid("id_dueño");
@@ -477,8 +478,54 @@ const handlers = {
 };
 
 export async function POST(request) {
+  const auth = await verifyAuth(request);
+  if (auth.error) return errorResponse(auth.error, auth.status);
+
   try {
-    const { service, action, payload = {} } = await request.json();
+    const { service, action, payload: clientPayload = {} } = await request.json();
+    const payload = { ...clientPayload, userId: auth.data.uid };
+
+    if (service === "buses") {
+      return errorResponse("Este módulo fue migrado a /api/buses", 410);
+    }
+
+    const adminActions = new Set([
+      "users.getAllUsers",
+      "users.updateUser",
+      "users.toggleUserStatus",
+    ]);
+    if (adminActions.has(`${service}.${action}`) && !isAdmin(auth.data)) {
+      return errorResponse("Se requiere rol de administrador", 403);
+    }
+
+    if (
+      service === "users" &&
+      action === "createUser" &&
+      !hasRole(auth.data, ["Dueño"])
+    ) {
+      return errorResponse("No tienes permiso para crear usuarios", 403);
+    }
+
+    if (
+      service === "users" &&
+      action === "createUser" &&
+      !isAdmin(auth.data) &&
+      (payload.roles?.length !== 1 || Number(payload.roles[0]) !== 3)
+    ) {
+      return errorResponse("Un dueño solo puede registrar conductores", 403);
+    }
+
+    if (
+      ["gastos", "ingresos", "pagos", "dashboard"].includes(service) &&
+      !hasRole(auth.data, ["Dueño"])
+    ) {
+      return errorResponse("No tienes permiso para esta operación", 403);
+    }
+
+    if (service === "users" && action === "getUserData") {
+      payload.uid = auth.data.uid;
+    }
+
     const handler = handlers[service]?.[action];
 
     if (!handler) {

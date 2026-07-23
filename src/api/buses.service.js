@@ -1,12 +1,21 @@
-import { request } from "../lib/clientApi";
+import { authFetch } from "../lib/clientApi";
 
-const createBus = async (newBus) => request("buses", "createBus", { newBus }).catch(() => null);
-const getBusWithFinancials = async (busId) => request("buses", "getBusWithFinancials", { busId }).catch(() => null);
-const getBusesWithFinancials = async (userId) => request("buses", "getBusesWithFinancials", { userId }).catch(() => []);
-const getAllBusesWithFinancials = async () => request("buses", "getAllBusesWithFinancials").catch(() => []);
-const updateBus = async (busId, updatedData) => request("buses", "updateBus", { busId, updatedData }).catch(() => null);
-const getBusesByUser = async (userId) => request("buses", "getBusesByUser", { userId }).catch(() => []);
-const deleteBus = async (busId) => request("buses", "deleteBus", { busId }).catch(() => false);
+const createBus = (newBus) =>
+  authFetch("/api/buses", { method: "POST", body: JSON.stringify(newBus) });
+const getBusWithFinancials = (busId) =>
+  authFetch(`/api/buses/${busId}?view=financials`);
+const getBusesWithFinancials = () =>
+  authFetch("/api/buses?view=financials");
+const getAllBusesWithFinancials = () =>
+  authFetch("/api/buses?view=financials&all=true");
+const updateBus = (busId, updatedData) =>
+  authFetch(`/api/buses/${busId}`, {
+    method: "PATCH",
+    body: JSON.stringify(updatedData),
+  });
+const getBusesByUser = () => authFetch("/api/buses");
+const deleteBus = (busId) =>
+  authFetch(`/api/buses/${busId}`, { method: "DELETE" });
 
 export {
   getBusesByUser,

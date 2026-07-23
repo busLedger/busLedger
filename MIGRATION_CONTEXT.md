@@ -41,6 +41,33 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
 - Se corrigio Google Maps para usar `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`.
 - Se agrego `.next` al `.gitignore`.
 
+## Seguridad Firebase y Separacion de APIs
+
+- El cliente ahora obtiene el ID token con `auth.currentUser.getIdToken()` y lo
+  envia como `Authorization: Bearer <token>`.
+- Se agrego Firebase Admin server-side en `src/lib/firebaseAdmin.js`.
+- Se agrego `src/lib/auth.js` para:
+  - verificar el ID token;
+  - obtener el usuario y sus roles desde PostgreSQL;
+  - rechazar usuarios inexistentes o inactivos;
+  - evitar confiar en el UID enviado por el navegador.
+- El RPC temporal ya exige autenticacion y sustituye `userId`/`uid` por el UID
+  verificado cuando corresponde.
+- El dominio de buses fue separado del RPC:
+  - `GET/POST /api/buses`
+  - `GET/PATCH/DELETE /api/buses/[id]`
+- Las rutas de buses validan rol, propietario y conductor segun la operacion.
+- El cliente de buses ya consume estas rutas REST.
+- El acceso al handler antiguo de buses por `/api/rpc` devuelve `410`.
+
+Variables server-side nuevas:
+
+```env
+FIREBASE_PROJECT_ID=""
+FIREBASE_CLIENT_EMAIL=""
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+```
+
 ## Correccion de Estilos
 
 Problema detectado: la app cargaba como HTML plano porque Tailwind no estaba siendo procesado correctamente por Next.
@@ -128,10 +155,13 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 
 4. Mejorar la API:
 
-- Separar `/api/rpc` en endpoints por dominio.
+- Continuar separando `/api/rpc` en endpoints por dominio. Buses ya fue migrado;
+  siguen alumnos, pagos, ingresos, gastos, usuarios y dashboard.
 - Agregar validacion de payloads.
 - Agregar manejo mas claro de errores SQL.
-- Evitar exponer operaciones genericas sin auth server-side.
+- Agregar comprobaciones de propiedad a los recursos que permanecen en el RPC;
+  el token y los roles ya se verifican, pero los IDs de cada alumno, pago,
+  ingreso y gasto deben validarse contra los buses accesibles al usuario.
 
 5. Migracion Next mas completa:
 

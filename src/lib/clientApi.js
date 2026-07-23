@@ -1,10 +1,18 @@
-const request = async (service, action, payload = {}) => {
-  const response = await fetch("/api/rpc", {
-    method: "POST",
+import { auth } from "../../firebase_connection";
+
+const authFetch = async (url, options = {}) => {
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) {
+    throw new Error("No autenticado");
+  }
+
+  const response = await fetch(url, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
     },
-    body: JSON.stringify({ service, action, payload }),
   });
 
   const result = await response.json().catch(() => ({}));
@@ -16,4 +24,11 @@ const request = async (service, action, payload = {}) => {
   return result.data;
 };
 
-export { request };
+const request = async (service, action, payload = {}) => {
+  return authFetch("/api/rpc", {
+    method: "POST",
+    body: JSON.stringify({ service, action, payload }),
+  });
+};
+
+export { authFetch, request };
