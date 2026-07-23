@@ -6,7 +6,6 @@ import { Select } from "antd";
 import Input from "../Input.jsx";
 import { createUser, getRoles } from "../../../api/user.service.js";
 import { RegisterMessage } from "../RegisterMessage.jsx";
-import { v5 as uuidv5 } from "uuid";
 
 const { Option } = Select;
 
@@ -79,23 +78,24 @@ const RegisterUserModal = ({
       return;
     }
 
-    // Generar UID basado en el nombre si el registro es realizado por un dueño
-    const userUid = isOwner ? uuidv5(nombre, uuidv5.URL) : uid;
-    localStorage.setItem("conductorData", JSON.stringify({"nombre": nombre, "uid": userUid}));
-
     try {
       mostrarMensaje("loading", "Registrando usuario...");
-      console.log(roles);
-      await createUser(
-        { uid: userUid, nombre, correo, whatsapp: `+504${whatsapp}` },
+      const createdUser = await createUser(
+        { uid: isOwner ? undefined : uid, nombre, correo, whatsapp: `+504${whatsapp}` },
         roles
       );
+      if (isOwner) {
+        localStorage.setItem(
+          "conductorData",
+          JSON.stringify({ nombre: createdUser.nombre, uid: createdUser.uid })
+        );
+      }
       mostrarMensaje("success", "Usuario registrado correctamente");
       resetForm();
       onClose();
       onUserRegistered();
     } catch (error) {
-      localStorage.removeItem("conductorId");
+      localStorage.removeItem("conductorData");
       mostrarMensaje(
         "error",
         `Error al registrar el usuario: ${error.message}`

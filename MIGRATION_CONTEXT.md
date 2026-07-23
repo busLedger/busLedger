@@ -96,6 +96,19 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
   asignado puede registrar un gasto en su unidad, pero las rutas de consulta
   financiera siguen restringidas al dueño o administrador.
 - El handler antiguo de gastos por `/api/rpc` devuelve `410`.
+- El dominio de usuarios fue separado:
+  - `GET/POST /api/usuarios`
+  - `PATCH /api/usuarios/[uid]`
+  - `GET /api/usuarios/me`
+  - `GET /api/usuarios/roles`
+- El perfil propio se resuelve exclusivamente desde el UID verificado del token.
+- Las altas administrativas comprueban que el UID exista en Firebase y que su
+  correo coincida antes de insertar el perfil PostgreSQL.
+- Los dueños pueden crear solamente contactos con rol Conductor. El UUID se
+  genera en el servidor y se devuelve al formulario para asignarlo al bus.
+- Activar o desactivar una cuenta administrativa sincroniza PostgreSQL y
+  Firebase Auth cuando existe una cuenta Firebase asociada.
+- El handler antiguo de usuarios por `/api/rpc` devuelve `410`.
 
 Variables server-side nuevas:
 
@@ -193,7 +206,7 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 4. Mejorar la API:
 
 - Continuar separando `/api/rpc` en endpoints por dominio. Buses, alumnos,
-  pagos, ingresos y gastos ya fueron migrados; siguen usuarios y dashboard.
+  pagos, ingresos, gastos y usuarios ya fueron migrados; sigue dashboard.
 - Agregar validacion de payloads.
 - Agregar manejo mas claro de errores SQL.
 - Agregar comprobaciones de propiedad a los recursos que permanecen en el RPC;
