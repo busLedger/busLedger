@@ -1,11 +1,18 @@
-import { request } from "../lib/clientApi";
+import { authFetch } from "../lib/clientApi";
 
-const createGasto = async (newGasto) => request("gastos", "createGasto", { newGasto }).catch(() => null);
-const getGasto = async (gastoId) => request("gastos", "getGasto", { gastoId }).catch(() => null);
-const getGastosByBus = async (busId) => request("gastos", "getGastosByBus", { busId }).catch(() => []);
-const getGastosByUser = async (userId) => request("gastos", "getGastosByUser", { userId }).catch(() => []);
-const deleteGasto = async (gastoId) => request("gastos", "deleteGasto", { gastoId }).catch(() => false);
-const getMesesYAniosConRegistros = async (userId) => request("gastos", "getMesesYAniosConRegistros", { userId }).catch(() => []);
+const createGasto = (newGasto) =>
+  authFetch("/api/gastos", {
+    method: "POST",
+    body: JSON.stringify(newGasto),
+  });
+const getGasto = (gastoId) => authFetch(`/api/gastos/${gastoId}`);
+const getGastosByBus = (busId) =>
+  authFetch(`/api/gastos?busId=${encodeURIComponent(busId)}`);
+const getGastosByUser = () => authFetch("/api/gastos");
+const deleteGasto = (gastoId) =>
+  authFetch(`/api/gastos/${gastoId}`, { method: "DELETE" });
+const getMesesYAniosConRegistros = () =>
+  authFetch("/api/gastos/periodos");
 
 export {
   createGasto,

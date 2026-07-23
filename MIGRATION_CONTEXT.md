@@ -88,6 +88,14 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST.neon.tech/DBNAME?sslmode=require"
 - Al eliminar un ingreso generado por un pago, ingreso y pago se eliminan en
   una sola transaccion.
 - El handler antiguo de ingresos por `/api/rpc` devuelve `410`.
+- El dominio de gastos fue separado:
+  - `GET/POST /api/gastos`
+  - `GET/DELETE /api/gastos/[id]`
+  - `GET /api/gastos/periodos`
+- Dueños y administradores pueden consultar y eliminar gastos. Un conductor
+  asignado puede registrar un gasto en su unidad, pero las rutas de consulta
+  financiera siguen restringidas al dueño o administrador.
+- El handler antiguo de gastos por `/api/rpc` devuelve `410`.
 
 Variables server-side nuevas:
 
@@ -185,7 +193,7 @@ NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=""
 4. Mejorar la API:
 
 - Continuar separando `/api/rpc` en endpoints por dominio. Buses, alumnos,
-  pagos e ingresos ya fueron migrados; siguen gastos, usuarios y dashboard.
+  pagos, ingresos y gastos ya fueron migrados; siguen usuarios y dashboard.
 - Agregar validacion de payloads.
 - Agregar manejo mas claro de errores SQL.
 - Agregar comprobaciones de propiedad a los recursos que permanecen en el RPC;
