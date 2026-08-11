@@ -163,7 +163,7 @@ export const AdminPanel = () => {
           )}
         </div>
 
-        {isPaginated && (
+        {isPaginated && filteredUsers.length > pageSize && (
           <Pagination totalItems={filteredUsers.length} currentPage={currentPage} pageSize={pageSize} onPageChange={setCurrentPage} />
         )}
 

@@ -1,13 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import "./unidades.css";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
 import { Ingresos_Gastos } from "./Ingresos_Gastos.jsx";
-import {
-  getBusesWithFinancials,
-  getAllBusesWithFinancials,
-} from "../../api/buses.service";
 import {
   Card,
   CardHeader,
@@ -15,6 +12,9 @@ import {
   CardContent,
 } from "@/components/ui/CardUsers";
 import { message } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/Hooks/queries/queryKeys";
+import { useBusesFinancialsQuery } from "@/Hooks/queries/useBusesQuery";
 import { Load } from "../../components/ui/Load.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
@@ -29,12 +29,16 @@ export const Unidades = () => {
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 
-  const [buses, setBuses] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [mesSeleccionado, setMesSeleccionado] = useState("");
-  const [mesesDisponibles, setMesesDisponibles] = useState([]);
   const [isRegisterBusModalOpen, setIsRegisterBusModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const queryClient = useQueryClient();
+  const isAdmin = userData?.roles?.includes("Admin");
+  const {
+    data: buses = [],
+    error,
+    isLoading: loading,
+  } = useBusesFinancialsQuery(userData?.uid, isAdmin);
 
   const verUnidad = (id) => {
     console.log("Ver Unidad", id);
@@ -42,38 +46,23 @@ export const Unidades = () => {
   };
 
   useEffect(() => {
-    obtenerBuses();
-  }, []);
-
-  const obtenerBuses = async () => {
-    setLoading(true);
-    try {
-      let busesData = [];
-      if (userData.roles.includes("Admin")) {
-        busesData = await getAllBusesWithFinancials();
-      } else {
-        busesData = await getBusesWithFinancials(userData.uid);
-      }
-      setBuses(busesData);
-      generarMesesDisponibles(busesData);
-    } catch (error) {
+    if (error) {
       message.error("Error al obtener los buses:" + error.message);
     }
-    setLoading(false);
-  };
+  }, [error]);
 
-  const generarMesesDisponibles = (busesData) => {
+  const mesesDisponibles = useMemo(() => {
     const mesesSet = new Set();
 
-    busesData.forEach((bus) => {
-      bus.ingresos.forEach((ingreso) => {
+    buses.forEach((bus) => {
+      (bus.ingresos || []).forEach((ingreso) => {
         if (ingreso.fecha) {
           const mes = ingreso.fecha.substring(0, 7);
           mesesSet.add(mes);
         }
       });
 
-      bus.gastos.forEach((gasto) => {
+      (bus.gastos || []).forEach((gasto) => {
         if (gasto.fecha_gasto) {
           const mes = gasto.fecha_gasto.substring(0, 7);
           mesesSet.add(mes);
@@ -90,15 +79,18 @@ export const Unidades = () => {
     mesesSet.add(mesActual);
 
     // Convertir a array y ordenar por fecha en orden descendente
-    const mesesOrdenados = [...mesesSet].sort(
+    return [...mesesSet].sort(
       (a, b) => new Date(b + "-01") - new Date(a + "-01")
     );
+  }, [buses]);
 
-    setMesesDisponibles(mesesOrdenados);
-    setMesSeleccionado(mesActual);
-  };
+  useEffect(() => {
+    if (!mesSeleccionado && mesesDisponibles.length > 0) {
+      setMesSeleccionado(mesesDisponibles[0]);
+    }
+  }, [mesSeleccionado, mesesDisponibles]);
 
-  const busesFiltrados = buses
+  const busesFiltrados = useMemo(() => buses
     .filter((bus) =>
       bus.nombre_ruta.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -128,7 +120,14 @@ export const Unidades = () => {
             0
           ) - gastosFiltrados.reduce((acc, gasto) => acc + gasto.monto, 0),
       };
-    });
+    }), [buses, mesSeleccionado, searchTerm]);
+
+  const invalidateBuses = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.buses.all });
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+    queryClient.invalidateQueries({ queryKey: queryKeys.ingresos.all });
+    queryClient.invalidateQueries({ queryKey: queryKeys.gastos.all });
+  };
 
   const paginatedBuses = isPaginated
     ? busesFiltrados.slice((currentPage - 1) * pageSize, currentPage * pageSize)
@@ -254,7 +253,7 @@ export const Unidades = () => {
     <Ingresos_Gastos
       busId={bus.id}
       userId={userData.uid}
-      onRegistered={obtenerBuses}
+      onRegistered={invalidateBuses}
     />
   </div>
 </Card>
@@ -288,7 +287,7 @@ export const Unidades = () => {
         </div>
 
         {/* Paginación */}
-        {isPaginated && paginatedBuses.length > 0 && (
+        {isPaginated && busesFiltrados.length > pageSize && (
           <div className="flex justify-center pt-4">
             <Pagination
               totalItems={busesFiltrados.length}
@@ -308,7 +307,7 @@ export const Unidades = () => {
         onClose={() => setIsRegisterBusModalOpen(false)}
         onBusRegistered={() => {
           setIsRegisterBusModalOpen(false);
-          obtenerBuses(mesSeleccionado);
+          invalidateBuses();
         }}
         theme={darkMode}
         currentUser={userData}

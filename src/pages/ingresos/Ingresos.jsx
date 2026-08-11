@@ -1,14 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./ingresos.css";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
-import {
-  getIngresosByUser,
-  deleteIngreso,
-  getMesesYAniosConRegistros,
-  getResumenFinancieroPorMes,
-} from "../../api/ingresos.service";
+import { deleteIngreso } from "../../api/ingresos.service";
 import {
   Card,
   CardHeader,
@@ -26,79 +21,102 @@ import FilterTabs from "@/components/ui/FilterTabs.jsx";
 import Button from "@/components/ui/Button.jsx";
 import SelectList from "@/components/ui/SelectList";
 import { Search, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/Hooks/queries/queryKeys";
+import {
+  useFinancialSummaryQuery,
+  useIngresoPeriodsQuery,
+  useIngresosByUserQuery,
+} from "@/Hooks/queries/useIngresosQuery";
+
+const mesesMap = {
+  enero: "01",
+  febrero: "02",
+  marzo: "03",
+  abril: "04",
+  mayo: "05",
+  junio: "06",
+  julio: "07",
+  agosto: "08",
+  septiembre: "09",
+  octubre: "10",
+  noviembre: "11",
+  diciembre: "12",
+};
 
 export const Ingresos = () => {
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
 
-  const [ingresos, setIngresos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [anioSeleccionado, setAnioSeleccionado] = useState(
     new Date().getFullYear(),
   );
   const [mesSeleccionado, setMesSeleccionado] = useState("");
-  const [mesesYAnios, setMesesYAnios] = useState([]);
-  const [resumenFinanciero, setResumenFinanciero] = useState(null);
   const [isRegisterIngresoModalOpen, setIsRegisterIngresoModalOpen] =
     useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRuta, setSelectedRuta] = useState("Todos");
-  const [rutasDisponibles, setRutasDisponibles] = useState([]);
+  const queryClient = useQueryClient();
+  const {
+    data: ingresosData = [],
+    error: ingresosError,
+    isLoading: ingresosLoading,
+  } = useIngresosByUserQuery(userData?.uid);
+  const {
+    data: periodsData = [],
+    error: periodsError,
+    isLoading: periodsLoading,
+  } = useIngresoPeriodsQuery(userData?.uid);
+  const { data: resumenFinanciero, error: resumenError } =
+    useFinancialSummaryQuery(userData?.uid, anioSeleccionado, mesSeleccionado);
+  const loading = ingresosLoading || periodsLoading;
 
-  useEffect(() => {
-    obtenerDatosIniciales();
-  }, []);
-
-  useEffect(() => {
-    if (mesSeleccionado && anioSeleccionado) {
-      obtenerIngresos();
-      obtenerResumenFinanciero();
-    }
-  }, [anioSeleccionado, mesSeleccionado]);
-
-  /** Obtener meses y años con registros */
-  const obtenerDatosIniciales = async () => {
-    setLoading(true);
-    try {
-      const data = await getMesesYAniosConRegistros(userData.uid);
-      setMesesYAnios(data);
-      setDefaultMesSeleccionado(data);
-    } catch (error) {
-      message.error("Error al cargar los datos: " + error.message);
-    }
-  };
-
-  /** Establecer mes por defecto */
-  const setDefaultMesSeleccionado = async (data) => {
+  const mesesYAnios = useMemo(() => {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date()
       .toLocaleString("es-ES", { month: "long" })
       .toLowerCase();
-    const currentYearData = data.find((item) => item.anio === currentYear);
+    const data = periodsData.map((item) => ({
+      ...item,
+      meses: [...item.meses],
+    }));
+    let currentYearData = data.find((item) => item.anio === currentYear);
 
-    if (currentYearData && !currentYearData.meses.includes(currentMonth)) {
+    if (!currentYearData) {
+      currentYearData = { anio: currentYear, meses: [] };
+      data.unshift(currentYearData);
+    }
+
+    if (!currentYearData.meses.includes(currentMonth)) {
       currentYearData.meses.push(currentMonth);
     }
 
-    setAnioSeleccionado(currentYear);
-    setMesSeleccionado(currentMonth);
-  };
+    return data;
+  }, [periodsData]);
 
-  /** Obtener resumen financiero del mes */
-  const obtenerResumenFinanciero = async () => {
-    try {
-      const resumen = await getResumenFinancieroPorMes(
-        userData.uid,
-        anioSeleccionado,
-        mesSeleccionado,
-      );
-      setResumenFinanciero(resumen);
-    } catch (error) {
-      message.error("Error al obtener el resumen financiero: " + error.message);
+  useEffect(() => {
+    const error = ingresosError || periodsError || resumenError;
+    if (error) {
+      message.error("Error al cargar los ingresos: " + error.message);
     }
-  };
+  }, [ingresosError, periodsError, resumenError]);
 
+  useEffect(() => {
+    if (!mesSeleccionado && mesesYAnios.length > 0) {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date()
+        .toLocaleString("es-ES", { month: "long" })
+        .toLowerCase();
+
+      setAnioSeleccionado(currentYear);
+      setMesSeleccionado(currentMonth);
+    }
+  }, [mesSeleccionado, mesesYAnios]);
+
+  /** Obtener meses y años con registros */
+  /** Establecer mes por defecto */
+  /** Obtener resumen financiero del mes */
   /** Obtener los ingresos del mes seleccionado */
   const obtenerIngresos = async () => {
     setLoading(true);
@@ -154,6 +172,32 @@ export const Ingresos = () => {
     setRutasDisponibles(rutasOrdenadas);
   };
 
+  const ingresos = useMemo(() => {
+    const mesFormateado = mesesMap[mesSeleccionado.toLowerCase()];
+    if (!mesFormateado) return [];
+
+    const mesFiltro = `${anioSeleccionado}-${mesFormateado}`;
+
+    return ingresosData.map((bus) => ({
+      ...bus,
+      ingresos: (bus.ingresos || [])
+        .filter((ingreso) => ingreso.fecha.startsWith(mesFiltro))
+        .sort((a, b) => new Date(b.fecha) - new Date(a.fecha)),
+    }));
+  }, [anioSeleccionado, ingresosData, mesSeleccionado]);
+
+  const rutasDisponibles = useMemo(() => {
+    const rutasSet = new Set();
+
+    ingresos.forEach((bus) => {
+      if (bus.nombre_ruta && bus.ingresos.length > 0) {
+        rutasSet.add(bus.nombre_ruta);
+      }
+    });
+
+    return ["Todos", ...rutasSet];
+  }, [ingresos]);
+
   /** Manejar cambio de año */
   const handleAnioChange = (e) => {
     const nuevoAnio = Number(e.target.value);
@@ -191,13 +235,18 @@ export const Ingresos = () => {
       )
     : ingresosFiltrados;
 
+  const invalidateIngresos = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.ingresos.all });
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+    queryClient.invalidateQueries({ queryKey: queryKeys.buses.all });
+  };
+
   /** Eliminar ingreso */
   const handleDeleteIngreso = async (ingreso) => {
     try {
       await deleteIngreso(ingreso);
       message.success("Ingreso eliminado correctamente");
-      obtenerIngresos();
-      obtenerResumenFinanciero();
+      invalidateIngresos();
     } catch (error) {
       message.error("Error al eliminar el ingreso: " + error.message);
     }
@@ -491,13 +540,10 @@ export const Ingresos = () => {
         </div>
 
         {/* Paginación */}
-        {isPaginated && paginatedIngresos.length > 0 && (
+        {isPaginated && ingresosFiltrados.length > pageSize && (
           <div className="flex justify-center pt-4">
             <Pagination
-              totalItems={ingresosFiltrados.reduce(
-                (acc, bus) => acc + bus.ingresos.length,
-                0,
-              )}
+              totalItems={ingresosFiltrados.length}
               currentPage={currentPage}
               pageSize={pageSize}
               onPageChange={setCurrentPage}
@@ -512,8 +558,7 @@ export const Ingresos = () => {
         onClose={() => setIsRegisterIngresoModalOpen(false)}
         onIngresoRegistered={() => {
           setIsRegisterIngresoModalOpen(false);
-          obtenerIngresos();
-          obtenerResumenFinanciero();
+          invalidateIngresos();
         }}
         theme={darkMode}
         currentUser={userData}

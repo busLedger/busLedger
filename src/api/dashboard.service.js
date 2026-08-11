@@ -1,5 +1,44 @@
 import { supabase } from "../../supabase_connection";
 
+const getResumenDashboardRpc = async (userId, anio, mes = "todos") => {
+  const { data, error } = await supabase.rpc("get_dashboard_resumen", {
+    p_user_id: userId,
+    p_anio: Number(anio),
+    p_mes: mes || "todos",
+  });
+
+  if (error) {
+    console.warn("RPC get_dashboard_resumen no disponible:", error.message);
+    return null;
+  }
+
+  return data;
+};
+
+const normalizeResumenDashboard = (data) => ({
+  totalBuses: Number(data?.totalBuses ?? data?.total_buses ?? 0),
+  totalAlumnos: Number(data?.totalAlumnos ?? data?.total_alumnos ?? 0),
+  alumnosPagaron: Number(data?.alumnosPagaron ?? data?.alumnos_pagaron ?? 0),
+  alumnosNoPagaron: Number(
+    data?.alumnosNoPagaron ?? data?.alumnos_no_pagaron ?? 0
+  ),
+  totalDineroObtenido: Number(
+    data?.totalDineroObtenido ?? data?.total_dinero_obtenido ?? 0
+  ),
+  totalDineroFaltante: Number(
+    data?.totalDineroFaltante ?? data?.total_dinero_faltante ?? 0
+  ),
+  totalIngresos: Number(data?.totalIngresos ?? data?.total_ingresos ?? 0),
+  totalGastos: Number(data?.totalGastos ?? data?.total_gastos ?? 0),
+  totalCombustible: Number(
+    data?.totalCombustible ?? data?.total_combustible ?? 0
+  ),
+  disponible: Number(data?.disponible ?? 0),
+  disponibleAcumulado: Number(
+    data?.disponibleAcumulado ?? data?.disponible_acumulado ?? data?.disponible ?? 0
+  ),
+});
+
 const getResumenPagosPorMes = async (userId, mes, anio) => {
   try {
     // 1️⃣ Obtener los buses donde el usuario es dueño o conductor
@@ -181,6 +220,9 @@ const getResumenPagosPorAnio = async (userId, anio) => {
 ///Función para obtener el resumen de pagos, ingresos y gastos por mes:
 const getResumenPorMes = async (userId, anio, mes) => {
   try {
+    const resumenRpc = await getResumenDashboardRpc(userId, anio, mes);
+    if (resumenRpc) return normalizeResumenDashboard(resumenRpc);
+
     // Mapeo de nombres de meses a números
     const mesesMap = {
       enero: "01",
@@ -324,6 +366,9 @@ const getResumenPorMes = async (userId, anio, mes) => {
 
 const getResumenPorAnio = async (userId, anio) => {
   try {
+    const resumenRpc = await getResumenDashboardRpc(userId, anio, "todos");
+    if (resumenRpc) return normalizeResumenDashboard(resumenRpc);
+
     // Obtener los buses donde el usuario es dueño o conductor
     const { data: buses, error: busError } = await supabase
       .from("buses")

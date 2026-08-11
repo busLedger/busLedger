@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getAlumno, toggleAlumnoStatus } from "../../api/alumnos.service";
+import { toggleAlumnoStatus } from "../../api/alumnos.service";
 import { eliminarPagoAlumno } from "../../api/pagos.service";
 import { Load } from "../../components/ui/Load";
 import FilterTabs from "../../components/ui/FilterTabs";
@@ -9,6 +9,9 @@ import { RegisterPagoModal } from "../../components/ui/Modales/RegisterPagoModal
 import { RegisterAlumnoModal } from "../../components/ui/Modales/RegisterAlumnoModal.jsx";
 import { generarFacturaPDF } from "../facturas/FacturaPdf.jsx";
 import { message } from "antd";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/Hooks/queries/queryKeys";
+import { useAlumnoQuery } from "@/Hooks/queries/useAlumnosQuery";
 
 import { AlumnoDatos } from "./components/AlumnosDatos";
 import { AlumnoPagos } from "./components/AlumnosPagos";
@@ -47,11 +50,14 @@ export const VerAlumno = () => {
   const [optFilter, setOptFilter] = useState(["Datos", "Pagos"]);
   const [selectedTab, setSelectedTab] = useState("Datos");
 
-  const [load, setLoad] = useState(true);
-  const [alumno, setAlumno] = useState(null);
+  const queryClient = useQueryClient();
+  const { data: alumno, error, isLoading: load } = useAlumnoQuery(id);
 
   const fetchAlumno = async () => {
-    setLoad(true);
+    queryClient.invalidateQueries({ queryKey: queryKeys.alumnos.detail(id) });
+    queryClient.invalidateQueries({ queryKey: queryKeys.alumnos.all });
+    queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+    return;
     try {
       const alumnoData = await getAlumno(id);
       const alumnoReal = Array.isArray(alumnoData) ? alumnoData[0] : alumnoData;
@@ -70,8 +76,19 @@ export const VerAlumno = () => {
   };
 
   useEffect(() => {
-    fetchAlumno();
-  }, []);
+    if (error) {
+      console.error("Error al obtener el alumno:", error);
+      message.error("Error al cargar los datos del alumno.");
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (alumno?.ubicacion && alumno.ubicacion !== "") {
+      setOptFilter(["Datos", "Pagos", "UbicaciÃ³n"]);
+    } else {
+      setOptFilter(["Datos", "Pagos"]);
+    }
+  }, [alumno]);
 
   const handleDeleteAlumno = async () => {
     try {

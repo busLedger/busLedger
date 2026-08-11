@@ -7,11 +7,14 @@ export const useResponsivePagination = (defaultPageSize = 3) => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setIsPaginated(false);
-      } else {
+      const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+
+      if (isTablet) {
         setIsPaginated(true);
-        setPageSize(window.innerWidth < 1024 ? 2 : defaultPageSize);
+        setPageSize(2);
+      } else {
+        setIsPaginated(false);
+        setPageSize(defaultPageSize);
       }
       setCurrentPage(1);
     };

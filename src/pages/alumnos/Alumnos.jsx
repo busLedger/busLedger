@@ -1,10 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./alumnos.css";
 import { useNavigate } from "react-router-dom";
 import { useResponsivePagination } from "../../Hooks/useResponsivePagination.js";
 import { useOutletContext } from "react-router-dom";
-import { getAllAlumnosByUser } from "../../api/alumnos.service.js";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAlumnosByUserQuery } from "@/Hooks/queries/useAlumnosQuery";
+import { queryKeys } from "@/Hooks/queries/queryKeys";
 import {
   Card,
   CardHeader,
@@ -28,62 +30,57 @@ export const Alumnos = () => {
   const { darkMode, userData } = useOutletContext();
   const { pageSize, currentPage, setCurrentPage, isPaginated } =
     useResponsivePagination(3);
+  const queryClient = useQueryClient();
 
-  const [alumnos, setAlumnos] = useState([]);
-  const [filteredAlumnos, setFilteredAlumnos] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBus, setSelectedBus] = useState("Todos");
-  const [optionsTab, setOptionTabs] = useState([]);
   const [isRegisterAlumnoModalOpen, setIsRegisterAlumnoModalOpen] =
     useState(false);
   const [isRegisterPagoModalOpen, setIsRegisterPagoModalOpen] = useState(false);
   const [selectedAlumno, setSelectedAlumno] = useState(null);
+  const {
+    data: busesData = [],
+    error,
+    isLoading: loading,
+  } = useAlumnosByUserQuery(userData?.uid);
 
   useEffect(() => {
-    obtenerAlumnos();
-  }, []);
-
-  useEffect(() => {
-    filterAlumnos();
-  }, [alumnos, searchTerm, selectedBus]);
-
-  const obtenerAlumnos = async () => {
-    setLoading(true);
-    try {
-      const busesData = await getAllAlumnosByUser(userData.uid);
-      const allAlumnos = busesData.flatMap((bus) =>
-        bus.alumnos.map((alumno) => ({ ...alumno, bus: bus.nombre_ruta }))
-      );
-      console.log("Data Alumnos: ", allAlumnos);
-      setAlumnos(allAlumnos);
-      setFilteredAlumnos(allAlumnos);
-      const busOptions = [
-        "Todos",
-        ...new Set(busesData.map((bus) => bus.nombre_ruta)),
-      ];
-      setOptionTabs(busOptions);
-    } catch (error) {
+    if (error) {
       message.error("Error al obtener los alumnos: " + error.message);
     }
-    setLoading(false);
-  };
+  }, [error]);
 
-  const filterAlumnos = () => {
-    let filtered = alumnos;
+  const alumnos = useMemo(
+    () =>
+      busesData.flatMap((bus) =>
+        bus.alumnos.map((alumno) => ({ ...alumno, bus: bus.nombre_ruta }))
+      ),
+    [busesData]
+  );
 
-    if (selectedBus !== "Todos") {
-      filtered = filtered.filter((alumno) => alumno.bus === selectedBus);
-    }
+  const optionsTab = useMemo(
+    () => ["Todos", ...new Set(busesData.map((bus) => bus.nombre_ruta))],
+    [busesData]
+  );
 
-    if (searchTerm) {
-      filtered = filtered.filter((alumno) =>
-        alumno.nombre.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+  const filteredAlumnos = useMemo(() => {
+    const normalizedSearch = searchTerm.toLowerCase();
+    return alumnos.filter(
+      (alumno) =>
+        (selectedBus === "Todos" || alumno.bus === selectedBus) &&
+        (!normalizedSearch ||
+          alumno.nombre.toLowerCase().includes(normalizedSearch))
+    );
+  }, [alumnos, searchTerm, selectedBus]);
 
-    setFilteredAlumnos(filtered);
+  useEffect(() => {
     setCurrentPage(1);
+  }, [filteredAlumnos.length, searchTerm, selectedBus, setCurrentPage]);
+
+  const invalidateAlumnos = () => {
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.alumnos.byUser(userData?.uid),
+    });
   };
 
   const handleFilterChange = (value) => {
@@ -287,7 +284,7 @@ export const Alumnos = () => {
         </div>
 
         {/* Paginación */}
-        {isPaginated && filteredAlumnos.length > 0 && (
+        {isPaginated && filteredAlumnos.length > pageSize && (
           <div className="flex justify-center pt-4">
             <Pagination
               totalItems={filteredAlumnos.length}
@@ -304,7 +301,7 @@ export const Alumnos = () => {
         isOpen={isRegisterAlumnoModalOpen}
         onClose={() => setIsRegisterAlumnoModalOpen(false)}
         theme={darkMode}
-        onAlumnoRegistered={obtenerAlumnos}
+        onAlumnoRegistered={invalidateAlumnos}
         currentUser={userData}
       />
 
@@ -312,7 +309,7 @@ export const Alumnos = () => {
         isOpen={isRegisterPagoModalOpen}
         onClose={() => setIsRegisterPagoModalOpen(false)}
         theme={darkMode}
-        onPagoRegistered={obtenerAlumnos}
+        onPagoRegistered={invalidateAlumnos}
         alumnoData={selectedAlumno}
       />
 
