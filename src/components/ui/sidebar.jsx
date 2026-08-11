@@ -1,6 +1,22 @@
 /* eslint-disable react/prop-types */
-import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronLeft, ChevronRight, LogOut, Moon, Sun } from "lucide-react";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Banknote,
+  BusFront,
+  ChevronDown,
+  Circle,
+  Gauge,
+  LogOut,
+  Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ReceiptText,
+  ShieldCheck,
+  Sun,
+  UserCircle2,
+  UsersRound,
+} from "lucide-react";
 import Button from "./Button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +29,16 @@ import {
 import Logo from "../../assets/logo.png";
 import { cn } from "@/lib/utils";
 
+const menuIcons = {
+  "admin-panel": ShieldCheck,
+  dashboard: Gauge,
+  "unidades-transporte": BusFront,
+  alumnos: UsersRound,
+  pagos: Banknote,
+  gastos: ReceiptText,
+  "panel-usuario": UserCircle2,
+};
+
 export const Sidebar = ({
   isOpen,
   Menus,
@@ -20,114 +46,134 @@ export const Sidebar = ({
   cerrarSesion,
   onToggle,
   darkMode,
+  userData,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [accountOpen, setAccountOpen] = useState(false);
 
   const handleNavigation = (ruta) => {
     navigate(`/home/${ruta}`);
   };
 
-  const isActiveRoute = (ruta) => {
-    return location.pathname === `/home/${ruta}`;
-  };
+  const isActiveRoute = (ruta) => location.pathname === `/home/${ruta}`;
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div
+      <aside
         className={cn(
-          "relative flex h-screen flex-col border-r transition-all duration-300",
-          darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200",
+          "relative flex h-screen shrink-0 flex-col border-r shadow-sm transition-all duration-300",
+          darkMode
+            ? "border-slate-800 bg-slate-950 text-slate-100"
+            : "border-slate-200 bg-white text-slate-950",
           isOpen ? "w-64" : "w-20"
         )}
       >
-        {/* Header */}
-        <div className={cn(
-          "flex h-16 items-center justify-between border-b px-4",
-          darkMode ? "border-gray-800" : "border-gray-200"
-        )}>
-          <div className="flex items-center gap-3 overflow-hidden">
-            <img
-              src={Logo}
-              alt="Logo"
+        <div
+          className={cn(
+            "flex h-[76px] items-center border-b px-4",
+            darkMode ? "border-slate-800" : "border-slate-200"
+          )}
+        >
+          <button
+            type="button"
+            onClick={onToggle}
+            className={cn(
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition-all duration-300",
+              darkMode
+                ? "border-slate-700 bg-slate-900 hover:border-indigo-400"
+                : "border-slate-200 bg-slate-50 hover:border-indigo-300"
+            )}
+            aria-label={isOpen ? "Contraer menu" : "Expandir menu"}
+          >
+            <img src={Logo} alt="Logo" className="h-8 w-8 object-contain" />
+          </button>
+
+          <div
+            className={cn(
+              "ml-3 min-w-0 overflow-hidden transition-all duration-200",
+              !isOpen && "w-0 opacity-0"
+            )}
+          >
+            <h2
               className={cn(
-                "h-10 w-10 cursor-pointer transition-transform duration-500",
-                isOpen && "rotate-[360deg]"
-              )}
-              onClick={onToggle}
-            />
-            <div
-              className={cn(
-                "transition-all duration-200",
-                !isOpen && "w-0 opacity-0"
+                "truncate text-base font-semibold leading-5",
+                darkMode ? "text-white" : "text-slate-950"
               )}
             >
-              <h2 className={cn(
-                "text-lg font-bold",
-                darkMode ? "text-white" : "text-gray-900"
-              )}>
-                Bus Ledger
-              </h2>
-              <p className={cn(
-                "text-xs",
-                darkMode ? "text-gray-400" : "text-gray-600"
-              )}>
-                Gestión escolar
-              </p>
-            </div>
+              Bus Ledger
+            </h2>
+            <p
+              className={cn(
+                "truncate text-xs",
+                darkMode ? "text-slate-400" : "text-slate-500"
+              )}
+            >
+              Gestion escolar
+            </p>
           </div>
         </div>
 
-        {/* Toggle Button */}
         <button
+          type="button"
           onClick={onToggle}
           className={cn(
-            "absolute -right-4 top-20 z-50 h-8 w-8 rounded-full border shadow-md transition-colors flex items-center justify-center",
-            darkMode 
-              ? "bg-gray-900 border-gray-700 hover:bg-gray-800 text-white" 
-              : "bg-white border-gray-300 hover:bg-gray-100 text-gray-900"
+            "absolute -right-4 top-24 z-50 flex h-8 w-8 items-center justify-center rounded-full border shadow-lg transition-all",
+            darkMode
+              ? "border-slate-700 bg-slate-900 text-white hover:border-indigo-400 hover:bg-slate-800"
+              : "border-slate-200 bg-white text-slate-900 hover:border-indigo-300 hover:bg-slate-50"
           )}
+          aria-label={isOpen ? "Contraer menu" : "Expandir menu"}
         >
           {isOpen ? (
-            <ChevronLeft className="h-4 w-4" />
+            <PanelLeftClose className="h-4 w-4" />
           ) : (
-            <ChevronRight className="h-4 w-4" />
+            <PanelLeftOpen className="h-4 w-4" />
           )}
         </button>
 
-        {/* Navigation Menu */}
-        <ScrollArea className="flex-1 px-3 py-4">
-          <nav className="space-y-1">
+        <ScrollArea className="flex-1 px-3 py-5">
+          {isOpen && (
+            <p
+              className={cn(
+                "mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.14em]",
+                darkMode ? "text-slate-500" : "text-slate-400"
+              )}
+            >
+              Menu
+            </p>
+          )}
+
+          <nav className="space-y-1.5">
             {Menus.map((menu, index) => {
               const isActive = isActiveRoute(menu.ruta);
-              const MenuButton = (
+              const MenuIcon = menuIcons[menu.ruta] || Circle;
+              const menuButton = (
                 <button
+                  type="button"
                   onClick={() => handleNavigation(menu.ruta)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative overflow-hidden",
+                    "group relative flex w-full items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
                     menu.gap && "mt-8",
                     isActive
-                      ? "bg-indigo-600 text-white"  // ← Siempre texto blanco cuando está activo
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
                       : darkMode
-                        ? "text-white hover:bg-gray-800"
-                        : "text-gray-900 hover:bg-gray-100"
+                        ? "text-slate-300 hover:bg-slate-900 hover:text-white"
+                        : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
                   )}
                 >
-                  {/* Barra lateral de indicador activo */}
                   {isActive && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full" />
+                    <span className="absolute bottom-2 left-0 top-2 w-1 rounded-r-full bg-white" />
                   )}
-                  
-                  <img
-                    src={menu.src}
-                    alt={menu.title}
+                  <MenuIcon
+                    aria-hidden="true"
                     className={cn(
-                      "h-5 w-5 flex-shrink-0 object-contain transition-all",
-                      isActive 
-                        ? "brightness-0 invert scale-110" 
+                      "h-5 w-5 shrink-0 transition-all",
+                      isActive
+                        ? "scale-110 text-white"
                         : darkMode
-                          ? "opacity-90 brightness-200"
-                          : "opacity-70"
+                          ? "text-slate-400 group-hover:text-indigo-300"
+                          : "text-slate-400 group-hover:text-indigo-600"
                     )}
                   />
                   <span
@@ -142,10 +188,10 @@ export const Sidebar = ({
               );
 
               return isOpen ? (
-                <div key={index}>{MenuButton}</div>
+                <div key={index}>{menuButton}</div>
               ) : (
                 <Tooltip key={index}>
-                  <TooltipTrigger asChild>{MenuButton}</TooltipTrigger>
+                  <TooltipTrigger asChild>{menuButton}</TooltipTrigger>
                   <TooltipContent side="right" className="font-medium">
                     {menu.title}
                   </TooltipContent>
@@ -155,43 +201,106 @@ export const Sidebar = ({
           </nav>
         </ScrollArea>
 
-        <Separator className={darkMode ? "bg-gray-800" : "bg-gray-200"} />
+        <Separator className={darkMode ? "bg-slate-800" : "bg-slate-200"} />
 
-        {/* Footer Actions */}
         <div className="space-y-3 p-4">
-          {/* Toggle Theme */}
-          {isOpen ? (
-            <button
-              onClick={toggleTheme}
-              className={cn(
-                "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
-                darkMode 
-                  ? "text-white hover:bg-gray-800" 
-                  : "text-gray-900 hover:bg-gray-100"
+          {isOpen && userData && (
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((current) => !current)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all",
+                  darkMode
+                    ? "text-slate-200 hover:bg-slate-900"
+                    : "text-slate-700 hover:bg-slate-100"
+                )}
+              >
+                <UserCircle2
+                  className={cn(
+                    "h-6 w-6 shrink-0",
+                    darkMode ? "text-indigo-300" : "text-indigo-600"
+                  )}
+                />
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={cn(
+                      "truncate text-sm font-semibold",
+                      darkMode ? "text-slate-100" : "text-slate-900"
+                    )}
+                  >
+                    {userData.nombre || userData.displayName || userData.email}
+                  </p>
+                  <p
+                    className={cn(
+                      "truncate text-xs",
+                      darkMode ? "text-slate-400" : "text-slate-500"
+                    )}
+                  >
+                    {userData.roles?.join(", ")}
+                  </p>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 shrink-0 transition-transform",
+                    accountOpen && "rotate-180"
+                  )}
+                />
+              </button>
+
+              {accountOpen && (
+                <div
+                  className={cn(
+                    "space-y-2 rounded-xl border p-2",
+                    darkMode
+                      ? "border-slate-800 bg-slate-900/70"
+                      : "border-slate-200 bg-slate-50"
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={toggleTheme}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                      darkMode
+                        ? "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        : "text-slate-600 hover:bg-white hover:text-slate-950"
+                    )}
+                  >
+                    {darkMode ? (
+                      <Sun className="h-4 w-4" />
+                    ) : (
+                      <Moon className="h-4 w-4" />
+                    )}
+                    <span>{darkMode ? "Modo Claro" : "Modo Oscuro"}</span>
+                  </button>
+
+                  <Button
+                    text="Cerrar Sesion"
+                    onClick={cerrarSesion}
+                    confirm={true}
+                    confirmTitle="Cerrar sesion?"
+                    confirmDescription="Estas seguro de que deseas salir?"
+                    confirmOkText="Si, salir"
+                    confirmCancelText="Cancelar"
+                    className="w-full !rounded-lg !bg-red-600 !px-2.5 !py-2 text-left hover:!bg-red-700"
+                  />
+                </div>
               )}
-            >
-              {darkMode ? (
-                <>
-                  <Sun className="h-5 w-5" />
-                  <span>Modo Claro</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="h-5 w-5" />
-                  <span>Modo Oscuro</span>
-                </>
-              )}
-            </button>
-          ) : (
+            </div>
+          )}
+
+          {!isOpen && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
+                  type="button"
                   onClick={toggleTheme}
                   className={cn(
-                    "flex w-full items-center justify-center rounded-lg p-2.5 transition-colors",
-                    darkMode 
-                      ? "hover:bg-gray-800 text-white" 
-                      : "hover:bg-gray-100 text-gray-900"
+                    "flex w-full items-center justify-center rounded-xl p-2.5 transition-colors",
+                    darkMode
+                      ? "text-slate-300 hover:bg-slate-900 hover:text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
                   )}
                 >
                   {darkMode ? (
@@ -207,36 +316,47 @@ export const Sidebar = ({
             </Tooltip>
           )}
 
-          {/* Logout */}
-          {isOpen ? (
-            <Button
-              text="Cerrar Sesión"
-              onClick={cerrarSesion}
-              confirm={true}
-              confirmTitle="¿Cerrar sesión?"
-              confirmDescription="¿Estás seguro de que deseas salir?"
-              confirmOkText="Sí, salir"
-              confirmCancelText="Cancelar"
-              className="w-full !bg-red-600 hover:!bg-red-700"
-            />
-          ) : (
+          {!isOpen && userData && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
+                  type="button"
+                  onClick={() => setAccountOpen((current) => !current)}
+                  className={cn(
+                    "flex w-full items-center justify-center rounded-xl p-2.5 transition-colors",
+                    darkMode
+                      ? "text-slate-300 hover:bg-slate-900 hover:text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
+                  )}
+                >
+                  <UserCircle2 className="h-5 w-5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                {userData.nombre || userData.displayName || userData.email}
+              </TooltipContent>
+            </Tooltip>
+          )}
+
+          {!isOpen && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
                   onClick={cerrarSesion}
                   className={cn(
-                    "flex w-full items-center justify-center rounded-lg p-2.5 text-red-600 transition-colors",
-                    darkMode ? "hover:bg-red-950" : "hover:bg-red-100"
+                    "flex w-full items-center justify-center rounded-xl p-2.5 text-red-600 transition-colors",
+                    darkMode ? "hover:bg-red-950/70" : "hover:bg-red-50"
                   )}
                 >
                   <LogOut className="h-5 w-5" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="right">Cerrar Sesión</TooltipContent>
+              <TooltipContent side="right">Cerrar Sesion</TooltipContent>
             </Tooltip>
           )}
         </div>
-      </div>
+      </aside>
     </TooltipProvider>
   );
 };

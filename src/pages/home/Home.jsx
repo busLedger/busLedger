@@ -100,6 +100,7 @@ export const Home = () => {
           cerrarSesion={cerrarSesion}
           onToggle={() => setOpen(!open)}
           darkMode={darkMode}
+          userData={userData}
         />
       ) : (
         <>
