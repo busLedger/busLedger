@@ -11,7 +11,17 @@ export function SWRProvider({ children }) {
         revalidateOnReconnect: true,
         dedupingInterval: 30_000,
         errorRetryCount: 2,
+        onErrorRetry: (error, _key, config, revalidate, { retryCount }) => {
+          if ([401, 403].includes(error.status)) return;
+          if (retryCount >= config.errorRetryCount) return;
+
+          setTimeout(
+            () => revalidate({ retryCount }),
+            config.errorRetryInterval ?? 5_000
+          );
+        },
         onError: (error) => {
+          if ([401, 403].includes(error.status)) return;
           console.error("SWR Error:", error.message);
         },
       }}

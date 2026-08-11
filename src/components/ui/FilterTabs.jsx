@@ -10,13 +10,13 @@ const FilterTabs = ({ options, onSelect, theme }) => {
   };
 
   return (
-    <div id="div-filter-tabs" className="flex gap-2 p-2 overflow-x-auto whitespace-nowrap">
+    <div id="div-filter-tabs" className="flex gap-2 overflow-x-auto whitespace-nowrap rounded-lg border border-gray-200 bg-white/70 p-1.5 shadow-sm dark:border-white/10 dark:bg-gray-900/70">
       {options.map((option) => (
         <button
           key={option}
           onClick={() => handleSelect(option)}
-          className={`px-4 py-2 rounded-full border transition-all duration-200 
-            ${active === option ? "bg-indigo-600 text-white font-bold" : theme ? "border-gray-400 text-gray-400 hover:border-white hover:text-white" : "border-gray-400 btn-text-black hover:border-black hover:text-gray-700"}`}
+          className={`rounded-md px-4 py-2 text-sm font-semibold transition-all duration-200 
+            ${active === option ? "bg-indigo-600 !text-white shadow-sm shadow-indigo-600/20" : theme ? "text-gray-300 hover:bg-gray-800 hover:text-white" : "btn-text-black text-gray-600 hover:bg-indigo-50 hover:text-indigo-700"}`}
         >
           {option}
         </button>

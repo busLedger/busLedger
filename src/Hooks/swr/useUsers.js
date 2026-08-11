@@ -16,7 +16,7 @@ const useUsers = () => {
     authFetch
   );
   return {
-    users: data?.data ?? [],
+    users: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,
@@ -31,7 +31,7 @@ const useMe = () => {
     authFetch
   );
   return {
-    user: data?.data ?? null,
+    user: data ?? null,
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,
@@ -46,7 +46,7 @@ const useRoles = () => {
     authFetch
   );
   return {
-    roles: data?.data ?? [],
+    roles: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,

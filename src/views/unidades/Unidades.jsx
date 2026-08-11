@@ -17,6 +17,7 @@ import RegisterBusModal from "../../components/ui/Modales/RegisterBusModal.jsx";
 import Input from "../../components/ui/Input.jsx";
 import SelectList from "@/components/ui/SelectList";
 import { Search } from "lucide-react";
+import { imageSrc } from "@/lib/assets";
 
 export const Unidades = () => {
   const { darkMode, userData } = useHome();
@@ -123,7 +124,7 @@ export const Unidades = () => {
 
   return (
     <div className="min-h-screen w-full bg-background p-4 md:p-6">
-      <div className="mx-auto max-w-7xl space-y-4">
+      <div className="w-full space-y-4">
         {/* Header */}
         <div className="space-y-3">
           <div>
@@ -169,7 +170,7 @@ export const Unidades = () => {
               <Load />
             </div>
           ) : paginatedBuses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {paginatedBuses.map((bus) => (
              <Card 
   key={bus.id} 
@@ -181,7 +182,7 @@ export const Unidades = () => {
       <div className="flex gap-3 items-center">
         <div className="flex-shrink-0">
           <img
-            src={imgUnidades}
+            src={imageSrc(imgUnidades)}
             alt="Bus"
             className="w-14 h-14 rounded-full border-2 border-indigo-600"
           />
@@ -238,7 +239,7 @@ export const Unidades = () => {
                 darkMode ? "bg-gray-800" : "bg-gray-100"
               }`}>
                 <img 
-                  src={imgUnidades} 
+                  src={imageSrc(imgUnidades)} 
                   alt="No hay buses" 
                   className="w-16 h-16 opacity-50" 
                 />

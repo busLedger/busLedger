@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import Logo from "../../assets/logo.png";
 import { cn } from "@/lib/utils";
+import { imageSrc } from "@/lib/assets";
 
 export const Sidebar = ({
   isOpen,
@@ -36,7 +37,7 @@ export const Sidebar = ({
     <TooltipProvider delayDuration={0}>
       <div
         className={cn(
-          "relative flex h-screen flex-col border-r transition-all duration-300",
+          "relative flex h-screen flex-col border-r shadow-sm transition-all duration-300",
           darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200",
           isOpen ? "w-64" : "w-20"
         )}
@@ -48,7 +49,7 @@ export const Sidebar = ({
         )}>
           <div className="flex items-center gap-3 overflow-hidden">
             <img
-              src={Logo}
+              src={imageSrc(Logo)}
               alt="Logo"
               className={cn(
                 "h-10 w-10 cursor-pointer transition-transform duration-500",
@@ -104,13 +105,13 @@ export const Sidebar = ({
                 <button
                   onClick={() => handleNavigation(menu.ruta)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative overflow-hidden",
+                    "relative flex w-full items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5 text-sm font-semibold transition-all",
                     menu.gap && "mt-8",
                     isActive
                       ? "bg-indigo-600 text-white"  // ← Siempre texto blanco cuando está activo
                       : darkMode
                         ? "text-white hover:bg-gray-800"
-                        : "text-gray-900 hover:bg-gray-100"
+                        : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
                   )}
                 >
                   {/* Barra lateral de indicador activo */}
@@ -119,7 +120,7 @@ export const Sidebar = ({
                   )}
                   
                   <img
-                    src={menu.src}
+                    src={imageSrc(menu.src)}
                     alt={menu.title}
                     className={cn(
                       "h-5 w-5 flex-shrink-0 object-contain transition-all",

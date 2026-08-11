@@ -82,7 +82,7 @@ export const Home = ({ children }) => {
   }
 
   return (
-    <div className={`flex h-screen overflow-hidden ${darkMode ? "dark" : ""}`}>
+    <div className={`flex h-screen w-full overflow-hidden ${darkMode ? "dark" : ""}`}>
       {isDesktop ? (
         <Sidebar
           isOpen={open}
@@ -129,7 +129,7 @@ export const Home = ({ children }) => {
       )}
 
       {/* Contenido principal */}
-      <main className={`flex-1 overflow-y-auto bg-background ${!isDesktop ? "pt-18" : ""}`}>
+      <main className={`min-w-0 flex-1 overflow-y-auto bg-background ${!isDesktop ? "pt-16" : ""}`}>
         <HomeProvider value={{ userData, darkMode }}>
           {children}
         </HomeProvider>

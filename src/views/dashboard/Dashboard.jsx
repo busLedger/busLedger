@@ -27,6 +27,22 @@ import {
 } from "lucide-react";
 import { PieChart, Pie, Cell, Legend, ResponsiveContainer } from "recharts";
 
+const DEFAULT_DASHBOARD_DATA = {
+  totalAlumnos: 0,
+  totalIngresos: 0,
+  totalGastos: 0,
+  totalCombustible: 0,
+  totalBuses: 0,
+  alumnosPagaron: 0,
+  alumnosNoPagaron: 0,
+};
+
+const formatCurrency = (value) =>
+  Number(value ?? 0).toLocaleString("es-HN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
 export const Dashboard = () => {
   const currentDate = new Date();
   const currentMonth = currentDate
@@ -42,7 +58,7 @@ export const Dashboard = () => {
     anioSeleccionado,
     mesSeleccionado
   );
-  const dashboardData = summary ?? {};
+  const dashboardData = { ...DEFAULT_DASHBOARD_DATA, ...(summary ?? {}) };
   const load = periodsLoading || summaryLoading;
   const paymentData = [
     { name: "Pagado", value: dashboardData.alumnosPagaron ?? 0, fill: "#10b981" },
@@ -93,7 +109,7 @@ export const Dashboard = () => {
 
   return (
     <div className="min-h-screen w-full bg-background p-4 md:p-6">
-      <div className="mx-auto max-w-7xl space-y-5">
+      <div className="w-full space-y-5">
         {/* Header - Ajustado para móvil */}
         <div className="space-y-3">
           <div>
@@ -125,7 +141,7 @@ export const Dashboard = () => {
 
         {load ? (
           <div className="space-y-4">
-            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
               {[...Array(6)].map((_, i) => (
                 <Card key={i}>
                   <CardHeader className="pb-2">
@@ -141,14 +157,16 @@ export const Dashboard = () => {
         ) : (
           <>
             {/* Cards de métricas - Grid 2 columnas en móvil */}
-            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
               {/* Total Alumnos */}
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs md:text-sm font-medium">
                     Alumnos
                   </CardTitle>
-                  <Users className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                  <span className="rounded-md bg-indigo-50 p-1.5 dark:bg-indigo-950/50">
+                    <Users className="h-3 w-3 text-indigo-600 md:h-4 md:w-4 dark:text-indigo-300" />
+                  </span>
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl md:text-2xl font-bold">
@@ -166,13 +184,15 @@ export const Dashboard = () => {
                   <CardTitle className="text-xs md:text-sm font-medium">
                     Efectivo
                   </CardTitle>
-                  <Wallet
+                  <span className="rounded-md bg-gray-50 p-1.5 dark:bg-gray-950/50">
+                    <Wallet
                     className={`h-3 w-3 md:h-4 md:w-4 ${
                       efectivoDisponible >= 0
                         ? "text-green-500"
                         : "text-red-500"
                     }`}
                   />
+                  </span>
                 </CardHeader>
                 <CardContent>
                   <div
@@ -182,10 +202,7 @@ export const Dashboard = () => {
                         : "text-red-600 dark:text-red-500"
                     }`}
                   >L.
-                    {efectivoDisponible.toLocaleString("es-HN", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
+                    {formatCurrency(efectivoDisponible)}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Disponible
@@ -199,14 +216,13 @@ export const Dashboard = () => {
                   <CardTitle className="text-xs md:text-sm font-medium">
                     Ingresos
                   </CardTitle>
-                  <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
+                  <span className="rounded-md bg-green-50 p-1.5 dark:bg-green-950/50">
+                    <TrendingUp className="h-3 w-3 text-green-600 md:h-4 md:w-4 dark:text-green-300" />
+                  </span>
                 </CardHeader>
                 <CardContent>
                   <div className="text-lg md:text-2xl font-bold">
-                    L.{dashboardData.totalIngresos.toLocaleString("es-HN", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
+                    L.{formatCurrency(dashboardData.totalIngresos)}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Total
@@ -220,14 +236,13 @@ export const Dashboard = () => {
                   <CardTitle className="text-xs md:text-sm font-medium">
                     Gastos
                   </CardTitle>
-                  <TrendingDown className="h-3 w-3 md:h-4 md:w-4 text-red-500" />
+                  <span className="rounded-md bg-red-50 p-1.5 dark:bg-red-950/50">
+                    <TrendingDown className="h-3 w-3 text-red-600 md:h-4 md:w-4 dark:text-red-300" />
+                  </span>
                 </CardHeader>
                 <CardContent>
                   <div className="text-lg md:text-2xl font-bold">
-                    L.{dashboardData.totalGastos.toLocaleString("es-HN", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
+                    L.{formatCurrency(dashboardData.totalGastos)}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Total
@@ -241,14 +256,13 @@ export const Dashboard = () => {
                   <CardTitle className="text-xs md:text-sm font-medium">
                     Combustible
                   </CardTitle>
-                  <Fuel className="h-3 w-3 md:h-4 md:w-4 text-orange-500" />
+                  <span className="rounded-md bg-orange-50 p-1.5 dark:bg-orange-950/50">
+                    <Fuel className="h-3 w-3 text-orange-600 md:h-4 md:w-4 dark:text-orange-300" />
+                  </span>
                 </CardHeader>
                 <CardContent>
                   <div className="text-lg md:text-2xl font-bold">
-                    L.{dashboardData.totalCombustible.toLocaleString("es-HN", {
-                      minimumFractionDigits: 0,
-                      maximumFractionDigits: 0,
-                    })}
+                    L.{formatCurrency(dashboardData.totalCombustible)}
                   </div>
                   <p className="text-[10px] md:text-xs text-muted-foreground">
                     Gasto
@@ -262,7 +276,9 @@ export const Dashboard = () => {
                   <CardTitle className="text-xs md:text-sm font-medium">
                     Buses
                   </CardTitle>
-                  <Bus className="h-3 w-3 md:h-4 md:w-4 text-blue-500" />
+                  <span className="rounded-md bg-blue-50 p-1.5 dark:bg-blue-950/50">
+                    <Bus className="h-3 w-3 text-blue-600 md:h-4 md:w-4 dark:text-blue-300" />
+                  </span>
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl md:text-2xl font-bold">
@@ -276,7 +292,7 @@ export const Dashboard = () => {
             </div>
 
             {/* Gráficos */}
-            <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 md:gap-4 xl:grid-cols-[1.35fr_1fr]">
               {/* Gráfico de Pastel con shadcn */}
               <Card className="overflow-hidden">
                 <CardHeader className="pb-3">

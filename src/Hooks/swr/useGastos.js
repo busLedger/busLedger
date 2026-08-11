@@ -13,7 +13,7 @@ const useGastos = () => {
     authFetch
   );
   return {
-    buses: data?.data ?? [],
+    buses: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,
@@ -28,7 +28,7 @@ const useGastoPeriods = () => {
     authFetch
   );
   return {
-    periods: data?.data ?? [],
+    periods: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
   };

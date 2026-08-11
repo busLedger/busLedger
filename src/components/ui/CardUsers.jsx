@@ -2,23 +2,23 @@ import PropTypes from "prop-types";
 
 export const Card = ({ children, className, actions, avatar, theme }) => {
   const bgColor = theme 
-    ? "bg-gray-900 text-white border border-gray-800" 
-    : "bg-white text-gray-900 border border-gray-200";
+    ? "bg-gray-900/95 text-white border border-white/10 shadow-black/20" 
+    : "bg-white/95 text-gray-900 border border-gray-200/80 shadow-gray-200/70";
 
   return (
     <div className={`
       cursor-pointer 
-      shadow-sm hover:shadow-lg 
+      shadow-sm hover:shadow-md 
       rounded-lg 
       overflow-hidden
-      transition-all duration-200 
+      transition-all duration-200 hover:-translate-y-0.5
       ${bgColor} 
       ${className}
     `}>
       {avatar && (
         <div className={`
           flex justify-center p-4 border-b
-          ${theme ? "border-gray-700" : "border-gray-200"}
+          ${theme ? "border-white/10 bg-gray-950/20" : "border-gray-100 bg-gray-50/70"}
         `}>
           {avatar}
         </div>
@@ -29,7 +29,7 @@ export const Card = ({ children, className, actions, avatar, theme }) => {
       {actions && (
         <div className={`
           border-t px-4 py-3 flex justify-end gap-2
-          ${theme ? "border-gray-700 bg-gray-800/50" : "border-gray-200 bg-gray-50"}
+          ${theme ? "border-white/10 bg-gray-950/30" : "border-gray-100 bg-gray-50/80"}
         `}>
           {actions}
         </div>
@@ -55,7 +55,7 @@ Card.defaultProps = {
 
 // 🟢 Componente de Header
 export const CardHeader = ({ children }) => {
-  return <div className="border-b pb-3 mb-3">{children}</div>;
+  return <div className="mb-3 border-b border-gray-100 pb-3 dark:border-white/10">{children}</div>;
 };
 
 CardHeader.propTypes = {
@@ -64,7 +64,7 @@ CardHeader.propTypes = {
 
 // 🟢 Componente de Título
 export const CardTitle = ({ children }) => {
-  return <h2 className="text-base md:text-lg font-semibold leading-tight mb-0">{children}</h2>;
+  return <h2 className="mb-0 text-base font-semibold leading-tight tracking-tight md:text-lg">{children}</h2>;
 };
 
 CardTitle.propTypes = {
@@ -83,18 +83,18 @@ CardDescription.propTypes = {
 // 🟢 Componente de Contenido con lista sin hover
 export const CardContent = ({ items, theme }) => {
   return (
-    <ul className="mt-3 space-y-1.5 text-sm">
+    <ul className="mt-3 space-y-2 text-sm">
       {items.map((item, index) => (
         <li 
           key={index} 
           className={`
             pointer-events-none 
-            flex items-start gap-2
+            flex items-start gap-2 leading-relaxed
             ${theme ? "text-gray-200" : "text-gray-700"}
           `}
         >
           <span className={`
-            mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full
+            mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full
             ${theme ? "bg-indigo-500" : "bg-indigo-600"}
           `} />
           <span className="flex-1">{item}</span>

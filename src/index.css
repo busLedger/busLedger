@@ -18,7 +18,7 @@
   --radius: 0.625rem;
 
   /* PALETA LIGHT (HEX) */
-  --background: #ffffff;
+  --background: #f8fafc;
   --foreground: #111827;
 
   --card: #ffffff;
@@ -33,7 +33,7 @@
   --secondary: #f3f4f6;              /* gray-100 */
   --secondary-foreground: #4338ca;
 
-  --muted: #f3f4f6;
+  --muted: #f1f5f9;
   --muted-foreground: #6b7280;      /* gray-500 */
 
   --accent: #eef2ff;                /* indigo-50 */
@@ -77,10 +77,19 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
   background-color: var(--bg-color-light);
   color: var(--text-color-light);
+}
+
+html,
+body {
+  width: 100%;
+}
+
+html {
+  scrollbar-color: #c7d2fe transparent;
 }
 
 a {
@@ -95,28 +104,6 @@ a {
 
 a:hover {
   color: #747bff;
-}
-
-button {
-  color: #fff;
-}
-
-.dark button {
-  color: #fff;
-}
-
-li {
-  position: relative;
-}
-
-li:hover::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-80%);
-  width: 50%;
-  border-bottom: 2px solid #747bff; /* Color morado */
 }
 
 h1 {
@@ -186,9 +173,6 @@ input:active, input:focus, input:hover {
   a:hover {
     color: #747bff;
   }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 .title-pages{
@@ -198,6 +182,22 @@ input:active, input:focus, input:hover {
 }
 
 .ant-modal{top: 5vh;}
+
+.ant-modal .ant-modal-content {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px rgb(15 23 42 / 18%);
+}
+
+.ant-modal .ant-modal-header {
+  border-radius: 12px 12px 0 0;
+}
+
+.ant-input,
+.ant-picker,
+.ant-select-selector {
+  border-radius: 8px !important;
+}
 
 .ant-message .ant-message-notice-wrapper .ant-message-notice-content {
   background: var(--ant-message-content-bg);

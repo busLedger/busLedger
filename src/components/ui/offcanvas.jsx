@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import imgLogOut from "../../assets/logout.png";
 import imgSwhitch from "../../assets/theme-switch.png";
 import Logo from "../../assets/logo.png";
+import { imageSrc } from "@/lib/assets";
 
 export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion, darkMode }) => {
   const router = useRouter();
@@ -34,7 +35,7 @@ export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion, d
       >
         <div className="flex gap-x-4 items-center mb-4">
           <img
-            src={Logo}
+            src={imageSrc(Logo)}
             className="cursor-pointer duration-500 hover:scale-105"
             onClick={onClose}
           />
@@ -50,7 +51,7 @@ export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion, d
                     ${Menu.gap ? "mt-9" : "mt-2"} ${index === 0 && "bg-light-white"} `}
                 onClick={() => redirigir(Menu.ruta)}
               >
-                <img src={Menu.src} className="w-6 h-6" />
+                <img src={imageSrc(Menu.src)} className="w-6 h-6" />
                 <span className="origin-left duration-200">{Menu.title}</span>
               </li>
             ))}
@@ -61,14 +62,14 @@ export const Offcanvas = ({ isOpen, onClose, Menus, toggleTheme, cerrarSesion, d
               onClick={switchTheme}
               className="flex rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 mt-2"
             >
-              <img src={imgSwhitch} className="w-6 h-6" />
+              <img src={imageSrc(imgSwhitch)} className="w-6 h-6" />
               <span className="origin-left duration-200">Cambiar Tema</span>
             </li>
             <li
               onClick={cerrarSesion}
               className="flex rounded-md p-2 cursor-pointer hover:bg-light-white text-gray-300 text-sm items-center gap-x-4 mt-2"
             >
-              <img src={imgLogOut} className="w-6 h-6" />
+              <img src={imageSrc(imgLogOut)} className="w-6 h-6" />
               <span className="origin-left duration-200">Cerrar Sesión</span>
             </li>
           </div>

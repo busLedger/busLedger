@@ -24,6 +24,7 @@ import FilterTabs from "@/components/ui/FilterTabs.jsx";
 import Button from "@/components/ui/Button.jsx";
 import SelectList from "@/components/ui/SelectList";
 import { Search, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { imageSrc } from "@/lib/assets";
 
 const MONTHS_MAP = {
   enero: "01",
@@ -148,7 +149,7 @@ export const Ingresos = () => {
 
   return (
     <div className="min-h-screen w-full bg-background p-4 md:p-6">
-      <div className="mx-auto max-w-7xl space-y-4">
+      <div className="w-full space-y-4">
         {/* Header */}
         <div className="space-y-3">
           <div>
@@ -328,7 +329,7 @@ export const Ingresos = () => {
               <Load />
             </div>
           ) : paginatedIngresos.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 gap-3 md:gap-4 lg:grid-cols-3 2xl:grid-cols-4">
               {paginatedIngresos.map((bus) =>
                 bus.ingresos.map((ingreso) => (
                   <Card key={ingreso.id} theme={darkMode}>
@@ -336,7 +337,7 @@ export const Ingresos = () => {
                       <div className="flex gap-2 md:gap-3 items-center">
                         <div className="flex-shrink-0">
                           <img
-                            src={imgIngresos}
+                            src={imageSrc(imgIngresos)}
                             alt="Ingreso"
                             className="w-10 h-10 md:w-14 md:h-14 rounded-full border-2 border-green-600"
                           />
@@ -393,7 +394,7 @@ export const Ingresos = () => {
                 }`}
               >
                 <img
-                  src={imgIngresos}
+                  src={imageSrc(imgIngresos)}
                   alt="No hay ingresos"
                   className="w-16 h-16 opacity-50"
                 />

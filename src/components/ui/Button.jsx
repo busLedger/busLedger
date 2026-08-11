@@ -24,7 +24,7 @@ const Button = ({
             type={type}
             onClick={!confirm ? onClick : undefined} 
             disabled={loading}
-            className={`bg-indigo-600 cursor-pointer !text-white py-2 px-4 rounded-lg hover:bg-indigo-500 transition-all h-auto 
+            className={`inline-flex min-h-10 cursor-pointer items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold !text-white shadow-sm shadow-indigo-600/20 transition-all hover:bg-indigo-500 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 h-auto 
               ${loading ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
           >
             {loading ? <Spin indicator={<LoadingOutlined style={{ fontSize: 24, color: "white" }} spin />} /> : text}
@@ -49,7 +49,7 @@ const Button = ({
 };
 
 Button.propTypes = {
-  text: PropTypes.string.isRequired,
+  text: PropTypes.node.isRequired,
   onClick: PropTypes.func,
   type: PropTypes.string,
   className: PropTypes.string,

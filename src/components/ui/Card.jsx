@@ -4,11 +4,12 @@ export const Card = ({ children, className }) => {
   return (
     <div 
       className={`
-        bg-white dark:bg-gray-900
-        border border-gray-200 dark:border-gray-800
-        shadow-sm hover:shadow-md
+        bg-white/95 dark:bg-gray-900/95
+        border border-gray-200/80 dark:border-white/10
+        shadow-sm shadow-gray-200/70 hover:shadow-md hover:shadow-gray-200/80
+        dark:shadow-black/20 dark:hover:shadow-black/30
         rounded-lg 
-        transition-shadow duration-200
+        transition-all duration-200
         ${className}
       `}
     >
@@ -30,8 +31,8 @@ export const CardHeader = ({ children, className }) => {
   return (
     <div 
       className={`
-        border-b border-gray-200 dark:border-gray-800
-        px-4 py-3
+        border-b border-gray-100 dark:border-white/10
+        px-4 py-3.5
         ${className}
       `}
     >
@@ -102,7 +103,7 @@ export const CardContent = ({ children, className }) => {
   return (
     <div 
       className={`
-        px-4 py-3
+        px-4 py-3.5
         ${className}
       `}
     >

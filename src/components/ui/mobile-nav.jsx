@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Logo from "../../assets/logo.png";
 import { cn } from "@/lib/utils";
+import { imageSrc } from "@/lib/assets";
 
 export const MobileNav = ({
   isOpen,
@@ -62,7 +63,7 @@ export const MobileNav = ({
             darkMode ? "border-gray-800" : "border-gray-200"
           )}>
             <div className="flex items-center gap-3">
-              <img src={Logo} alt="Logo" className="h-10 w-10" />
+              <img src={imageSrc(Logo)} alt="Logo" className="h-10 w-10" />
               <div>
                 <h2 className={cn(
                   "text-lg font-semibold",
@@ -130,13 +131,13 @@ export const MobileNav = ({
                     key={index}
                     onClick={() => handleNavigation(menu.ruta)}
                     className={cn(
-                      "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative overflow-hidden",
+                      "relative flex w-full items-center gap-3 overflow-hidden rounded-lg px-3 py-2.5 text-sm font-semibold transition-all",
                       menu.gap && "mt-6",
                       isActive
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/20"
                         : darkMode 
                           ? "text-white hover:bg-gray-800" 
-                          : "text-gray-900 hover:bg-gray-100"
+                          : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
                     )}
                   >
                     {/* Barra indicadora */}
@@ -145,7 +146,7 @@ export const MobileNav = ({
                     )}
                     
                     <img
-                      src={menu.src}
+                      src={imageSrc(menu.src)}
                       alt={menu.title}
                       className={cn(
                         "h-5 w-5 object-contain transition-all",

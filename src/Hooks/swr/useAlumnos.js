@@ -13,7 +13,7 @@ const useAlumnos = () => {
     authFetch
   );
   return {
-    buses: data?.data ?? [],
+    buses: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,
@@ -28,7 +28,7 @@ const useAlumno = (id) => {
     authFetch
   );
   return {
-    alumno: data?.data ?? null,
+    alumno: data ?? null,
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,

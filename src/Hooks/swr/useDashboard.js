@@ -11,7 +11,7 @@ const useDashboardPeriods = () => {
     authFetch
   );
   return {
-    periods: data?.data ?? [],
+    periods: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,
@@ -29,7 +29,7 @@ const useDashboardSummary = (anio, mes) => {
     authFetch
   );
   return {
-    summary: data?.data ?? null,
+    summary: data ?? null,
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,
@@ -47,7 +47,7 @@ const usePaymentSummary = (anio, mes) => {
     authFetch
   );
   return {
-    summary: data?.data ?? null,
+    summary: data ?? null,
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,

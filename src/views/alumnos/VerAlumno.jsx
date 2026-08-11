@@ -100,7 +100,7 @@ export const VerAlumno = () => {
 
   return (
     <div className="min-h-screen w-full bg-background p-4 md:p-6">
-      <div className="mx-auto max-w-7xl space-y-4">
+      <div className="w-full space-y-4">
         {/* Header */}
         <div className="space-y-3">
           <div>

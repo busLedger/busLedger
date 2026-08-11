@@ -13,7 +13,7 @@ const useIngresos = () => {
     authFetch
   );
   return {
-    buses: data?.data ?? [],
+    buses: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,
@@ -28,7 +28,7 @@ const useIngresoPeriods = () => {
     authFetch
   );
   return {
-    periods: data?.data ?? [],
+    periods: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
   };
@@ -46,7 +46,7 @@ const useFinancialSummary = (anio, mes) => {
     authFetch
   );
   return {
-    summary: data?.data ?? null,
+    summary: data ?? null,
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
   };

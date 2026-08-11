@@ -20,6 +20,7 @@ import FilterTabs from "../../components/ui/FilterTabs.jsx";
 import Input from "../../components/ui/Input.jsx";
 import imgAlumno from "../../assets/school.png";
 import { Search, MapPin } from "lucide-react";
+import { imageSrc } from "@/lib/assets";
 
 export const Alumnos = () => {
   const router = useRouter();
@@ -98,7 +99,7 @@ export const Alumnos = () => {
 
   return (
     <div className="min-h-screen w-full bg-background p-4 md:p-6">
-      <div className="mx-auto max-w-7xl space-y-4">
+      <div className="w-full space-y-4">
         {/* Header */}
         <div className="space-y-3">
           <div>
@@ -148,7 +149,7 @@ export const Alumnos = () => {
               <Load />
             </div>
           ) : filteredAlumnos.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {paginatedAlumnos.map((alumno) => (
                 <Card key={alumno.id} theme={darkMode}>
                   <div onClick={VerAlumno(alumno.id)} className="cursor-pointer">
@@ -156,7 +157,7 @@ export const Alumnos = () => {
                       <div className="flex gap-3 items-center">
                         <div className="flex-shrink-0">
                           <img
-                            src={imgAlumno}
+                            src={imageSrc(imgAlumno)}
                             alt="Alumno"
                             className="w-14 h-14 rounded-full border-2 border-indigo-600"
                           />
@@ -234,7 +235,7 @@ export const Alumnos = () => {
                 }`}
               >
                 <img
-                  src={imgAlumno}
+                  src={imageSrc(imgAlumno)}
                   alt="No hay alumnos"
                   className="w-16 h-16 opacity-50"
                 />

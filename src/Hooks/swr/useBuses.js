@@ -17,7 +17,7 @@ const useBuses = ({ financials = false, all = false } = {}) => {
     authFetch
   );
   return {
-    buses: data?.data ?? [],
+    buses: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,

@@ -4,20 +4,24 @@ import { getAuth } from "firebase-admin/auth";
 const getAdminAuth = () => {
   if (getApps().length) return getAuth();
 
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ||
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
+    process.env.VITE_FIREBASE_PROJECT_ID;
   const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
   if (
-    !process.env.FIREBASE_PROJECT_ID ||
+    !projectId ||
     !process.env.FIREBASE_CLIENT_EMAIL ||
     !privateKey
   ) {
     throw new Error(
-      "Faltan FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL o FIREBASE_PRIVATE_KEY"
+      "Faltan credenciales de Firebase Admin: FIREBASE_CLIENT_EMAIL y FIREBASE_PRIVATE_KEY son obligatorias; FIREBASE_PROJECT_ID puede venir de FIREBASE_PROJECT_ID o NEXT_PUBLIC_FIREBASE_PROJECT_ID"
     );
   }
 
   initializeApp({
     credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
+      projectId,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       privateKey,
     }),

@@ -17,7 +17,7 @@ const usePagosAlumno = (alumnoId, anio) => {
     authFetch
   );
   return {
-    pagos: data?.data ?? [],
+    pagos: data ?? [],
     isLoading: authLoading || isLoading,
     error: error?.message ?? null,
     mutate,

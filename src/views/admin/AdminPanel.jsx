@@ -18,6 +18,7 @@ import { Load } from "../../components/ui/Load.jsx";
 import RegisterUserModal from "../../components/ui/Modales/RegisterUserModal.jsx";
 import { Fab } from "../../components/ui/Fab/Fab.jsx";
 import { Pagination } from "../../components/ui/Pagination/Pagination.jsx";
+import { imageSrc } from "@/lib/assets";
 
 export const AdminPanel = () => {
   const containerMovilRef = useContainerHeight();
@@ -78,8 +79,8 @@ export const AdminPanel = () => {
 
   return (
     <ConfigProvider theme={customTheme}>
-      <div className={`p-4 md:p-0 bg-dark-purple w-full`}>
-        <section ref={containerMovilRef} className="container-movil container w-full mx-auto p-2">
+      <div className="w-full bg-dark-purple p-4 md:p-6">
+        <section ref={containerMovilRef} className="container-movil w-full p-2">
           <p className="title-pages">Admin Panel</p>
           <div className="pages-option-container">
             <div className="w-full sm:w-1/2 lg:w-1/2">
@@ -117,14 +118,14 @@ export const AdminPanel = () => {
           {loading ? (
             <Load />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
               {paginatedUsers.map((user) => (
                 <Card
                   theme={darkMode}
                   key={user.uid}
                   avatar={
                     <img
-                      src={user.roles.includes("Admin") ? adminIcon : usuarioIcon}
+                      src={imageSrc(user.roles.includes("Admin") ? adminIcon : usuarioIcon)}
                       alt="avatar"
                       className="w-16 h-16 rounded-full"
                     />
